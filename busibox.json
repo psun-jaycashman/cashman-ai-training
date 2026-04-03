@@ -1,0 +1,17 @@
+{
+  "$schema": "https://busibox.io/schemas/app-manifest-v1.json",
+  "name": "Cashman AI Training",
+  "id": "cashman-ai-training",
+  "version": "1.0.0",
+  "description": "Think (AI)mpossible - AI Skills Training for Cashman employees. Interactive modules covering AI fundamentals, prompt engineering, security, and more.",
+  "icon": "GraduationCap",
+  "defaultPath": "/ai-training",
+  "defaultPort": 3002,
+  "healthEndpoint": "/api/health",
+  "buildCommand": "npm run build",
+  "startCommand": "npm start",
+  "appMode": "frontend",
+  "requiredEnvVars": [],
+  "optionalEnvVars": [],
+  "busiboxAppVersion": "^3.0.0"
+}
