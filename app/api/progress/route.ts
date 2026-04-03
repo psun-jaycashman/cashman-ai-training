@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       moduleProgress[mod.id] = { completed, total: mod.lessons.length };
     }
 
-    return NextResponse.json({ totalCompleted, totalLessons, moduleProgress });
+    return NextResponse.json({ progress, totalCompleted, totalLessons, moduleProgress });
   } catch (error) {
     console.error("[PROGRESS] Failed to fetch progress:", error);
     return NextResponse.json(
