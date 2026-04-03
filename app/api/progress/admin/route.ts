@@ -120,7 +120,60 @@ export async function GET(request: NextRequest) {
     // Sort by lessons completed descending
     users.sort((a, b) => b.lessonsCompleted - a.lessonsCompleted);
 
-    return NextResponse.json({ users });
+    // Calculate per-module stats
+    const moduleStats = MODULES.map((mod) => {
+      let usersStarted = 0;
+      let usersCompleted = 0;
+      let totalQuizScores = 0;
+      let quizScoreCount = 0;
+
+      for (const [, data] of userMap) {
+        const completedInMod = data.progress.filter(
+          (p) => p.moduleId === mod.id && p.completed
+        ).length;
+        if (completedInMod > 0) usersStarted++;
+        if (completedInMod >= mod.lessons.length) usersCompleted++;
+
+        const modQuizzes = data.quizScores.filter(
+          (q) => q.moduleId === mod.id && q.maxScore > 0
+        );
+        for (const q of modQuizzes) {
+          totalQuizScores += q.score / q.maxScore;
+          quizScoreCount++;
+        }
+      }
+
+      const totalUsers = userMap.size;
+      return {
+        moduleId: mod.id,
+        moduleTitle: mod.title,
+        instructor: mod.instructor,
+        completionRate: totalUsers > 0 ? Math.round((usersCompleted / totalUsers) * 100) : 0,
+        avgQuizScore: quizScoreCount > 0 ? Math.round((totalQuizScores / quizScoreCount) * 100) : 0,
+        usersStarted,
+        usersCompleted,
+      };
+    });
+
+    // Calculate company-wide stats
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const activeLast7Days = users.filter((u) => u.lastActivity >= sevenDaysAgo).length;
+    const overallCompletionRate = users.length > 0
+      ? Math.round(users.reduce((sum, u) => sum + (u.totalLessons > 0 ? (u.lessonsCompleted / u.totalLessons) * 100 : 0), 0) / users.length)
+      : 0;
+    const overallAvgQuizScore = users.length > 0
+      ? Math.round(users.reduce((sum, u) => sum + u.averageQuizScore, 0) / users.length)
+      : 0;
+
+    const companyStats = {
+      totalUsers: users.length,
+      activeLast7Days,
+      overallCompletionRate,
+      overallAvgQuizScore,
+    };
+
+    return NextResponse.json({ users, moduleStats, companyStats });
   } catch (error) {
     console.error("[ADMIN] Failed to fetch admin progress:", error);
     return NextResponse.json(

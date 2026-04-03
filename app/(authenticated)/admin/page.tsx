@@ -8,6 +8,7 @@ import {
   BookOpen,
   TrendingUp,
   Award,
+  Activity,
   ChevronUp,
   ChevronDown,
   Shield,
@@ -23,6 +24,21 @@ export default function AdminPage() {
   const { user } = useSession();
   const router = useRouter();
   const [users, setUsers] = useState<AdminUserProgress[]>([]);
+  const [moduleStats, setModuleStats] = useState<{
+    moduleId: string;
+    moduleTitle: string;
+    instructor: string;
+    completionRate: number;
+    avgQuizScore: number;
+    usersStarted: number;
+    usersCompleted: number;
+  }[]>([]);
+  const [companyStats, setCompanyStats] = useState<{
+    totalUsers: number;
+    activeLast7Days: number;
+    overallCompletionRate: number;
+    overallAvgQuizScore: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<SortKey>('lessonsCompleted');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
@@ -41,6 +57,8 @@ export default function AdminPage() {
         if (res.ok) {
           const data = await res.json();
           setUsers(data.users || data || []);
+          if (data.moduleStats) setModuleStats(data.moduleStats);
+          if (data.companyStats) setCompanyStats(data.companyStats);
         }
       } catch (err) {
         console.error('Failed to fetch admin data:', err);
@@ -86,15 +104,19 @@ export default function AdminPage() {
     return multiplier * (aVal - bVal);
   });
 
-  // Stats
-  const totalUsers = users.length;
-  const avgCompletion = totalUsers > 0
-    ? users.reduce((sum, u) => sum + (u.totalLessons > 0 ? (u.lessonsCompleted / u.totalLessons) * 100 : 0), 0) / totalUsers
-    : 0;
-  const totalCertificates = users.filter((u) => u.certificateEarned).length;
-  const avgQuizScore = totalUsers > 0
-    ? users.reduce((sum, u) => sum + u.averageQuizScore, 0) / totalUsers
-    : 0;
+  // Stats from companyStats (with fallback to client-side calculation)
+  const totalUsers = companyStats?.totalUsers ?? users.length;
+  const activeLast7Days = companyStats?.activeLast7Days ?? 0;
+  const overallCompletionRate = companyStats?.overallCompletionRate ?? (
+    users.length > 0
+      ? users.reduce((sum, u) => sum + (u.totalLessons > 0 ? (u.lessonsCompleted / u.totalLessons) * 100 : 0), 0) / users.length
+      : 0
+  );
+  const overallAvgQuizScore = companyStats?.overallAvgQuizScore ?? (
+    users.length > 0
+      ? users.reduce((sum, u) => sum + u.averageQuizScore, 0) / users.length
+      : 0
+  );
 
   const SortIcon = ({ field }: { field: SortKey }) => {
     if (sortKey !== field) return null;
@@ -137,7 +159,18 @@ export default function AdminPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalUsers}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Users</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Total Learners</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+              <Activity className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{activeLast7Days}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Active Last 7 Days</p>
             </div>
           </div>
         </div>
@@ -147,8 +180,8 @@ export default function AdminPage() {
               <TrendingUp className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(avgCompletion)}%</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Avg Completion</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(overallCompletionRate)}%</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Overall Completion</p>
             </div>
           </div>
         </div>
@@ -158,23 +191,55 @@ export default function AdminPage() {
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(avgQuizScore)}%</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(overallAvgQuizScore)}%</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">Avg Quiz Score</p>
             </div>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-              <Award className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalCertificates}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Certificates</p>
-            </div>
+      </div>
+
+      {/* Module Progress */}
+      {moduleStats.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 mb-8">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Module Progress</h2>
+          </div>
+          <div className="divide-y divide-gray-100 dark:divide-gray-700/50">
+            {moduleStats.map((mod) => {
+              const barColor = mod.completionRate >= 80
+                ? '#22c55e'
+                : mod.completionRate >= 40
+                  ? '#4f46e5'
+                  : '#9ca3af';
+              return (
+                <div key={mod.moduleId} className="px-6 py-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{mod.moduleTitle}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                        {mod.instructor}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                      <span>{Math.round(mod.completionRate)}% complete</span>
+                      <span>{mod.usersCompleted}/{mod.usersStarted} users</span>
+                    </div>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className="h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${mod.completionRate}%`,
+                        backgroundColor: barColor,
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
-      </div>
+      )}
 
       {/* User Progress Table */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">

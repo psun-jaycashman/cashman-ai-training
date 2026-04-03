@@ -80,6 +80,8 @@ export interface Module {
   lessons: Lesson[];
 }
 
+export type ActivityType = 'quiz' | 'exercise' | 'game' | 'survey';
+
 export interface Lesson {
   id: string;
   title: string;
@@ -87,6 +89,8 @@ export interface Lesson {
   estimatedMinutes: number;
   order: number;
   quizId?: string;
+  activityType?: ActivityType;
+  activityId?: string;
   interactiveType?: 'playground' | 'rag-demo' | 'security-challenge' | 'exercise' | null;
 }
 
@@ -124,6 +128,72 @@ export interface Quiz {
   lessonId: string;
   title: string;
   questions: QuizQuestion[];
+}
+
+// ==========================================================================
+// Exercise Types
+// ==========================================================================
+
+export type ExerciseVariant = 'prompt-challenge' | 'ai-sandbox' | 'article-reflection';
+
+export interface Exercise {
+  id: string;
+  moduleId: string;
+  lessonId: string;
+  title: string;
+  variant: ExerciseVariant;
+  instructions: string;
+  scenario?: string;
+  modelAnswer?: string;
+  articleUrl?: string;
+  reflectionPrompt?: string;
+}
+
+// ==========================================================================
+// Game Types (Scenario Decision Tree)
+// ==========================================================================
+
+export interface GameChoice {
+  label: string;
+  nextNodeId: string;
+  feedback: string;
+  isCorrect?: boolean;
+}
+
+export interface GameNode {
+  id: string;
+  situation: string;
+  choices: GameChoice[];
+}
+
+export interface Game {
+  id: string;
+  moduleId: string;
+  lessonId: string;
+  title: string;
+  description: string;
+  nodes: GameNode[];
+  startNodeId: string;
+}
+
+// ==========================================================================
+// Survey Types
+// ==========================================================================
+
+export interface SurveyQuestion {
+  id: string;
+  type: 'rating' | 'text' | 'multiple-choice';
+  question: string;
+  options?: string[];
+  category: 'self-assessment' | 'feedback';
+}
+
+export interface Survey {
+  id: string;
+  moduleId: string;
+  lessonId: string;
+  title: string;
+  questions: SurveyQuestion[];
 }
 
 export interface QuizScore {

@@ -26,6 +26,7 @@ export const DOCUMENTS = {
   PROGRESS: 'ai-training-progress',
   QUIZ_SCORES: 'ai-training-quiz-scores',
   BADGES: 'ai-training-badges',
+  ACTIVITY_RESPONSES: 'ai-training-activity-responses',
 } as const;
 
 // ==========================================================================
@@ -91,6 +92,26 @@ export const badgeSchema: AppDataSchema = {
   graphRelationships: [],
 };
 
+export const activityResponseSchema: AppDataSchema = {
+  fields: {
+    id: { type: 'string', required: true, hidden: true },
+    visitorId: { type: 'string', required: true, label: 'Visitor ID', hidden: true },
+    moduleId: { type: 'string', required: true, label: 'Module ID', order: 1 },
+    lessonId: { type: 'string', required: true, label: 'Lesson ID', order: 2 },
+    activityType: { type: 'string', required: true, label: 'Activity Type', order: 3 },
+    activityId: { type: 'string', required: true, label: 'Activity ID', order: 4 },
+    response: { type: 'string', label: 'Response (JSON)', hidden: true, order: 5 },
+    completedAt: { type: 'string', label: 'Completed At', readonly: true, order: 6 },
+  },
+  displayName: 'Activity Responses',
+  itemLabel: 'Activity Response',
+  sourceApp: 'cashman-ai-training',
+  visibility: 'personal',
+  allowSharing: false,
+  graphNode: '',
+  graphRelationships: [],
+};
+
 // ==========================================================================
 // ensureDataDocuments
 // ==========================================================================
@@ -99,6 +120,7 @@ export async function ensureDataDocuments(token: string): Promise<{
   progress: string;
   quizScores: string;
   badges: string;
+  activityResponses: string;
 }> {
   const ids = await ensureDocuments(
     token,
@@ -118,10 +140,15 @@ export async function ensureDataDocuments(token: string): Promise<{
         schema: badgeSchema,
         visibility: 'authenticated',
       },
+      activityResponses: {
+        name: DOCUMENTS.ACTIVITY_RESPONSES,
+        schema: activityResponseSchema,
+        visibility: 'personal',
+      },
     },
     'cashman-ai-training'
   );
-  return ids as { progress: string; quizScores: string; badges: string };
+  return ids as { progress: string; quizScores: string; badges: string; activityResponses: string };
 }
 
 // ==========================================================================
@@ -349,4 +376,79 @@ export async function getAllBadges(
     ...record,
     metadata: JSON.parse(record.metadata) as Record<string, unknown>,
   }));
+}
+
+// ==========================================================================
+// Activity Response Operations
+// ==========================================================================
+
+export interface ActivityResponse {
+  id: string;
+  visitorId: string;
+  moduleId: string;
+  lessonId: string;
+  activityType: string;
+  activityId: string;
+  response: string; // JSON string
+  completedAt: string;
+}
+
+export async function saveActivityResponse(
+  token: string,
+  documentId: string,
+  data: {
+    visitorId: string;
+    moduleId: string;
+    lessonId: string;
+    activityType: string;
+    activityId: string;
+    response: Record<string, unknown>;
+  }
+): Promise<ActivityResponse> {
+  const existing = await queryRecords<ActivityResponse>(token, documentId, {
+    where: {
+      and: [
+        { field: 'visitorId', op: 'eq', value: data.visitorId },
+        { field: 'activityId', op: 'eq', value: data.activityId },
+      ],
+    },
+    limit: 1,
+  });
+
+  const now = getNow();
+
+  if (existing.records.length > 0) {
+    const record = existing.records[0];
+    await updateRecords(
+      token,
+      documentId,
+      { response: JSON.stringify(data.response), completedAt: now },
+      { field: 'id', op: 'eq', value: record.id }
+    );
+    return { ...record, response: JSON.stringify(data.response), completedAt: now };
+  }
+
+  const entry: ActivityResponse = {
+    id: generateId(),
+    visitorId: data.visitorId,
+    moduleId: data.moduleId,
+    lessonId: data.lessonId,
+    activityType: data.activityType,
+    activityId: data.activityId,
+    response: JSON.stringify(data.response),
+    completedAt: now,
+  };
+
+  await insertRecords(token, documentId, [entry]);
+  return entry;
+}
+
+export async function getAllActivityResponses(
+  token: string,
+  documentId: string
+): Promise<ActivityResponse[]> {
+  const result = await queryRecords<ActivityResponse>(token, documentId, {
+    orderBy: [{ field: 'completedAt', direction: 'desc' }],
+  });
+  return result.records;
 }

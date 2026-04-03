@@ -205,7 +205,7 @@ async function checkAndAwardBadges(
     await tryAward("perfect-score");
   }
 
-  // completionist: all 9 modules fully completed
+  // completionist: all 10 modules fully completed
   const allModulesComplete = MODULES.every((m) => isModuleComplete(m.id));
   if (allModulesComplete) {
     await tryAward("completionist");

@@ -9,10 +9,13 @@ import {
   CheckCircle2,
   Clock,
   FileQuestion,
-  Gamepad2,
   Loader2,
 } from 'lucide-react';
 import type { Module, Lesson, UserProgress } from '@/lib/types';
+import { getExercise, getGame, getSurvey } from '@/lib/activity-data';
+import ExerciseComponent from '@/components/activities/ExerciseComponent';
+import GameComponent from '@/components/activities/GameComponent';
+import SurveyComponent from '@/components/activities/SurveyComponent';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -219,8 +222,8 @@ export default function LessonViewPage() {
         )}
       </div>
 
-      {/* Quiz Section */}
-      {lesson.quizId && (
+      {/* Activity Section */}
+      {lesson.activityType === 'quiz' && lesson.quizId && (
         <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-6 mb-6">
           <div className="flex items-center gap-3 mb-2">
             <FileQuestion className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
@@ -238,26 +241,83 @@ export default function LessonViewPage() {
         </div>
       )}
 
-      {/* Interactive Element Placeholder */}
-      {lesson.interactiveType && (
-        <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Gamepad2 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Interactive Exercise: {lesson.interactiveType.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-            </h3>
+      {lesson.activityType === 'exercise' && lesson.activityId && (() => {
+        const exercise = getExercise(lesson.activityId!);
+        if (!exercise) return null;
+        return (
+          <div className="mb-6">
+            <ExerciseComponent
+              exercise={exercise}
+              onComplete={async (response) => {
+                await fetch(`${basePath}/api/activities`, {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    moduleId, lessonId,
+                    activityType: 'exercise',
+                    activityId: lesson.activityId,
+                    response: { text: response },
+                  }),
+                });
+                if (!isComplete) markComplete();
+              }}
+            />
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            This lesson includes a hands-on interactive exercise. Try it in the AI Playground!
-          </p>
-          <Link
-            href="/playground"
-            className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            Open Playground <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      )}
+        );
+      })()}
+
+      {lesson.activityType === 'game' && lesson.activityId && (() => {
+        const game = getGame(lesson.activityId!);
+        if (!game) return null;
+        return (
+          <div className="mb-6">
+            <GameComponent
+              game={game}
+              onComplete={async (result) => {
+                await fetch(`${basePath}/api/activities`, {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    moduleId, lessonId,
+                    activityType: 'game',
+                    activityId: lesson.activityId,
+                    response: result,
+                  }),
+                });
+                if (!isComplete) markComplete();
+              }}
+            />
+          </div>
+        );
+      })()}
+
+      {lesson.activityType === 'survey' && lesson.activityId && (() => {
+        const survey = getSurvey(lesson.activityId!);
+        if (!survey) return null;
+        return (
+          <div className="mb-6">
+            <SurveyComponent
+              survey={survey}
+              onComplete={async (answers) => {
+                await fetch(`${basePath}/api/activities`, {
+                  method: 'POST',
+                  credentials: 'include',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    moduleId, lessonId,
+                    activityType: 'survey',
+                    activityId: lesson.activityId,
+                    response: answers,
+                  }),
+                });
+                if (!isComplete) markComplete();
+              }}
+            />
+          </div>
+        );
+      })()}
 
       {/* Navigation */}
       <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
