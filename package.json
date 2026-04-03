@@ -4,9 +4,9 @@
   "private": true,
   "description": "Think (AI)mpossible - AI Skills Training for Cashman employees",
   "scripts": {
-    "dev": "next dev -p 3007",
+    "dev": "next dev -p 3222",
     "build": "next build",
-    "start": "next start -p 3007",
+    "start": "next start -p 3222",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
