@@ -174,28 +174,38 @@ async function checkAndAwardBadges(
     await tryAward("first-steps");
   }
 
-  // prompt-pro: all Module 3 lessons completed
+  // email-ace: all Module 2 lessons completed
+  if (isModuleComplete("mod-2")) {
+    await tryAward("email-ace");
+  }
+
+  // report-writer: all Module 3 lessons completed
   if (isModuleComplete("mod-3")) {
-    await tryAward("prompt-pro");
+    await tryAward("report-writer");
   }
 
-  // security-shield: all Module 8 lessons completed
-  if (isModuleComplete("mod-8")) {
-    await tryAward("security-shield");
-  }
-
-  // agent-handler: all Module 6 lessons completed
-  if (isModuleComplete("mod-6")) {
-    await tryAward("agent-handler");
-  }
-
-  // data-wrangler: all Module 5 lessons completed
-  if (isModuleComplete("mod-5")) {
+  // data-wrangler: all Module 4 lessons completed
+  if (isModuleComplete("mod-4")) {
     await tryAward("data-wrangler");
   }
 
-  // power-user: all Module 4 lessons completed
-  if (isModuleComplete("mod-4")) {
+  // media-maker: all Module 5 lessons completed
+  if (isModuleComplete("mod-5")) {
+    await tryAward("media-maker");
+  }
+
+  // search-pro: all Module 6 lessons completed
+  if (isModuleComplete("mod-6")) {
+    await tryAward("search-pro");
+  }
+
+  // agent-handler: all Module 7 lessons completed
+  if (isModuleComplete("mod-7")) {
+    await tryAward("agent-handler");
+  }
+
+  // power-user: all Module 8 lessons completed
+  if (isModuleComplete("mod-8")) {
     await tryAward("power-user");
   }
 
@@ -205,7 +215,7 @@ async function checkAndAwardBadges(
     await tryAward("perfect-score");
   }
 
-  // completionist: all 10 modules fully completed
+  // completionist: all 8 modules fully completed
   const allModulesComplete = MODULES.every((m) => isModuleComplete(m.id));
   if (allModulesComplete) {
     await tryAward("completionist");
@@ -213,9 +223,8 @@ async function checkAndAwardBadges(
 
   // think-aimpossible: all modules complete + final assessment >= 80%
   if (allModulesComplete) {
-    // Look for a final assessment quiz (module-9 quiz or the last quiz)
     const finalQuiz = quizScores.find(
-      (s) => s.moduleId === "mod-9" && s.maxScore > 0
+      (s) => s.quizId === "quiz-final" && s.maxScore > 0
     );
     if (finalQuiz && finalQuiz.score / finalQuiz.maxScore >= 0.8) {
       await tryAward("think-aimpossible");

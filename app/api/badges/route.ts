@@ -94,28 +94,38 @@ export async function POST(request: NextRequest) {
       await tryAward("first-steps");
     }
 
-    // prompt-pro: all Module 3 lessons completed
+    // email-ace: all Module 2 lessons completed
+    if (isModuleComplete("mod-2")) {
+      await tryAward("email-ace");
+    }
+
+    // report-writer: all Module 3 lessons completed
     if (isModuleComplete("mod-3")) {
-      await tryAward("prompt-pro");
+      await tryAward("report-writer");
     }
 
-    // security-shield: all Module 8 lessons completed
-    if (isModuleComplete("mod-8")) {
-      await tryAward("security-shield");
-    }
-
-    // agent-handler: all Module 6 lessons completed
-    if (isModuleComplete("mod-6")) {
-      await tryAward("agent-handler");
-    }
-
-    // data-wrangler: all Module 5 lessons completed
-    if (isModuleComplete("mod-5")) {
+    // data-wrangler: all Module 4 lessons completed
+    if (isModuleComplete("mod-4")) {
       await tryAward("data-wrangler");
     }
 
-    // power-user: all Module 4 lessons completed
-    if (isModuleComplete("mod-4")) {
+    // media-maker: all Module 5 lessons completed
+    if (isModuleComplete("mod-5")) {
+      await tryAward("media-maker");
+    }
+
+    // search-pro: all Module 6 lessons completed
+    if (isModuleComplete("mod-6")) {
+      await tryAward("search-pro");
+    }
+
+    // agent-handler: all Module 7 lessons completed
+    if (isModuleComplete("mod-7")) {
+      await tryAward("agent-handler");
+    }
+
+    // power-user: all Module 8 lessons completed
+    if (isModuleComplete("mod-8")) {
       await tryAward("power-user");
     }
 
@@ -125,7 +135,7 @@ export async function POST(request: NextRequest) {
       await tryAward("perfect-score");
     }
 
-    // completionist: all 9 modules fully completed
+    // completionist: all 8 modules fully completed
     const allModulesComplete = MODULES.every((m) => isModuleComplete(m.id));
     if (allModulesComplete) {
       await tryAward("completionist");
@@ -134,7 +144,7 @@ export async function POST(request: NextRequest) {
     // think-aimpossible: all modules complete + final assessment >= 80%
     if (allModulesComplete) {
       const finalQuiz = quizScores.find(
-        (s) => s.moduleId === "mod-9" && s.maxScore > 0
+        (s) => s.quizId === "quiz-final" && s.maxScore > 0
       );
       if (finalQuiz && finalQuiz.score / finalQuiz.maxScore >= 0.8) {
         await tryAward("think-aimpossible");

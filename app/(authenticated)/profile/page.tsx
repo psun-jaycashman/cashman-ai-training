@@ -17,16 +17,18 @@ import type { Module, UserProgress, Badge, BadgeDefinition, BadgeType } from '@/
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
 const ALL_BADGE_DEFINITIONS: BadgeDefinition[] = [
-  { type: 'first-steps', name: 'First Steps', description: 'Completed your first lesson', icon: 'award', criteria: 'Complete any lesson' },
-  { type: 'quick-learner', name: 'Quick Learner', description: 'Completed a module in record time', icon: 'zap', criteria: 'Complete a module quickly' },
-  { type: 'prompt-pro', name: 'Prompt Pro', description: 'Mastered prompt engineering', icon: 'brain', criteria: 'Complete the Prompt Engineering module' },
-  { type: 'security-shield', name: 'Security Shield', description: 'AI security expert', icon: 'shield', criteria: 'Complete the Security module' },
-  { type: 'agent-handler', name: 'Agent Handler', description: 'AI agents specialist', icon: 'bot', criteria: 'Complete the AI Agents module' },
-  { type: 'data-wrangler', name: 'Data Wrangler', description: 'Data and AI master', icon: 'database', criteria: 'Complete the Data module' },
-  { type: 'power-user', name: 'Power User', description: 'Completed 5+ modules', icon: 'star', criteria: 'Complete 5 or more modules' },
-  { type: 'perfect-score', name: 'Perfect Score', description: 'Aced a quiz with 100%', icon: 'target', criteria: 'Get 100% on any quiz' },
-  { type: 'completionist', name: 'Completionist', description: 'Completed all modules', icon: 'trophy', criteria: 'Complete every module' },
-  { type: 'think-aimpossible', name: 'Think (AI)mpossible', description: 'Ultimate achievement', icon: 'sparkles', criteria: 'Earn all other badges' },
+  { type: 'first-steps', name: 'First Steps', description: 'Completed your first lesson', icon: 'Footprints', criteria: 'Complete any 1 lesson' },
+  { type: 'quick-learner', name: 'Quick Learner', description: 'Completed 5 lessons in one session', icon: 'Zap', criteria: 'Complete 5 lessons in one session' },
+  { type: 'email-ace', name: 'Email Ace', description: 'Completed the AI and Email module', icon: 'Mail', criteria: 'Complete Module 2' },
+  { type: 'report-writer', name: 'Report Writer', description: 'Completed Reports and Documents', icon: 'FileText', criteria: 'Complete Module 3' },
+  { type: 'data-wrangler', name: 'Data Wrangler', description: 'Completed Spreadsheets and Data', icon: 'Table', criteria: 'Complete Module 4' },
+  { type: 'media-maker', name: 'Media Maker', description: 'Completed Images, Video, and Media', icon: 'Image', criteria: 'Complete Module 5' },
+  { type: 'search-pro', name: 'Search Pro', description: 'Completed Document Processing and Search', icon: 'Search', criteria: 'Complete Module 6' },
+  { type: 'agent-handler', name: 'Agent Handler', description: 'Completed the AI Agents module', icon: 'Bot', criteria: 'Complete Module 7' },
+  { type: 'power-user', name: 'Power User', description: 'Completed Power User Tools', icon: 'Rocket', criteria: 'Complete Module 8' },
+  { type: 'perfect-score', name: 'Perfect Score', description: 'Got 100% on any quiz', icon: 'Star', criteria: 'Score 100% on any quiz' },
+  { type: 'completionist', name: 'Completionist', description: 'Completed all 8 modules', icon: 'Trophy', criteria: 'Complete all modules' },
+  { type: 'think-aimpossible', name: 'Think (AI)mpossible', description: 'Earned the AI Training Certificate', icon: 'Award', criteria: 'Complete all modules + pass final assessment (80%+)' },
 ];
 
 export default function ProfilePage() {

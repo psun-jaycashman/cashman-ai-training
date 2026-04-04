@@ -134,7 +134,27 @@ export interface Quiz {
 // Exercise Types
 // ==========================================================================
 
-export type ExerciseVariant = 'prompt-challenge' | 'ai-sandbox' | 'article-reflection';
+export type ExerciseVariant = 'prompt-challenge' | 'ai-sandbox' | 'article-reflection' | 'paste-back';
+
+export interface EvaluationRubric {
+  criteria: string[];
+  passingScore: number;
+  systemPrompt: string;
+}
+
+export interface EvaluationCriterionResult {
+  criterion: string;
+  met: boolean;
+  comment: string;
+}
+
+export interface EvaluationResult {
+  score: number;
+  maxScore: number;
+  feedback: string;
+  passed: boolean;
+  criteriaResults: EvaluationCriterionResult[];
+}
 
 export interface Exercise {
   id: string;
@@ -147,6 +167,7 @@ export interface Exercise {
   modelAnswer?: string;
   articleUrl?: string;
   reflectionPrompt?: string;
+  evaluationRubric?: EvaluationRubric;
 }
 
 // ==========================================================================
@@ -216,10 +237,12 @@ export interface QuizScore {
 export type BadgeType =
   | 'first-steps'
   | 'quick-learner'
-  | 'prompt-pro'
-  | 'security-shield'
-  | 'agent-handler'
+  | 'email-ace'
+  | 'report-writer'
   | 'data-wrangler'
+  | 'media-maker'
+  | 'search-pro'
+  | 'agent-handler'
   | 'power-user'
   | 'perfect-score'
   | 'completionist'
