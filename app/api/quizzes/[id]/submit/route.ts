@@ -191,7 +191,7 @@ async function checkQuizBadges(
 
     if (allModulesComplete) {
       const finalQuiz = allQuizScores.find(
-        (s) => s.moduleId === "mod-9" && s.maxScore > 0
+        (s) => s.quizId === "quiz-final" && s.maxScore > 0
       );
       if (finalQuiz && finalQuiz.score / finalQuiz.maxScore >= 0.8) {
         await tryAward("think-aimpossible");
