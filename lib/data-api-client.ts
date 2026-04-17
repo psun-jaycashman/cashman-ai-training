@@ -27,6 +27,8 @@ export const DOCUMENTS = {
   QUIZ_SCORES: 'ai-training-quiz-scores',
   BADGES: 'ai-training-badges',
   ACTIVITY_RESPONSES: 'ai-training-activity-responses',
+  TRAINING_VIDEOS: 'ai-training-videos',
+  TRAINING_VIDEO_PROGRESS: 'ai-training-video-progress',
 } as const;
 
 // ==========================================================================
@@ -112,6 +114,55 @@ export const activityResponseSchema: AppDataSchema = {
   graphRelationships: [],
 };
 
+export const trainingVideoSchema: AppDataSchema = {
+  fields: {
+    id: { type: 'string', required: true, hidden: true },
+    moduleId: { type: 'string', required: true, label: 'Module ID', order: 1 },
+    lessonId: { type: 'string', label: 'Lesson ID', order: 2 },
+    title: { type: 'string', required: true, label: 'Title', order: 3 },
+    description: { type: 'string', label: 'Description', order: 4 },
+    source: { type: 'string', required: true, label: 'Source', order: 5 },
+    fileId: { type: 'string', label: 'File ID', order: 6 },
+    mimeType: { type: 'string', label: 'MIME Type', order: 7 },
+    sizeBytes: { type: 'number', label: 'Size (bytes)', order: 8 },
+    externalUrl: { type: 'string', label: 'External URL', order: 9 },
+    externalProvider: { type: 'string', label: 'Provider', order: 10 },
+    posterUrl: { type: 'string', label: 'Poster URL', order: 11 },
+    durationSeconds: { type: 'number', label: 'Duration (s)', order: 12 },
+    order: { type: 'number', required: true, label: 'Order', order: 13 },
+    uploadedBy: { type: 'string', required: true, label: 'Uploaded By', order: 14 },
+    uploadedAt: { type: 'string', label: 'Uploaded At', readonly: true, order: 15 },
+  },
+  displayName: 'Training Videos',
+  itemLabel: 'Training Video',
+  sourceApp: 'cashman-ai-training',
+  visibility: 'authenticated',
+  allowSharing: false,
+  graphNode: '',
+  graphRelationships: [],
+};
+
+export const videoProgressSchema: AppDataSchema = {
+  fields: {
+    id: { type: 'string', required: true, hidden: true },
+    visitorId: { type: 'string', required: true, label: 'Visitor ID', hidden: true },
+    videoId: { type: 'string', required: true, label: 'Video ID', order: 1 },
+    moduleId: { type: 'string', required: true, label: 'Module ID', order: 2 },
+    lessonId: { type: 'string', label: 'Lesson ID', order: 3 },
+    positionSeconds: { type: 'number', required: true, label: 'Position (s)', order: 4 },
+    durationSeconds: { type: 'number', required: true, label: 'Duration (s)', order: 5 },
+    completed: { type: 'boolean', required: true, label: 'Completed', order: 6 },
+    updatedAt: { type: 'string', label: 'Updated At', readonly: true, order: 7 },
+  },
+  displayName: 'Video Progress',
+  itemLabel: 'Video Progress',
+  sourceApp: 'cashman-ai-training',
+  visibility: 'personal',
+  allowSharing: false,
+  graphNode: '',
+  graphRelationships: [],
+};
+
 // ==========================================================================
 // ensureDataDocuments
 // ==========================================================================
@@ -121,6 +172,8 @@ export async function ensureDataDocuments(token: string): Promise<{
   quizScores: string;
   badges: string;
   activityResponses: string;
+  trainingVideos: string;
+  trainingVideoProgress: string;
 }> {
   const ids = await ensureDocuments(
     token,
@@ -145,10 +198,27 @@ export async function ensureDataDocuments(token: string): Promise<{
         schema: activityResponseSchema,
         visibility: 'personal',
       },
+      trainingVideos: {
+        name: DOCUMENTS.TRAINING_VIDEOS,
+        schema: trainingVideoSchema,
+        visibility: 'authenticated',
+      },
+      trainingVideoProgress: {
+        name: DOCUMENTS.TRAINING_VIDEO_PROGRESS,
+        schema: videoProgressSchema,
+        visibility: 'personal',
+      },
     },
     'cashman-ai-training'
   );
-  return ids as { progress: string; quizScores: string; badges: string; activityResponses: string };
+  return ids as {
+    progress: string;
+    quizScores: string;
+    badges: string;
+    activityResponses: string;
+    trainingVideos: string;
+    trainingVideoProgress: string;
+  };
 }
 
 // ==========================================================================
