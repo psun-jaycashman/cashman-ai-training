@@ -17,6 +17,20 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [];
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value:
+              "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
