@@ -50,6 +50,12 @@ export default function VideoUploadField({
           const body = JSON.parse(req.responseText);
           onDone(body.id);
         } catch { onError('Upload succeeded but response was malformed.'); }
+      } else if (req.status === 413) {
+        onError(
+          'File too large for the server. This is usually an nginx ' +
+          '`client_max_body_size` limit (default 1 MB). Ask an admin to raise ' +
+          'it (see README → "Training Videos" → "Upload limits") and redeploy.'
+        );
       } else {
         let msg = `Upload failed (${req.status})`;
         try { msg = JSON.parse(req.responseText).error || msg; } catch {}
