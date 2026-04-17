@@ -34,4 +34,20 @@ describe('requireAdmin', () => {
     expect(result).not.toBeInstanceOf(NextResponse);
     expect((result as { userId: string }).userId).toBe('u');
   });
+
+  it('accepts capitalised Admin role (case-insensitive)', async () => {
+    vi.mocked(requireAuthWithTokenExchange).mockResolvedValue({
+      ssoToken: null, apiToken: 't', userId: 'u', roles: ['Admin'],
+    });
+    const result = await requireAdmin(mockReq());
+    expect(result).not.toBeInstanceOf(NextResponse);
+  });
+
+  it('accepts namespaced app:cashman-ai-training:admin role', async () => {
+    vi.mocked(requireAuthWithTokenExchange).mockResolvedValue({
+      ssoToken: null, apiToken: 't', userId: 'u', roles: ['app:cashman-ai-training:admin'],
+    });
+    const result = await requireAdmin(mockReq());
+    expect(result).not.toBeInstanceOf(NextResponse);
+  });
 });

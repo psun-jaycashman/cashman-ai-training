@@ -16,6 +16,7 @@ import {
   Video,
 } from 'lucide-react';
 import type { AdminUserProgress } from '@/lib/types';
+import { isAdminRole } from '@/lib/admin-roles';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -45,7 +46,7 @@ export default function AdminPage() {
   const [sortKey, setSortKey] = useState<SortKey>('lessonsCompleted');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
-  const isAdmin = user?.roles?.includes('admin') ?? false;
+  const isAdmin = isAdminRole(user?.roles);
 
   useEffect(() => {
     if (!isAdmin && user) {

@@ -4,6 +4,7 @@ import { useSession } from '@jazzmind/busibox-app/components/auth/SessionProvide
 import { useRouter } from 'next/navigation';
 import { Shield, Plus } from 'lucide-react';
 import type { TrainingVideo } from '@/lib/types';
+import { isAdminRole } from '@/lib/admin-roles';
 import VideoListByModule from '@/components/admin/VideoListByModule';
 import VideoFormModal from '@/components/admin/VideoFormModal';
 
@@ -16,7 +17,7 @@ export default function AdminVideosPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<TrainingVideo | null>(null);
-  const isAdmin = user?.roles?.includes('admin') ?? false;
+  const isAdmin = isAdminRole(user?.roles);
 
   const refresh = useCallback(async () => {
     setLoading(true);

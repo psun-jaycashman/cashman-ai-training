@@ -3,9 +3,8 @@ import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
 import { ensureDataDocuments, getAllBadges } from "@/lib/data-api-client";
 import { queryRecords } from "@jazzmind/busibox-app";
 import { MODULES } from "@/lib/module-data";
+import { isAdminRole } from "@/lib/admin-roles";
 import type { UserProgress, QuizScore, AdminUserProgress, BadgeType } from "@/lib/types";
-
-const ADMIN_ROLES = ["admin", "app:cashman-ai-training:admin"];
 
 /**
  * GET /api/progress/admin
@@ -18,8 +17,7 @@ export async function GET(request: NextRequest) {
     if (auth instanceof NextResponse) return auth;
 
     // Check admin role
-    const isAdmin = auth.roles.some((role) => ADMIN_ROLES.includes(role));
-    if (!isAdmin) {
+    if (!isAdminRole(auth.roles)) {
       return NextResponse.json(
         { error: "Forbidden", message: "Admin access required" },
         { status: 403 }

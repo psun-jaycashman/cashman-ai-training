@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Header, Footer } from '@jazzmind/busibox-app';
 import type { NavigationItem } from '@jazzmind/busibox-app';
 import { useSession } from '@jazzmind/busibox-app/components/auth/SessionProvider';
+import { isAdminRole } from '@/lib/admin-roles';
 
 const portalBaseUrl = (process.env.NEXT_PUBLIC_BUSIBOX_PORTAL_URL || process.env.NEXT_PUBLIC_AI_PORTAL_URL || '').replace(/\/+$/, '');
 const portalUrl = portalBaseUrl
@@ -24,7 +25,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
   const { user, isAuthenticated, logout } = useSession();
   const pathname = usePathname();
 
-  const isAdmin = user?.roles?.includes('admin') ?? false;
+  const isAdmin = isAdminRole(user?.roles);
 
   const adminNavigation: NavigationItem[] = isAdmin
     ? [{ label: 'Admin Dashboard', href: '/admin' }]
