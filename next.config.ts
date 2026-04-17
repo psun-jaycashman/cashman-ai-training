@@ -23,9 +23,12 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: [
           {
+            // Allow embedding any HTTPS video source. We explicitly support
+            // YouTube, Vimeo, and arbitrary "other" URLs (Descript, Loom, etc.)
+            // via the admin UI, so restricting frame-src by host would block
+            // legitimate admin-added content. Admins are trusted to pick sources.
             key: 'Content-Security-Policy',
-            value:
-              "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com",
+            value: "frame-src 'self' https:",
           },
         ],
       },

@@ -8,6 +8,10 @@ import { detectProvider } from '@/lib/video-embed';
 export const runtime = 'nodejs';
 export const maxDuration = 600;
 
+// Upload may run as long as the route's maxDuration. data-api client's
+// default fetch timeout is 30s — way too short for multi-MB videos.
+const UPLOAD_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+
 const externalBodySchema = z.object({
   source: z.literal('external'),
   externalUrl: z.string().url(),
@@ -47,7 +51,18 @@ export async function POST(request: NextRequest) {
 
     const { uploadChatAttachment, deleteChatAttachment } = await import('@jazzmind/busibox-app');
 
-    const uploaded = await uploadChatAttachment(file, { accessToken: auth.apiToken, userId: auth.userId });
+    let uploaded: Awaited<ReturnType<typeof uploadChatAttachment>>;
+    try {
+      uploaded = await uploadChatAttachment(file, {
+        accessToken: auth.apiToken,
+        userId: auth.userId,
+        timeout: UPLOAD_TIMEOUT_MS,
+      });
+    } catch (err) {
+      console.error('[video] MinIO upload failed', err);
+      const message = err instanceof Error ? err.message : 'Upload to storage failed';
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
     let video;
     try {
       const ids = await ensureDataDocuments(auth.apiToken);
