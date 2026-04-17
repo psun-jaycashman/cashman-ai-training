@@ -173,6 +173,36 @@ export default function DashboardPage() {
 }
 ```
 
+## Training Videos
+
+Admins can upload videos or link to YouTube/Vimeo content from `/admin/videos`. See the full design at `docs/superpowers/specs/2026-04-17-video-hosting-design.md`.
+
+### Admin role
+
+Video management requires the `admin` role in the user's JWT. This uses the same check as the existing `/admin` dashboard — grant the role through Busibox Portal's authz self-service.
+
+### Upload limits
+
+Phase 1 uses single-request multipart uploads, capped at 2 GB. For uploads larger than ~500 MB to be reliable, the deployment needs:
+
+**nginx** (in the `apps-lxc` container config):
+
+```nginx
+client_max_body_size 2100m;
+proxy_read_timeout 600s;
+proxy_send_timeout 600s;
+```
+
+**Next.js route config** is already set (`runtime = 'nodejs'`, `maxDuration = 600` on the upload route).
+
+A future Phase 2 can swap to presigned direct-to-MinIO uploads — see the design doc's §10.4.
+
+### Data documents
+
+Two new data-api documents are created on first admin load:
+- `ai-training-videos` (`visibility: authenticated`) — video metadata
+- `ai-training-video-progress` (`visibility: personal`) — per-user resume state
+
 ## Authentication
 
 All apps use Busibox SSO via the authz service.
