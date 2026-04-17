@@ -13,7 +13,7 @@ const portalUrl = portalBaseUrl
   ? (portalBaseUrl.endsWith('/portal') ? portalBaseUrl : `${portalBaseUrl}/portal`)
   : '/portal';
 
-const navItems = [
+const baseNavItems = [
   { href: '/', label: 'Dashboard' },
   { href: '/modules', label: 'Modules' },
   { href: '/playground', label: 'AI Playground' },
@@ -26,6 +26,9 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
   const pathname = usePathname();
 
   const isAdmin = isAdminRole(user?.roles);
+  const navItems = isAdmin
+    ? [...baseNavItems, { href: '/admin', label: 'Admin' }]
+    : baseNavItems;
 
   const adminNavigation: NavigationItem[] = isAdmin
     ? [{ label: 'Admin Dashboard', href: '/admin' }]

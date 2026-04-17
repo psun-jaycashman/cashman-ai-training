@@ -7,6 +7,7 @@ import type { TrainingVideo } from '@/lib/types';
 import { isAdminRole } from '@/lib/admin-roles';
 import VideoListByModule from '@/components/admin/VideoListByModule';
 import VideoFormModal from '@/components/admin/VideoFormModal';
+import AdminSubNav from '@/components/admin/AdminSubNav';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -44,29 +45,37 @@ export default function AdminVideosPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Training Videos</h1>
-        <button onClick={() => { setEditing(null); setShowForm(true); }} className="inline-flex items-center gap-2 px-3 py-2 bg-indigo-500 text-white rounded">
-          <Plus className="w-4 h-4" /> Add video
-        </button>
+    <div>
+      <AdminSubNav />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Training Videos</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Upload videos or link YouTube/Vimeo content to modules and lessons.
+            </p>
+          </div>
+          <button onClick={() => { setEditing(null); setShowForm(true); }} className="inline-flex items-center gap-2 px-3 py-2 bg-indigo-500 text-white rounded">
+            <Plus className="w-4 h-4" /> Add video
+          </button>
+        </div>
+        {loading ? (
+          <div className="animate-pulse h-64 bg-gray-200 rounded" />
+        ) : (
+          <VideoListByModule
+            videos={videos}
+            onEdit={(v) => { setEditing(v); setShowForm(true); }}
+            onChanged={refresh}
+          />
+        )}
+        {showForm && (
+          <VideoFormModal
+            existing={editing ?? undefined}
+            onClose={() => setShowForm(false)}
+            onSaved={() => { setShowForm(false); void refresh(); }}
+          />
+        )}
       </div>
-      {loading ? (
-        <div className="animate-pulse h-64 bg-gray-200 rounded" />
-      ) : (
-        <VideoListByModule
-          videos={videos}
-          onEdit={(v) => { setEditing(v); setShowForm(true); }}
-          onChanged={refresh}
-        />
-      )}
-      {showForm && (
-        <VideoFormModal
-          existing={editing ?? undefined}
-          onClose={() => setShowForm(false)}
-          onSaved={() => { setShowForm(false); void refresh(); }}
-        />
-      )}
     </div>
   );
 }

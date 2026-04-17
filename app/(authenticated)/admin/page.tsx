@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useSession } from '@jazzmind/busibox-app/components/auth/SessionProvider';
 import { useRouter } from 'next/navigation';
 import {
@@ -13,10 +12,10 @@ import {
   ChevronUp,
   ChevronDown,
   Shield,
-  Video,
 } from 'lucide-react';
 import type { AdminUserProgress } from '@/lib/types';
 import { isAdminRole } from '@/lib/admin-roles';
+import AdminSubNav from '@/components/admin/AdminSubNav';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -145,19 +144,15 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Admin Dashboard</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Monitor training progress across all users.
-        </p>
-      </div>
-
-      <div className="mb-6">
-        <Link href="/admin/videos" className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border rounded text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
-          <Video className="w-4 h-4" /> Manage Training Videos
-        </Link>
-      </div>
+    <div>
+      <AdminSubNav />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Admin Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Monitor training progress across all users.
+          </p>
+        </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -353,6 +348,7 @@ export default function AdminPage() {
             No user data available yet.
           </div>
         )}
+      </div>
       </div>
     </div>
   );
