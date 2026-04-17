@@ -13,7 +13,8 @@ import {
   BookOpen,
 } from 'lucide-react';
 import ProgressRing from '@/components/modules/ProgressRing';
-import type { Module, UserProgress } from '@/lib/types';
+import VideoPlayer from '@/components/VideoPlayer';
+import type { Module, UserProgress, TrainingVideoWithPlayback } from '@/lib/types';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -23,14 +24,16 @@ export default function ModuleViewPage() {
 
   const [module_, setModule] = useState<Module | null>(null);
   const [progress, setProgress] = useState<UserProgress[]>([]);
+  const [moduleVideo, setModuleVideo] = useState<TrainingVideoWithPlayback | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [moduleRes, progressRes] = await Promise.all([
+        const [moduleRes, progressRes, videosRes] = await Promise.all([
           fetch(`${basePath}/api/modules/${moduleId}`, { credentials: 'include' }),
           fetch(`${basePath}/api/progress?moduleId=${moduleId}`, { credentials: 'include' }),
+          fetch(`${basePath}/api/training-videos?moduleId=${moduleId}`, { credentials: 'include' }),
         ]);
 
         if (moduleRes.ok) {
@@ -40,6 +43,12 @@ export default function ModuleViewPage() {
         if (progressRes.ok) {
           const data = await progressRes.json();
           setProgress(data.progress || data || []);
+        }
+        if (videosRes.ok) {
+          const data = await videosRes.json();
+          const videos: TrainingVideoWithPlayback[] = data.videos || [];
+          const moduleLevel = videos.find((v) => !v.lessonId);
+          if (moduleLevel) setModuleVideo(moduleLevel);
         }
       } catch (err) {
         console.error('Failed to fetch module:', err);
@@ -150,6 +159,13 @@ export default function ModuleViewPage() {
           </div>
         </div>
       </div>
+
+      {/* Module Video */}
+      {moduleVideo && (
+        <div className="mb-8">
+          <VideoPlayer video={moduleVideo} />
+        </div>
+      )}
 
       {/* Lesson List */}
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Lessons</h2>

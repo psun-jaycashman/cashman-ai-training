@@ -11,11 +11,12 @@ import {
   FileQuestion,
   Loader2,
 } from 'lucide-react';
-import type { Module, Lesson, UserProgress } from '@/lib/types';
+import type { Module, Lesson, UserProgress, TrainingVideoWithPlayback } from '@/lib/types';
 import { getExercise, getGame, getSurvey } from '@/lib/activity-data';
 import ExerciseComponent from '@/components/activities/ExerciseComponent';
 import GameComponent from '@/components/activities/GameComponent';
 import SurveyComponent from '@/components/activities/SurveyComponent';
+import VideoPlayer from '@/components/VideoPlayer';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -62,6 +63,7 @@ export default function LessonViewPage() {
 
   const [module_, setModule] = useState<Module | null>(null);
   const [progress, setProgress] = useState<UserProgress[]>([]);
+  const [lessonVideo, setLessonVideo] = useState<TrainingVideoWithPlayback | null>(null);
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
@@ -69,9 +71,13 @@ export default function LessonViewPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [moduleRes, progressRes] = await Promise.all([
+        const [moduleRes, progressRes, videosRes] = await Promise.all([
           fetch(`${basePath}/api/modules/${moduleId}`, { credentials: 'include' }),
           fetch(`${basePath}/api/progress?moduleId=${moduleId}`, { credentials: 'include' }),
+          fetch(
+            `${basePath}/api/training-videos?moduleId=${moduleId}&lessonId=${lessonId}`,
+            { credentials: 'include' }
+          ),
         ]);
 
         if (moduleRes.ok) {
@@ -85,6 +91,11 @@ export default function LessonViewPage() {
           setIsComplete(
             progressList.some((p: UserProgress) => p.lessonId === lessonId && p.completed)
           );
+        }
+        if (videosRes.ok) {
+          const data = await videosRes.json();
+          const videos: TrainingVideoWithPlayback[] = data.videos || [];
+          if (videos.length > 0) setLessonVideo(videos[0]);
         }
       } catch (err) {
         console.error('Failed to fetch lesson:', err);
@@ -187,6 +198,13 @@ export default function LessonViewPage() {
           <span>Lesson {currentIndex + 1} of {lessons.length}</span>
         </div>
       </div>
+
+      {/* Lesson Video */}
+      {lessonVideo && (
+        <div className="mb-6">
+          <VideoPlayer video={lessonVideo} />
+        </div>
+      )}
 
       {/* Lesson Content */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-6">
