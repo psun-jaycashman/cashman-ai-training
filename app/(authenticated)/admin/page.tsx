@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useSession } from '@jazzmind/busibox-app/components/auth/SessionProvider';
 import { useRouter } from 'next/navigation';
 import {
@@ -12,6 +13,7 @@ import {
   ChevronUp,
   ChevronDown,
   Shield,
+  Video,
 } from 'lucide-react';
 import type { AdminUserProgress } from '@/lib/types';
 
@@ -148,6 +150,12 @@ export default function AdminPage() {
         <p className="text-gray-600 dark:text-gray-400">
           Monitor training progress across all users.
         </p>
+      </div>
+
+      <div className="mb-6">
+        <Link href="/admin/videos" className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border rounded text-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+          <Video className="w-4 h-4" /> Manage Training Videos
+        </Link>
       </div>
 
       {/* Stats Cards */}
