@@ -25,8 +25,51 @@ export async function POST(request: NextRequest) {
   const contentType = request.headers.get('content-type') ?? '';
 
   if (contentType.startsWith('multipart/form-data')) {
-    // Implemented in Task B below
-    return NextResponse.json({ error: 'Not implemented' }, { status: 501 });
+    let formData: FormData;
+    try { formData = await request.formData(); } catch {
+      return NextResponse.json({ error: 'Invalid multipart body' }, { status: 400 });
+    }
+
+    const file = formData.get('file');
+    const moduleId = formData.get('moduleId');
+    const title = formData.get('title');
+    if (!(file instanceof File) || typeof moduleId !== 'string' || !moduleId || typeof title !== 'string' || !title) {
+      return NextResponse.json({ error: 'Missing required fields: file, moduleId, title' }, { status: 400 });
+    }
+    if (!file.type.startsWith('video/')) {
+      return NextResponse.json({ error: 'File must be a video/*' }, { status: 400 });
+    }
+
+    const lessonId = formData.get('lessonId');
+    const description = formData.get('description');
+    const orderRaw = formData.get('order');
+    const order = typeof orderRaw === 'string' && orderRaw !== '' ? Number(orderRaw) : 0;
+
+    const { uploadChatAttachment, deleteChatAttachment } = await import('@jazzmind/busibox-app');
+
+    const uploaded = await uploadChatAttachment(file, { accessToken: auth.apiToken, userId: auth.userId });
+    let video;
+    try {
+      const ids = await ensureDataDocuments(auth.apiToken);
+      video = await insertVideo(auth.apiToken, ids.trainingVideos, {
+        moduleId,
+        lessonId: typeof lessonId === 'string' && lessonId ? lessonId : undefined,
+        title,
+        description: typeof description === 'string' && description ? description : undefined,
+        source: 'uploaded',
+        fileId: uploaded.fileId,
+        mimeType: uploaded.mimeType,
+        sizeBytes: uploaded.sizeBytes,
+        order,
+        uploadedBy: auth.userId,
+      });
+    } catch (err) {
+      try { await deleteChatAttachment(uploaded.fileId, { accessToken: auth.apiToken }); }
+      catch (cleanupErr) { console.error('[video] orphan cleanup failed', cleanupErr); }
+      console.error('[video] insert failed after upload', err);
+      return NextResponse.json({ error: 'Failed to record video metadata' }, { status: 500 });
+    }
+    return NextResponse.json(video, { status: 201 });
   }
 
   if (contentType.startsWith('application/json')) {

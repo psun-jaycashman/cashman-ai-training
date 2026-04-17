@@ -7,6 +7,10 @@ vi.mock('@/lib/video-data-api', () => ({
   insertVideo: vi.fn(),
   listAllVideos: vi.fn(),
 }));
+vi.mock('@jazzmind/busibox-app', () => ({
+  uploadChatAttachment: vi.fn(),
+  deleteChatAttachment: vi.fn(),
+}));
 
 import { POST, GET } from './route';
 import { requireAdmin } from '@/lib/video-admin-role';
@@ -79,5 +83,56 @@ describe('GET', () => {
     const res = await GET(new NextRequest('http://localhost/api/admin/training-videos?moduleId=mod-1'));
     expect(res.status).toBe(200);
     expect(vi.mocked(listAllVideos)).toHaveBeenCalledWith('t', 'tv', { moduleId: 'mod-1', lessonId: undefined });
+  });
+});
+
+import { uploadChatAttachment, deleteChatAttachment } from '@jazzmind/busibox-app';
+
+const multipartReq = (file: File, fields: Record<string, string>) => {
+  const fd = new FormData();
+  fd.set('file', file);
+  for (const [k, v] of Object.entries(fields)) fd.set(k, v);
+  return new NextRequest('http://localhost/api/admin/training-videos', {
+    method: 'POST',
+    body: fd,
+  });
+};
+
+describe('POST (upload branch)', () => {
+  it('returns 400 when file is missing', async () => {
+    const fd = new FormData();
+    fd.set('moduleId', 'mod-1');
+    fd.set('title', 't');
+    const req = new NextRequest('http://localhost/api/admin/training-videos', { method: 'POST', body: fd });
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+  });
+
+  it('uploads to MinIO and inserts record', async () => {
+    vi.mocked(uploadChatAttachment).mockResolvedValue({
+      fileId: 'f-minio', filename: 'intro.mp4', mimeType: 'video/mp4',
+      sizeBytes: 12345, url: 'ignored',
+    });
+    vi.mocked(insertVideo).mockImplementation(async (_t, _d, input) =>
+      ({ id: 'v-new', uploadedAt: '2026-04-17T00:00:00Z', ...input }) as never
+    );
+    const file = new File([new Uint8Array(100)], 'intro.mp4', { type: 'video/mp4' });
+    const res = await POST(multipartReq(file, { moduleId: 'mod-1', title: 'Intro' }));
+    expect(res.status).toBe(201);
+    expect(vi.mocked(uploadChatAttachment)).toHaveBeenCalled();
+    expect(vi.mocked(insertVideo).mock.calls[0][2]).toMatchObject({
+      source: 'uploaded', fileId: 'f-minio', mimeType: 'video/mp4', sizeBytes: 12345,
+    });
+  });
+
+  it('cleans up MinIO when insert fails', async () => {
+    vi.mocked(uploadChatAttachment).mockResolvedValue({
+      fileId: 'f-leak', filename: 'x.mp4', mimeType: 'video/mp4', sizeBytes: 1, url: '',
+    });
+    vi.mocked(insertVideo).mockRejectedValue(new Error('data-api down'));
+    const file = new File([new Uint8Array(10)], 'x.mp4', { type: 'video/mp4' });
+    const res = await POST(multipartReq(file, { moduleId: 'mod-1', title: 'X' }));
+    expect(res.status).toBe(500);
+    expect(deleteChatAttachment).toHaveBeenCalledWith('f-leak', expect.anything());
   });
 });
