@@ -307,6 +307,54 @@ export interface Certificate {
 }
 
 // ==========================================================================
+// Training Video Types
+// ==========================================================================
+
+export type VideoSource = 'uploaded' | 'external';
+export type ExternalVideoProvider = 'youtube' | 'vimeo' | 'other';
+
+export interface TrainingVideo {
+  id: string;
+  moduleId: string;
+  lessonId?: string;
+  title: string;
+  description?: string;
+  source: VideoSource;
+  // Present when source === 'uploaded'
+  fileId?: string;
+  mimeType?: string;
+  sizeBytes?: number;
+  // Present when source === 'external'
+  externalUrl?: string;
+  externalProvider?: ExternalVideoProvider;
+  posterUrl?: string;
+  durationSeconds?: number;
+  order: number;
+  uploadedBy: string;
+  uploadedAt: string;
+}
+
+export type PlaybackInfo =
+  | { kind: 'uploaded'; url: string; mimeType: string; expiresAt: string }
+  | { kind: 'external'; provider: ExternalVideoProvider; url: string };
+
+export interface TrainingVideoWithPlayback extends TrainingVideo {
+  playback: PlaybackInfo;
+}
+
+export interface VideoProgress {
+  id: string;
+  visitorId: string;
+  videoId: string;
+  moduleId: string;
+  lessonId?: string;
+  positionSeconds: number;
+  durationSeconds: number;
+  completed: boolean;
+  updatedAt: string;
+}
+
+// ==========================================================================
 // Utility Types
 // ==========================================================================
 
