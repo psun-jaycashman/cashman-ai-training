@@ -30,7 +30,7 @@ export default defineConfig({
         },
       },
     },
-    include: ["app/**/*.test.{ts,tsx}", "lib/**/*.test.{ts,tsx}", "test/**/*.test.{ts,tsx}"],
+    include: ["app/**/*.test.{ts,tsx}", "lib/**/*.test.{ts,tsx}", "test/**/*.test.{ts,tsx}", "components/**/*.test.{ts,tsx}"],
     exclude: ["node_modules/", ".next/"],
   },
   resolve: {
