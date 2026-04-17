@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSession } from '@jazzmind/busibox-app/components/auth/SessionProvider';
 import { Trophy } from 'lucide-react';
 import LeaderboardTable from '@/components/gamification/Leaderboard';
 import type { LeaderboardEntry } from '@/lib/types';
+import { displayNameFromEmail } from '@/lib/display-name';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
 export default function LeaderboardPage() {
   const { user } = useSession();
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [rawEntries, setRawEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +20,7 @@ export default function LeaderboardPage() {
         const res = await fetch(`${basePath}/api/leaderboard`, { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
-          setEntries(data.leaderboard || data.entries || data || []);
+          setRawEntries(data.leaderboard || data.entries || data || []);
         }
       } catch (err) {
         console.error('Failed to fetch leaderboard:', err);
@@ -30,6 +31,17 @@ export default function LeaderboardPage() {
 
     fetchData();
   }, []);
+
+  // Backend stores only visitorIds, so it can't populate display names.
+  // For the current user's row we override with a name derived from their
+  // session email — same pattern the profile page uses.
+  const currentUserName = displayNameFromEmail(user?.email);
+  const entries = useMemo(() => {
+    if (!user?.id || !currentUserName) return rawEntries;
+    return rawEntries.map((e) =>
+      e.visitorId === user.id ? { ...e, displayName: currentUserName } : e
+    );
+  }, [rawEntries, user?.id, currentUserName]);
 
   if (loading) {
     return (
