@@ -39,6 +39,71 @@ export const EXERCISES: Exercise[] = [
       'Copy the bad email from the lesson above. Use Copilot in Outlook or the Cashman AI Portal to rewrite it professionally. Paste the improved version below.',
     scenario:
       'The original email from superintendent Jim to client Mike has no subject line, poor grammar, mixed topics, no clear action items, and an unprofessional tone. A good rewrite organizes the issues, uses professional language, and clearly states what actions are needed.',
+    goodExamples: [
+      {
+        title: 'Example 1 — Bulleted by issue',
+        body: `Subject: Project Update — Schedule Risks and Pending Approvals
+
+Hi Mike,
+
+Wanted to give you a quick rundown on a few items affecting the schedule. We need a couple of decisions from you to keep things on track.
+
+**Schedule risks this week**
+- Crane breakdown yesterday cost us ~6 hours of production. Repair completed; back in service today.
+- Concrete subcontractor was a no-show on Tuesday; I'm following up to confirm coverage going forward.
+- Forecast shows poor weather most of next week, which may cost additional days.
+
+**Pending approval — Change Order (extra piles)**
+The CO I sent two weeks ago is still open. We need approval ASAP so we can release the steel order; otherwise we're looking at a meaningful delay.
+
+**Request — site visit Friday**
+The inspector has requested a site walk on Friday. Please confirm whether you can attend.
+
+Thanks,
+Jim`,
+        note: 'Clear subject line, issues separated, decisions and asks called out at the top of each section.',
+      },
+      {
+        title: 'Example 2 — Action items first',
+        body: `Subject: Two Decisions Needed: Pile CO Approval & Friday Site Visit
+
+Hi Mike,
+
+Two items I need from you to keep the project moving:
+
+1. **Approve the pending Change Order for additional piles** (sent ~2 weeks ago). Steel must be ordered this week to avoid a schedule slip.
+2. **Confirm availability for an inspector site visit on Friday.**
+
+For situational awareness, here's what's affecting the schedule:
+- Yesterday's crane breakdown cost ~6 hours; back in service.
+- Concrete subcontractor missed Tuesday; chasing the cause.
+- Next week's forecast is unfavorable and may cost additional production days.
+
+I'll send a recovery plan once we have your CO decision.
+
+Thanks,
+Jim`,
+        note: 'Leads with the decisions the reader needs to make. Useful when the recipient is busy and you want a fast response.',
+      },
+      {
+        title: 'Example 3 — Short and direct',
+        body: `Subject: Status & Outstanding Items — [Project Name]
+
+Mike,
+
+Quick update:
+
+- **Schedule:** Lost ~6 hrs to a crane breakdown (resolved). Concrete sub no-show on Tuesday. Bad weather forecast next week — possible additional impact.
+- **Open CO:** The change order for extra piles is still awaiting your approval. We need this to release the steel order and protect the schedule.
+- **Friday site visit:** Inspector is requesting attendance. Please confirm.
+
+Let me know if you'd like to set up a 15-minute call to walk through any of this.
+
+Thanks,
+Jim`,
+        note: 'Compressed format — every line earns its place. Best for routine status updates with experienced clients.',
+      },
+    ],
     evaluationRubric: {
       criteria: [
         'Has a clear, specific subject line (not "stuff" or similarly vague)',
@@ -62,6 +127,49 @@ export const EXERCISES: Exercise[] = [
       'Copy the email thread from the lesson above. Use AI to extract: (a) the current status, (b) key decisions made, (c) action items with owners and deadlines. Paste the summary below.',
     scenario:
       'The email thread is about a geotechnical issue on a dock project that requires changing from AZ-26 to AZ-24 sheet piles with an added waler. Key decisions: switch to AZ-24 with waler (+$15K net change). Action items: Tom to place PO by Thursday, Dave to prepare CO package by Thursday, Sarah to submit CO to client.',
+    goodExamples: [
+      {
+        title: 'Example 1 — Status / Decisions / Actions',
+        body: `**Status**
+Geotech revealed soft clay at the south bulkhead (stations 12+00–15+00), requiring longer sheet piles than originally designed. Original AZ-26 has a 14-week lead time, which would miss the October 15 milestone.
+
+**Key Decisions**
+- Switch from AZ-26 to AZ-24 sheet piles (8-week lead time) with an added waler at elevation +2.0.
+- Net cost impact: approximately +$15,000 (waler cost partially offset by cheaper piles).
+- Client (Mike Anderson) approved the approach pending formal CO submission.
+
+**Action Items**
+| Owner | Action | Due |
+|---|---|---|
+| Tom (Procurement) | Place PO for AZ-24 sheet piles | End of day Thursday |
+| Dave (Structural) | Finalize CO package with waler detail | Thursday |
+| Sarah (PM) | Submit CO to client | Thursday |
+
+**Risk:** October 15 milestone is achievable only if the PO goes out this week.`,
+        note: 'Clean three-section format with a table for action items. Easiest to scan in a hurry.',
+      },
+      {
+        title: 'Example 2 — Narrative summary',
+        body: `Geotech results showed unexpectedly soft clay at the south bulkhead, requiring deeper sheet piles than the original AZ-26 design. Because AZ-26 has a 14-week lead time that would miss the October 15 milestone, the team evaluated AZ-24 sections (8-week lead) paired with an added waler at elevation +2.0. Dave confirmed AZ-24 is structurally adequate with the waler, and Tom verified availability and pricing.
+
+The team agreed to switch to AZ-24 with the waler at a net cost increase of ~$15,000. Sarah notified Mike (client), who approved the approach pending the formal change order. The October 15 milestone can still be met if the PO is placed this week.
+
+Action items: Tom places the AZ-24 PO by end of day Thursday; Dave finalizes the CO package by Thursday; Sarah submits the CO to the client immediately after.`,
+        note: 'Paragraph form — better for forwarding to leadership who want context, not just a checklist.',
+      },
+      {
+        title: 'Example 3 — Bottom-line-up-front',
+        body: `**Bottom line:** South bulkhead design is changing from AZ-26 to AZ-24 sheet piles + new waler. Net cost: +~$15K. Schedule (Oct 15) is still achievable if the PO is placed this week. Client has verbally approved.
+
+**Why:** Geotech showed soft clay; AZ-26 met the design but its 14-week lead time would have blown the milestone. AZ-24 (8 weeks) + a waler at el. +2.0 works structurally and beats the schedule risk.
+
+**Open actions (all by Thursday):**
+- Tom — place PO for AZ-24
+- Dave — finalize CO package with waler detail
+- Sarah — submit CO to client`,
+        note: 'BLUF style — answer first, then context. Best when leadership scans the first line and decides whether to read more.',
+      },
+    ],
     evaluationRubric: {
       criteria: [
         'Accurately captures the current status (switching from AZ-26 to AZ-24 sheet piles due to soft clay)',
@@ -85,6 +193,72 @@ export const EXERCISES: Exercise[] = [
       'Draft a professional, diplomatic response to the angry client email from the lesson. Use AI to help. Context: the delay is due to unexpected contaminated soil (differing site condition), you have documentation. Paste your response below.',
     scenario:
       'Client Robert Thompson is threatening liquidated damages over a 3-week delay. The delay was caused by contaminated soil -- a differing site condition (not Cashman\'s fault). A good response acknowledges frustration, explains the cause with factual basis, proposes a recovery plan, and does not accept blame for something outside the contractor\'s control.',
+    goodExamples: [
+      {
+        title: 'Example 1 — Empathetic and structured',
+        body: `Subject: Recovery Plan and Differing Site Condition Documentation
+
+Dear Mr. Thompson,
+
+Thank you for the candid feedback. I understand the pressure your board is putting on you, and I want to address both the schedule and the underlying cause directly.
+
+**Cause of the current delay**
+The schedule impact stems from contaminated soil discovered during excavation -- a condition that was not identified in the pre-bid geotechnical reports and that required environmental remediation before work could continue. We have photographic documentation, lab testing results, and a chain-of-custody record for all material removed. Under the contract, this qualifies as a differing site condition.
+
+**Path forward**
+- I will deliver a detailed recovery schedule by Monday, identifying acceleration opportunities and any associated cost.
+- I will include the formal differing site condition notice and supporting documentation in the same package.
+- I propose a 30-minute call this week to walk you and your team through both items so your board has the full picture.
+
+Cashman is fully committed to this project and to a constructive resolution. I'll have the package on your desk Monday morning.
+
+Respectfully,
+[Your Name]
+Project Manager, Cashman`,
+        note: 'Acknowledges frustration, sets the factual record, does not accept blame, and ends with a concrete next step.',
+      },
+      {
+        title: 'Example 2 — Firm but professional',
+        body: `Subject: Response to Your Email of [Date] — Schedule and Differing Site Condition
+
+Dear Mr. Thompson,
+
+I appreciate you raising your concerns directly. The delay is real and I take it seriously, so I want to be straightforward with you about its cause.
+
+The three-week impact is the result of contaminated soil discovered during excavation that required environmental remediation. This material was not disclosed in the geotechnical reports provided at bid. Under Article [X] of our contract, this is a differing site condition. We documented the condition immediately and have photos, lab results, and remediation records available for your review.
+
+I will provide the following by Monday:
+1. A formal differing site condition notice with supporting documentation.
+2. A detailed recovery schedule showing how we plan to mitigate the impact.
+3. Any associated cost or schedule relief request.
+
+I share your goal of completing this project successfully, and I'm available to meet at your convenience to discuss in person.
+
+Respectfully,
+[Your Name]
+Project Manager, Cashman`,
+        note: 'Slightly firmer tone — explicitly cites the contract article. Useful when the client has implied legal action.',
+      },
+      {
+        title: 'Example 3 — Brief and disarming',
+        body: `Subject: Following Up on Your Email — Recovery Plan by Monday
+
+Mr. Thompson,
+
+I hear you, and I want to give you an answer your board will accept.
+
+The three-week impact is tied to contaminated soil that wasn't in the pre-bid geotech -- a differing site condition that required remediation before we could proceed. We have full documentation: photos, lab results, and the remediation log.
+
+You will have on your desk by Monday: a recovery schedule, the formal differing site condition notice, and the supporting documentation. I'd also welcome a short call before then if it would help you brief your board.
+
+Cashman wants this project to finish well. So do I.
+
+Respectfully,
+[Your Name]
+Project Manager, Cashman`,
+        note: 'Short, human tone. Best when you have a strong relationship with the client and want to defuse without being defensive.',
+      },
+    ],
     evaluationRubric: {
       criteria: [
         'Acknowledges the client\'s frustration without being dismissive',

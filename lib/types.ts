@@ -156,6 +156,12 @@ export interface EvaluationResult {
   criteriaResults: EvaluationCriterionResult[];
 }
 
+export interface GoodExample {
+  title: string;
+  body: string;
+  note?: string;
+}
+
 export interface Exercise {
   id: string;
   moduleId: string;
@@ -165,6 +171,7 @@ export interface Exercise {
   instructions: string;
   scenario?: string;
   modelAnswer?: string;
+  goodExamples?: GoodExample[];
   articleUrl?: string;
   reflectionPrompt?: string;
   evaluationRubric?: EvaluationRubric;

@@ -63,7 +63,7 @@ At Cashman, we deal with complex projects -- marine construction, infrastructure
   },
   {
     id: 'mod-1-les-2',
-    title: 'Your Tools: Cashman AI Portal, Copilot, and Claude',
+    title: 'Your Tools: Cashman AI Portal, Copilot, and ChatGPT',
     estimatedMinutes: 4,
     order: 2,
     activityType: 'exercise',
@@ -95,20 +95,24 @@ AI built directly into the Office tools you already use:
 
 **When to use it:** Day-to-day Office work where the data is already in your Microsoft environment.
 
-### 3. Claude Cowork / Claude Code (Power Users)
+### 3. ChatGPT
 
-For advanced users who need more sophisticated AI capabilities:
+ChatGPT is the most widely-used general-purpose AI chatbot, made by OpenAI. It's the tool that put conversational AI on the map -- chances are, it's the one you've heard the most about.
 
-- **Claude Cowork** -- deep research, complex analysis, multi-step reasoning
-- **Claude Code** -- automation, scripting, technical problem-solving
+- **General Q&A** -- ask questions on almost any topic and get a plain-English answer
+- **Brainstorming** -- talk through ideas, generate options, explore approaches
+- **Writing help** -- draft, rewrite, summarize, translate
+- **Learning** -- explain a concept "like I'm five," walk through how something works
 
-**When to use it:** Complex tasks that require sustained reasoning or technical implementation.
+**When to use it:** Public information, general research, learning, and brainstorming where **no company, client, or project data** is involved.
+
+**Important:** ChatGPT is a public, cloud-based tool. Anything you paste into it can leave the Cashman network. Apply the **Bulletin Board Test** -- if you wouldn't post it on a board in the lobby, don't paste it into ChatGPT. For company data, use the Cashman AI Portal.
 
 ### Try It Now
 
 Your first task: **Log into the Cashman AI Portal and send your first message.** Ask it: "What can you help me with?" Paste the response into the exercise below.
 
-> **Key Takeaway:** You have three AI tools: Cashman AI Portal (company data), Microsoft Copilot (Office apps), and Claude (power user tasks). Use the right tool for the right job.
+> **Key Takeaway:** You have three AI tools: Cashman AI Portal (company data), Microsoft Copilot (Office apps), and ChatGPT (general-purpose, non-sensitive tasks). Use the right tool for the right job.
 `,
   },
   {
@@ -1052,7 +1056,7 @@ export const MODULES: Module[] = [
   {
     id: 'mod-1',
     title: 'Your AI Toolkit',
-    description: 'Meet your AI tools: Cashman AI Portal, Microsoft Copilot, and Claude. Learn when to use each one.',
+    description: 'Meet your AI tools: Cashman AI Portal, Microsoft Copilot, and ChatGPT. Learn when to use each one.',
     instructor: 'Wes',
     estimatedMinutes: 10,
     order: 1,
