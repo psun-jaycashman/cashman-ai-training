@@ -1455,7 +1455,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     name: 'Think (AI)mpossible',
     description: 'Earn the Cashman AI Training Certificate',
     icon: 'Award',
-    criteria: 'Complete all modules + pass final assessment (80%+)',
+    criteria: 'Complete 95% of lessons + pass final assessment (80%+)',
   },
 ];
 

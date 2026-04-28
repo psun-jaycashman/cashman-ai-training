@@ -134,7 +134,7 @@ export interface Quiz {
 // Exercise Types
 // ==========================================================================
 
-export type ExerciseVariant = 'prompt-challenge' | 'ai-sandbox' | 'article-reflection' | 'paste-back';
+export type ExerciseVariant = 'prompt-challenge' | 'article-reflection' | 'paste-back';
 
 export interface EvaluationRubric {
   criteria: string[];

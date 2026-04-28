@@ -8,7 +8,7 @@ import {
   awardBadge,
   getUserProgress,
 } from "@/lib/data-api-client";
-import { getQuiz, MODULES, getModule } from "@/lib/module-data";
+import { getQuiz, MODULES } from "@/lib/module-data";
 import { generateId, getNow } from "@jazzmind/busibox-app";
 import type { Badge, BadgeType } from "@/lib/types";
 
@@ -173,7 +173,7 @@ async function checkQuizBadges(
     await tryAward("perfect-score");
   }
 
-  // think-aimpossible: all modules complete + final assessment >= 80%
+  // think-aimpossible: >= 95% of all lessons complete + final assessment >= 80%
   if (!earnedTypes.has("think-aimpossible")) {
     const [allProgress, allQuizScores] = await Promise.all([
       getUserProgress(token, documentIds.progress, userId),
@@ -184,12 +184,14 @@ async function checkQuizBadges(
       allProgress.filter((p) => p.completed).map((p) => `${p.moduleId}:${p.lessonId}`)
     );
 
-    const allModulesComplete = MODULES.every((mod) => {
-      const m = getModule(mod.id);
-      return m && m.lessons.every((l) => completedSet.has(`${mod.id}:${l.id}`));
-    });
+    const totalLessons = MODULES.reduce((sum, m) => sum + m.lessons.length, 0);
+    const completedLessons = MODULES.reduce(
+      (sum, m) =>
+        sum + m.lessons.filter((l) => completedSet.has(`${m.id}:${l.id}`)).length,
+      0
+    );
 
-    if (allModulesComplete) {
+    if (totalLessons > 0 && completedLessons / totalLessons >= 0.95) {
       const finalQuiz = allQuizScores.find(
         (s) => s.quizId === "quiz-final" && s.maxScore > 0
       );

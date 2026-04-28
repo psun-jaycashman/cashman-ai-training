@@ -28,7 +28,7 @@ const ALL_BADGE_DEFINITIONS: BadgeDefinition[] = [
   { type: 'power-user', name: 'Power User', description: 'Completed Power User Tools', icon: 'Rocket', criteria: 'Complete Module 8' },
   { type: 'perfect-score', name: 'Perfect Score', description: 'Got 100% on any quiz', icon: 'Star', criteria: 'Score 100% on any quiz' },
   { type: 'completionist', name: 'Completionist', description: 'Completed all 8 modules', icon: 'Trophy', criteria: 'Complete all modules' },
-  { type: 'think-aimpossible', name: 'Think (AI)mpossible', description: 'Earned the AI Training Certificate', icon: 'Award', criteria: 'Complete all modules + pass final assessment (80%+)' },
+  { type: 'think-aimpossible', name: 'Think (AI)mpossible', description: 'Earned the AI Training Certificate', icon: 'Award', criteria: 'Complete 95% of lessons + pass final assessment (80%+)' },
 ];
 
 export default function ProfilePage() {
@@ -80,7 +80,7 @@ export default function ProfilePage() {
   });
 
   const earnedBadgeTypes: BadgeType[] = badges.map((b) => b.badgeType);
-  const certificateEligible = overallPercent >= 80;
+  const certificateEligible = overallPercent >= 95;
 
   if (loading) {
     return (
@@ -216,7 +216,7 @@ export default function ProfilePage() {
         ) : (
           <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center">
             <p className="text-gray-500 dark:text-gray-400 mb-2">
-              Complete at least 80% of the training to earn your certificate.
+              Complete at least 95% of the training to earn your certificate.
             </p>
             <p className="text-sm text-gray-400 dark:text-gray-500">
               Current progress: {Math.round(overallPercent)}%

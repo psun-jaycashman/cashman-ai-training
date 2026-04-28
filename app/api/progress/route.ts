@@ -221,8 +221,9 @@ async function checkAndAwardBadges(
     await tryAward("completionist");
   }
 
-  // think-aimpossible: all modules complete + final assessment >= 80%
-  if (allModulesComplete) {
+  // think-aimpossible: >= 95% of all lessons complete + final assessment >= 80%
+  const totalLessons = MODULES.reduce((sum, m) => sum + m.lessons.length, 0);
+  if (totalLessons > 0 && totalCompleted / totalLessons >= 0.95) {
     const finalQuiz = quizScores.find(
       (s) => s.quizId === "quiz-final" && s.maxScore > 0
     );

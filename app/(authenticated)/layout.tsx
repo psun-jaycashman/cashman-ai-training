@@ -16,7 +16,6 @@ const portalUrl = portalBaseUrl
 const baseNavItems = [
   { href: '/', label: 'Dashboard' },
   { href: '/modules', label: 'Modules' },
-  { href: '/playground', label: 'AI Playground' },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/profile', label: 'My Profile' },
 ];
