@@ -26,7 +26,21 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
  */
 function markdownToHtml(md: string): string {
   if (!md) return '';
+
+  // Next.js basePath is required for any absolute path starting with `/`,
+  // otherwise `/downloads/foo.pdf` falls through to a Next page handler in
+  // production (the page returns HTML — which is why downloads were saving
+  // as `.html` instead of the actual PDF).
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+  const withBasePath = (href: string): string =>
+    href.startsWith('/') && !href.startsWith('//') ? `${basePath}${href}` : href;
+
   let html = md
+    // PDF viewer directive: <pdf src="/downloads/foo.pdf" /> → inline iframe
+    .replace(/<pdf\s+src="([^"]+)"\s*\/?\s*>/g, (_match, src: string) => {
+      const finalSrc = withBasePath(src);
+      return `<iframe src="${finalSrc}#view=FitH" class="w-full h-[640px] rounded-lg border border-gray-200 dark:border-gray-700 my-6 bg-gray-50 dark:bg-gray-950" title="PDF preview" loading="lazy"></iframe>`;
+    })
     // Code blocks
     .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto text-sm my-4"><code>$2</code></pre>')
     // Inline code
@@ -38,11 +52,12 @@ function markdownToHtml(md: string): string {
     // Bold and italic
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Links — add download attribute for /downloads/ paths so PDFs save directly
+    // Links — prefix basePath for absolute paths; add download for /downloads/
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match: string, text: string, href: string) => {
       const isDownload = href.startsWith('/downloads/');
+      const finalHref = withBasePath(href);
       const downloadAttr = isDownload ? ' download' : '';
-      return `<a href="${href}" class="text-indigo-600 dark:text-indigo-400 hover:underline" target="_blank" rel="noopener"${downloadAttr}>${text}</a>`;
+      return `<a href="${finalHref}" class="text-indigo-600 dark:text-indigo-400 hover:underline" target="_blank" rel="noopener"${downloadAttr}>${text}</a>`;
     })
     // Unordered lists
     .replace(/^[*-] (.+)$/gm, '<li class="ml-4 list-disc text-gray-700 dark:text-gray-300">$1</li>')
@@ -50,8 +65,8 @@ function markdownToHtml(md: string): string {
     .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 list-decimal text-gray-700 dark:text-gray-300">$1</li>')
     // Horizontal rules
     .replace(/^---$/gm, '<hr class="my-6 border-gray-200 dark:border-gray-700" />')
-    // Paragraphs (lines not already wrapped)
-    .replace(/^(?!<[hluop]|<li|<hr|<pre|<code)(.+)$/gm, '<p class="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">$1</p>');
+    // Paragraphs — wrap any line that doesn't already start with an HTML tag
+    .replace(/^(?!<[a-zA-Z])(.+)$/gm, '<p class="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">$1</p>');
 
   // Wrap adjacent <li> elements in <ul>
   html = html.replace(/((<li[^>]*>.*?<\/li>\s*)+)/g, '<ul class="my-4 space-y-1">$1</ul>');

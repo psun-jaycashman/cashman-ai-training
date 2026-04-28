@@ -381,6 +381,10 @@ Rewriting isn't only about polishing prose. Often the real job is **transforming
 
 For this lesson, you're going to work with a real historical Cashman document. We pulled the daily reports from a Quincy job covering **December 30, 2006 through March 5, 2007** -- roughly nine weeks of winter marine work. The reports were originally individual Microsoft Word files. We extracted them into PDF and combined them into a single document so you can hand the whole thing to AI in one shot.
 
+Preview it right here, or save a copy to upload into your AI tool.
+
+<pdf src="/downloads/quincy-daily-reports.pdf" />
+
 [**📄 Download the Quincy daily reports (PDF, ~1.8 MB)**](/downloads/quincy-daily-reports.pdf)
 
 ### The Task
