@@ -49,3 +49,6 @@ prisma/migrations/
 
 # Local dev
 .local/
+
+#videos
+
