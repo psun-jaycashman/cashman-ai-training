@@ -33,6 +33,14 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
 
   const hasRubric = !!exercise.evaluationRubric;
   const hasGoodExamples = !!exercise.goodExamples && exercise.goodExamples.length > 0;
+  const hasHints = !!exercise.hints && exercise.hints.length > 0;
+  const hasFeedbackPanel = hasGoodExamples || hasHints;
+  const feedbackPanelLabel =
+    hasGoodExamples && hasHints
+      ? 'View Hints & Examples'
+      : hasHints
+        ? 'View Hints'
+        : 'View Good Examples';
 
   const handleSubmit = async () => {
     if (!response.trim()) return;
@@ -58,7 +66,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
         const data = await res.json();
         setEvaluation(data.evaluation);
         setSubmitted(true);
-        if (hasGoodExamples) {
+        if (hasFeedbackPanel) {
           setActiveExample(0);
           setShowExamples(true);
         }
@@ -66,7 +74,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
       } catch (err) {
         setEvalError(err instanceof Error ? err.message : 'Failed to evaluate. Try again.');
         setSubmitted(true);
-        if (hasGoodExamples) {
+        if (hasFeedbackPanel) {
           setActiveExample(0);
           setShowExamples(true);
         }
@@ -76,7 +84,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
       }
     } else {
       setSubmitted(true);
-      if (hasGoodExamples) {
+      if (hasFeedbackPanel) {
         setActiveExample(0);
         setShowExamples(true);
       }
@@ -227,7 +235,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
 
               {/* Action buttons */}
               <div className="flex flex-wrap items-center gap-2">
-                {hasGoodExamples && (
+                {hasFeedbackPanel && (
                   <button
                     onClick={() => {
                       setActiveExample(0);
@@ -236,7 +244,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 text-sm font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
                   >
                     <Lightbulb className="w-4 h-4" />
-                    View Good Examples
+                    {feedbackPanelLabel}
                   </button>
                 )}
                 {!evaluation.passed && (
@@ -264,7 +272,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                {hasGoodExamples && (
+                {hasFeedbackPanel && (
                   <button
                     onClick={() => {
                       setActiveExample(0);
@@ -273,7 +281,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 text-sm font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
                   >
                     <Lightbulb className="w-4 h-4" />
-                    View Good Examples
+                    {feedbackPanelLabel}
                   </button>
                 )}
                 <button
@@ -293,7 +301,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                   Your response has been submitted successfully.
                 </p>
               </div>
-              {hasGoodExamples && (
+              {hasFeedbackPanel && (
                 <button
                   onClick={() => {
                     setActiveExample(0);
@@ -302,7 +310,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 text-sm font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
                 >
                   <Lightbulb className="w-4 h-4" />
-                  View Good Examples
+                  {feedbackPanelLabel}
                 </button>
               )}
             </div>
@@ -336,8 +344,8 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
         </>
       )}
 
-      {/* Good Examples Modal */}
-      {showExamples && hasGoodExamples && exercise.goodExamples && (
+      {/* Hints & Examples Modal */}
+      {showExamples && hasFeedbackPanel && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           role="dialog"
@@ -357,10 +365,16 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                 </span>
                 <div>
                   <h4 id="good-examples-title" className="text-base font-semibold text-gray-900 dark:text-white">
-                    Good examples to compare against
+                    {hasGoodExamples && hasHints
+                      ? 'Hints & good examples'
+                      : hasHints
+                        ? 'Helpful hints'
+                        : 'Good examples to compare against'}
                   </h4>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    These aren't the only "right" answers -- they're a few approaches that work well for this prompt.
+                    {hasGoodExamples
+                      ? "These aren't the only \"right\" answers — they're a few approaches that work well for this prompt."
+                      : 'A few hints to help you sharpen your response.'}
                   </p>
                 </div>
               </div>
@@ -374,34 +388,63 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
               </button>
             </div>
 
-            {/* Tabs */}
-            <div className="flex flex-wrap gap-2 px-5 pt-4">
-              {exercise.goodExamples.map((ex, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setActiveExample(i)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    activeExample === i
-                      ? 'bg-amber-500 text-white'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  {ex.title}
-                </button>
-              ))}
-            </div>
-
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-3">
-              <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-gray-800 dark:text-gray-200 p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-950/40">
-                {exercise.goodExamples[activeExample].body}
-              </pre>
-              {exercise.goodExamples[activeExample].note && (
-                <div className="p-3 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-sm text-amber-800 dark:text-amber-300">
-                  <span className="font-semibold">Why this works: </span>
-                  {exercise.goodExamples[activeExample].note}
+            {/* Body — scrolls when content overflows */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {hasHints && exercise.hints && (
+                <div className="p-4 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-2">
+                    Helpful hints
+                  </p>
+                  <ul className="space-y-1.5">
+                    {exercise.hints.map((hint, i) => (
+                      <li
+                        key={i}
+                        className="flex gap-2 text-sm text-indigo-900 dark:text-indigo-200"
+                      >
+                        <span aria-hidden="true" className="flex-shrink-0 mt-0.5 text-indigo-500 dark:text-indigo-400">
+                          •
+                        </span>
+                        <span>{hint}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+              )}
+
+              {hasGoodExamples && exercise.goodExamples && (
+                <>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                      Good examples
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {exercise.goodExamples.map((ex, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setActiveExample(i)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            activeExample === i
+                              ? 'bg-amber-500 text-white'
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          }`}
+                        >
+                          {ex.title}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-gray-800 dark:text-gray-200 p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-950/40">
+                    {exercise.goodExamples[activeExample].body}
+                  </pre>
+                  {exercise.goodExamples[activeExample].note && (
+                    <div className="p-3 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-sm text-amber-800 dark:text-amber-300">
+                      <span className="font-semibold">Why this works: </span>
+                      {exercise.goodExamples[activeExample].note}
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

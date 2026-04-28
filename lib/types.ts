@@ -172,6 +172,7 @@ export interface Exercise {
   scenario?: string;
   modelAnswer?: string;
   goodExamples?: GoodExample[];
+  hints?: string[];
   articleUrl?: string;
   reflectionPrompt?: string;
   evaluationRubric?: EvaluationRubric;
