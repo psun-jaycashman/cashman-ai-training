@@ -58,43 +58,51 @@ Down below you'll find raw notes from a real-style USACE wharf rehabilitation pr
 
 ## Lesson 2 — Rewriting and Editing
 
-**Lesson runtime estimate:** ~2 min 45 sec
-**Activity at end of lesson:** Exercise — polish a rough closeout summary
+**Lesson runtime estimate:** ~3 min 15 sec
+**Activity at end of lesson:** Exercise — summarize and extract insights from the Quincy daily reports PDF
 
 ### Title card
 
 > **Lesson 2 — Rewriting and Editing**
-> Take a rough draft. Make it shine.
+> Transform raw source material into something a busy reader can use.
 
 ### Script
 
-Sometimes you don't need a brand new document. You need to take something you already wrote -- or that someone handed you -- and *fix it*. Tighten it. Restructure it. Make the tone right for the audience.
+Rewriting isn't only about polishing prose. A lot of the time, the real job is *transforming dense, repetitive source material into something a busy reader can actually use* -- a summary, a list of insights, an executive memo. AI is excellent at this. It might be the single most valuable thing it does for us.
 
-This is one of AI's best tricks. You hand it a rambling, casual paragraph. You ask it to make it concise, well-structured, and formal. Thirty seconds later you have a polished version.
+For this lesson, we're going to work with a **real Cashman document**. We pulled the daily field reports from a Quincy job covering December 30, 2006 through March 5, 2007 -- about nine weeks of winter marine work. The reports were originally individual Microsoft Word files. We extracted them into PDF and combined them into a single document so you can hand the whole thing to AI in one shot. There's a download link right in the lesson below.
 
-The principle behind this is what writers call **editing for the audience**. The same content can be too casual for a board meeting and too stiff for a teammate. AI is great at sliding the dial. You just have to *tell it where the dial should be*. "Formal, suitable for a federal client." "Direct, suitable for a busy peer." "Empathetic, suitable for a crew briefing." The more precisely you describe the audience, the better the rewrite.
+Your job is to use AI to produce two things from those reports: an **executive summary** that covers the whole nine-week period, and a **structured insights list** grouped by theme -- productivity, weather impact, equipment, safety, manpower, milestones.
 
-Now -- and this is the lesson where this matters most -- I have to bring back **hallucinations**. When AI rewrites a document, it sometimes adds things. A specific date. A named hurricane. A precise CPARS score. A safety statistic. *None of these were in the original.* The AI made them up because they made the rewrite sound more credible.
+A few principles for getting this right.
 
-This is a really good drill. After AI rewrites the document below, do a side-by-side. Anything in the rewrite that wasn't in the original -- a number, a name, a date -- is suspect. If you find an invented detail, congratulations. You just caught a hallucination in the wild.
+**One: tell AI who the audience is.** A summary written for the operations director sounds different from a summary written for a client. The same source produces a different deliverable when AI knows who's reading. Pick an audience and tell AI explicitly.
 
-There's actually a name for the related habit you're building here. It's called **source-grounding**. It means: every claim in your final document should be traceable back to a source you actually have. AI may not understand source-grounding. *You* enforce it.
+**Two: ask for citations.** Tell AI to reference specific dates when calling out events. *"On January 12, the crane was down for repair"* is useful. *"There were equipment issues"* is not.
 
-Down below is a rough closeout summary for a Port Arthur ferry landing project. Casual tone. Long. Disorganized. Use AI to rewrite it -- formal, structured, concise. Then check it for invented details. Paste your polished version into the exercise.
+**Three -- and this is the most important one for this lesson -- look for patterns across many days, not just transcription of one day.** That's the entire difference between a *summary* and a *log dump*. A summary tells you the season's story. A log dump just compresses each day. You want the story.
+
+Now, the warning. Daily reports are dense, repetitive, and full of specific facts -- dates, equipment numbers, crew counts, weather readings, hours worked, footage placed. This is exactly the kind of source where **AI is most tempted to invent details that sound right**. A hurricane name. A precise temperature. A specific crew member. None of them in the source.
+
+So your final habit for this lesson is what I call **source-grounding**. Every specific claim AI makes -- pick three, find them in the source PDF, confirm they're real. If you can't find a claim, AI made it up. Strike it. This single discipline -- grounding every claim back to the actual document -- is the most important skill for working with AI on real company material.
+
+Download the PDF below. Run your prompts. Verify the specifics. Paste your summary and insights into the exercise. Three example outputs are waiting after you submit.
 
 ### B-roll / Visuals
 
 - 0:00–0:15 — Bobby on camera.
-- 0:15–0:35 — Animated audience dial sliding between "Casual," "Direct," "Formal," "Empathetic." Same paragraph re-renders for each setting.
-- 0:35–1:00 — Screen capture: rough draft pasted in, rewrite prompt typed, polished version appearing.
-- 1:00–1:30 — Side-by-side: original on left, rewrite on right. AI-added words highlighted in red, with a "Hallucination!" callout.
-- 1:30–1:55 — Visual metaphor: a fact in the rewrite literally being traced with a magnifying glass back to a line in the original. Caption: "Source-grounding."
-- 1:55–2:20 — Bobby hands off to the exercise.
+- 0:15–0:35 — Stack of Word documents combining into a single PDF, with a "Download" badge appearing. Caption: "Real Cashman daily reports — Dec 30, 2006 → Mar 5, 2007."
+- 0:35–1:00 — Animated audience dial sliding between "Ops Director," "Client," "Internal Team." Same source produces three different summaries.
+- 1:00–1:30 — Screen capture: PDF uploaded to the Cashman AI Portal. Prompt typed. Summary + thematic insights list appearing.
+- 1:30–1:55 — Side-by-side: AI's output on the left, source PDF page on the right. A specific claim in the output gets traced back to the source line. Caption: "Source-grounding."
+- 1:55–2:25 — Animated red flags appearing on three suspicious specifics in AI's output (a name, a number, a date) that turn out to be fabricated. "Hallucination!" callout.
+- 2:25–2:55 — Bobby hands off to the exercise. Cursor clicks the download link in the lesson.
 
 ### On-screen text cues
 
-- "Tell AI exactly who the audience is."
-- "Watch for invented details — that's a hallucination."
+- "Real Cashman doc — daily reports, Dec 2006 → Mar 2007."
+- "Tell AI who the audience is."
+- "Patterns across many days, not transcription of one."
 - "New skill: Source-grounding — every claim ties to a real source."
 
 ---

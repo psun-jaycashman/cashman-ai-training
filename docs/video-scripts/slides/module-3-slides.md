@@ -120,56 +120,70 @@ Four decks for Module 3: **Reports and Documents** (instructor: Bobby).
 
 ---
 
-## Deck C — Lesson 2: Rewriting and Editing (~2 min 45 sec)
+## Deck C — Lesson 2: Rewriting and Editing (~3 min 15 sec)
 
 ### Slide C1 — Title
 - **Layout:** Full-bleed title
-- **Headline:** Lesson 2 — Rewriting and Editing
-- **Subhead:** Take a rough draft. Make it shine.
-- **Visual:** Crumpled paper → polished paper.
-- **Timing:** 0:00–0:10
+- **Headline:** Lesson 2 — Summarize the Quincy Reports
+- **Subhead:** Real Cashman daily reports. Nine weeks. One PDF.
+- **Visual:** Stack of Word docs combining into a single PDF, with a download badge.
+- **Timing:** 0:00–0:15
 
-### Slide C2 — Editing for the Audience
+### Slide C2 — The Source Document
+- **Layout:** Image + caption
+- **Headline:** Real document, real data.
+- **Body:**
+  - Daily field reports from a Cashman Quincy job.
+  - Dec 30, 2006 → Mar 5, 2007 (~9 weeks).
+  - Originally Word files — extracted and combined into one PDF.
+- **Visual:** PDF cover screenshot with "Download" call-to-action.
+- **Timing:** 0:15–0:45
+
+### Slide C3 — The Task
+- **Layout:** Two-column
+- **Headline:** Two deliverables:
+- **Body:**
+  - **Executive Summary** — 2–3 paragraphs covering the whole 9-week period.
+  - **Insights List** — grouped by theme: productivity, weather, equipment, safety, manpower, milestones.
+- **Visual:** Two stacked cards.
+- **Timing:** 0:45–1:15
+
+### Slide C4 — Tell AI the Audience
 - **Layout:** Slider visual
-- **Headline:** Same content. Different audience. Different tone.
-- **Body:** Casual ↔ Direct ↔ Formal ↔ Empathetic
-- **Visual:** Tone dial with example paragraphs underneath.
-- **Timing:** 0:15–0:40
+- **Headline:** Same source. Different audience. Different deliverable.
+- **Body:** Ops Director ↔ Client ↔ Internal Team
+- **Visual:** Audience dial with three example outputs underneath.
+- **Timing:** 1:15–1:40
 
-### Slide C3 — Sample Prompt
-- **Layout:** Code/quote block
-- **Headline:** Sample prompt:
-- **Body:** *"Rewrite this for a federal client. Make it formal, well-structured, and concise. Don't add any facts that weren't in the original."*
-- **Visual:** Prompt + arrow.
-- **Timing:** 0:40–1:00
+### Slide C5 — Patterns, Not Transcription
+- **Layout:** Two-column do/don't
+- **Headline:** Aim for the season's story.
+- **Body:**
+  - **Do:** Identify patterns across many days. Group by theme.
+  - **Don't:** Just compress each day into a sentence.
+- **Visual:** A "log dump" on one side and a thematic summary on the other.
+- **Timing:** 1:40–2:05
 
-### Slide C4 — Hallucination, Again
+### Slide C6 — Hallucination Warning
 - **Layout:** Warning card
-- **Headline:** Watch for invented details.
-- **Body:** AI sometimes adds names, dates, scores, percentages — all to make the rewrite "sound better."
-- **Visual:** Red highlights on invented words.
-- **Timing:** 1:00–1:30
+- **Headline:** Specific facts = AI's biggest temptation.
+- **Body:** Dates, equipment numbers, crew counts, weather readings — all easy to invent. AI does it confidently.
+- **Visual:** Red highlights on three "fabricated" specifics in an output paragraph.
+- **Timing:** 2:05–2:30
 
-### Slide C5 — Source Grounding
+### Slide C7 — Source-Grounding
 - **Layout:** Term + definition
 - **Headline:** New skill: Source-Grounding
-- **Body:** Every claim in your final document should be traceable back to a source you actually have.
-- **Visual:** Magnifying glass tracing a fact in the rewrite back to a line in the original.
-- **Timing:** 1:30–1:55
+- **Body:** Pick three specific claims AI made. Find each one in the source PDF. If you can't find it, AI made it up. Strike it.
+- **Visual:** Magnifying glass tracing a claim back to a line in the source.
+- **Timing:** 2:30–2:55
 
-### Slide C6 — The Side-by-Side Drill
-- **Layout:** UI mockup
-- **Headline:** Do the drill.
-- **Body:** Put original and rewrite side by side. Look for additions. Anything new = suspect.
-- **Visual:** Split screen, two documents, highlighter circling additions.
-- **Timing:** 1:55–2:20
-
-### Slide C7 — Action
+### Slide C8 — Action
 - **Layout:** Action card
 - **Headline:** Your turn.
-- **Body:** Polish the closeout summary below. Then check it for invented details. Paste your version back.
-- **Visual:** Down-arrow.
-- **Timing:** 2:20–2:45
+- **Body:** Download the PDF. Run your prompts. Verify the specifics. Paste your summary + insights back. Three example outputs await.
+- **Visual:** Down-arrow with PDF icon.
+- **Timing:** 2:55–3:15
 
 ---
 

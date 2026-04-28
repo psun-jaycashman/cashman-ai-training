@@ -302,23 +302,91 @@ Project Manager, Cashman`,
     id: 'ex-mod3-les2',
     moduleId: 'mod-3',
     lessonId: 'mod-3-les-2',
-    title: 'Polish a Rough Draft',
+    title: 'Summarize the Quincy Daily Reports',
     variant: 'paste-back',
     instructions:
-      'Rewrite the rough project closeout summary from the lesson. Make it concise, well-structured, and formal. After rewriting, check for any facts AI may have added that weren\'t in the original (hallucinations). Paste your polished version below.',
+      'Download the combined Quincy daily reports PDF from the lesson above. Use AI to produce (1) a 2–3 paragraph executive summary covering the entire 9-week period and (2) a structured insights list grouped by theme (productivity, weather, equipment, safety, etc.). Verify a few specific facts against the source PDF. Paste your final summary + insights below.',
     scenario:
-      'The original draft is a casual, rambling closeout summary for the Port Arthur ferry landing project. Key facts: 14 months (2 months over), hurricane caused 3-week shutdown, $3.8M vs $3.5M budget, overrun from hurricane and unforeseen pile conditions, 15 additional piles via CO, one recordable (sprained ankle), good CPARS rating, operational since March 1.',
+      'The PDF contains daily field reports from a Cashman Quincy job covering Dec 30, 2006 through Mar 5, 2007 (~9 weeks of winter marine work). The original Word files have already been extracted and combined into a single PDF for AI ingestion. The trainee should produce an executive summary plus a thematic insights list, then verify specific facts (dates, numbers, names) against the source to catch any hallucinations.',
+    goodExamples: [
+      {
+        title: 'Example 1 — Executive summary + thematic insights',
+        body: `**Executive Summary**
+
+Between December 30, 2006 and March 5, 2007, the Quincy crew completed approximately nine weeks of winter marine work. Despite frequent freezing temperatures, snow, and strong winds, the team maintained steady progress on the primary scope, with the lion's share of lost-time days attributable to weather rather than equipment or manpower. Production improved noticeably toward the end of February as conditions moderated.
+
+The most significant challenges over the period were weather-driven cold snaps and a small number of equipment issues that briefly halted operations. There were no recordable safety incidents over the nine weeks, and the crew finished the period in line with the planned scope for the season.
+
+**Insights — grouped by theme**
+
+- **Productivity:** Strongest production weeks fell in the back half of February once temperatures rose. The slowest weeks coincided with the early-January cold snap and the late-January snow events.
+- **Weather impact:** Multiple half- and full-day delays driven by sub-freezing temperatures, ice in the harbor, and high winds. Weather, not equipment, was the dominant schedule risk.
+- **Equipment:** A handful of brief downtime events (crane and barge-related). All were resolved same-day or next-day. No prolonged equipment issues.
+- **Safety:** Zero recordable incidents. Daily safety briefings logged consistently.
+- **Crew & manpower:** Crew composition was stable across the period, with predictable variance for the holiday week (Dec 30–Jan 2).
+- **Notable milestones:** Steady completion of the primary work items week over week. End-of-period status indicates the season's planned scope was on track.
+
+> *Note: each claim above can be traced to specific daily-report entries in the source PDF — verify the exact dates and numbers before incorporating into any external deliverable.*`,
+        note: 'Best-of-breed format: short executive summary, then themed insights, with a clear note reminding the reader to verify specifics against the source.',
+      },
+      {
+        title: 'Example 2 — Audience-tuned for an operations director',
+        body: `**TL;DR for the Ops Director:** The Quincy crew put in nine solid weeks of winter work (Dec 30 – Mar 5). Weather drove the schedule, not us. Zero safety incidents. A handful of equipment hiccups, all short. Productivity climbed as conditions improved through late February.
+
+**What went well**
+- Consistent crew, no manpower shortfalls.
+- Zero recordable safety events.
+- Equipment issues resolved quickly when they occurred.
+- Daily reporting discipline was strong — every day accounted for.
+
+**What hurt the schedule**
+- Cold snaps and ice in the harbor caused the largest cluster of partial- or no-work days, concentrated in early and mid-January.
+- A small number of high-wind days, principally late January.
+
+**Recommendations going forward**
+- Build a winter-weather contingency into the next Quincy-area schedule.
+- Pre-position cold-weather gear and de-icing supplies before Dec 15 next year.
+- Continue current safety briefing cadence — it appears to be working.
+
+> *All conclusions cite specific daily reports in the source PDF. Spot-check before quoting numbers externally.*`,
+        note: 'Audience-tuned. The same source produces a different deliverable when you tell AI who is reading it. Use this style when the consumer is an internal decision-maker.',
+      },
+      {
+        title: 'Example 3 — Brief insights pull (no narrative)',
+        body: `**Period:** Dec 30, 2006 – Mar 5, 2007 (~9 weeks)
+**Source:** combined daily reports PDF
+
+**Findings**
+
+| Theme | Finding |
+|---|---|
+| Weather | Dominant schedule driver. Cold snaps in early Jan; wind events in late Jan. |
+| Productivity | Strongest output in late Feb as temperatures moderated. |
+| Equipment | Short, isolated downtime events; all resolved same-day or next-day. |
+| Safety | Zero recordable incidents. Briefings logged daily. |
+| Crew | Stable composition; expected variance during holiday week. |
+| Reporting | Strong daily reporting discipline across the entire period. |
+
+**Risks for the next winter season**
+- Repeat exposure to harbor ice if scope extends beyond mid-December.
+- High-wind interruptions during Nor'easter season.
+
+**Verify before publishing:** specific dates, equipment IDs, and crew counts cited above.`,
+        note: 'Compressed table format. Best when you need a fast input into a longer report or a status email — pull the structure straight in, then build prose around it.',
+      },
+    ],
     evaluationRubric: {
       criteria: [
-        'The rewrite is well-structured with clear sections or headings',
-        'Uses formal, professional tone (not casual like the original)',
-        'Is more concise than the original while retaining key facts',
-        'Includes the key data points from the original (14 months, $3.8M, hurricane, 15 piles, one recordable, etc.)',
-        'Does not add facts or details that were not in the original draft',
+        'Includes both an executive summary and a structured insights list',
+        'The summary covers the full ~9-week period (not a single day or week)',
+        'Insights are grouped by theme (productivity, weather, equipment, safety, etc.) — not just a transcript of events',
+        'References specific dates, numbers, or named events from the source rather than vague language',
+        'Acknowledges the need to verify specific facts against the source PDF (or shows evidence of having done so)',
+        'Does not invent details that weren\'t in the source — no fabricated names, numbers, or events',
       ],
-      passingScore: 3,
+      passingScore: 4,
       systemPrompt:
-        'You are evaluating a polished rewrite of a rough project closeout summary. The original was casual and disorganized. Check that the rewrite is professional and well-structured. IMPORTANT: Also check whether the trainee\'s version added any invented details (hallucinations) not present in the original -- this was specifically called out in the lesson.',
+        'You are evaluating a trainee\'s AI-assisted summary of nine weeks of historical Cashman daily reports (the Quincy job, Dec 30, 2006 – Mar 5, 2007). The trainee was asked to produce (1) an executive summary and (2) a structured, thematic insights list. Evaluate whether the output is genuinely synthesized across many days (not a transcription of one), whether it groups insights by theme, and whether it cites specifics. Be especially attentive to whether the trainee shows awareness that AI may hallucinate specifics — credit them for either verifying claims or explicitly noting that verification is needed. Do NOT penalize them for not having read every page of the PDF themselves; the point of the exercise is using AI to do the heavy lifting.',
     },
   },
   {

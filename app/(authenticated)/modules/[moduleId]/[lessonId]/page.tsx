@@ -38,8 +38,12 @@ function markdownToHtml(md: string): string {
     // Bold and italic
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-indigo-600 dark:text-indigo-400 hover:underline" target="_blank" rel="noopener">$1</a>')
+    // Links — add download attribute for /downloads/ paths so PDFs save directly
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match: string, text: string, href: string) => {
+      const isDownload = href.startsWith('/downloads/');
+      const downloadAttr = isDownload ? ' download' : '';
+      return `<a href="${href}" class="text-indigo-600 dark:text-indigo-400 hover:underline" target="_blank" rel="noopener"${downloadAttr}>${text}</a>`;
+    })
     // Unordered lists
     .replace(/^[*-] (.+)$/gm, '<li class="ml-4 list-disc text-gray-700 dark:text-gray-300">$1</li>')
     // Ordered lists

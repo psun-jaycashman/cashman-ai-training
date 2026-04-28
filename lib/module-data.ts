@@ -368,34 +368,52 @@ A strong AI-generated report should have:
   {
     id: 'mod-3-les-2',
     title: 'Rewriting and Editing',
-    estimatedMinutes: 5,
+    estimatedMinutes: 8,
     order: 2,
     activityType: 'exercise',
     activityId: 'ex-mod3-les2',
     content: `
 ## Rewriting and Editing
 
-Sometimes you don't need to write from scratch -- you need to improve something that already exists. AI is excellent at restructuring, tightening, and polishing rough drafts.
+Rewriting isn't only about polishing prose. Often the real job is **transforming raw, repetitive source material into something a busy reader can actually use** -- a summary, a set of insights, an executive memo. AI is excellent at this.
+
+### Real Cashman Document: Quincy Daily Reports
+
+For this lesson, you're going to work with a real historical Cashman document. We pulled the daily reports from a Quincy job covering **December 30, 2006 through March 5, 2007** -- roughly nine weeks of winter marine work. The reports were originally individual Microsoft Word files. We extracted them into PDF and combined them into a single document so you can hand the whole thing to AI in one shot.
+
+[**📄 Download the Quincy daily reports (PDF, ~1.8 MB)**](/downloads/quincy-daily-reports.pdf)
 
 ### The Task
 
-Below is a rough draft of a project closeout summary. It's too long, poorly organized, and the tone is too casual. Your job:
+Your job is to use AI to **summarize and extract insights** from these daily reports. Specifically:
 
-1. **Copy the draft below**
-2. **Use AI to rewrite it** -- ask for it to be concise, well-structured, and formal
-3. **Paste the improved version** into the exercise below
+1. **Download the PDF** above.
+2. **Upload it to the Cashman AI Portal** (or paste sections into your AI tool of choice).
+3. **Ask AI to produce two things:**
+   - A **2–3 paragraph executive summary** of the nine-week period -- what was the job, what got done, and how did the season go overall.
+   - A **structured insights list** covering: productivity patterns, recurring delays or issues, weather impact, equipment utilization, safety events, and any noteworthy decisions or milestones.
+4. **Paste your final summary + insights** into the exercise below.
 
-### The Rough Draft
+### Tips for This Exercise
 
-> So we finished the Port Arthur ferry landing project back in February, finally. It took about 14 months which was two months longer than we planned but honestly considering the hurricane in September that shut us down for 3 weeks I think we did pretty good. Total cost came in at $3.8M against a budget of $3.5M, the overrun was mostly from the hurricane mobilization/demobilization and some unforeseen conditions with the existing timber piles that were way more deteriorated than the survey showed. We ended up having to drive 15 additional piles that weren't in the original scope, client approved the CO for that. Safety-wise we had one recordable -- a sprained ankle on the barge in October, guy stepped on a coaming in the dark during early morning ops. We changed the lighting plan after that. Honestly the client is happy, the COR gave us a good CPARS rating and said they'd use us again. The ferry landing has been operational since March 1 and there have been no issues reported. Lessons learned: we need better pre-construction surveys for timber pile conditions, and we should have a hurricane season contingency plan baked into Gulf Coast proposals.
+- **Be explicit with AI about audience.** A summary for the operations director sounds different from a summary for a client. Pick one.
+- **Ask AI to cite specific dates** when calling out events. \"On Jan 12, the crane was down for repair\" is useful. \"There were equipment issues\" is not.
+- **Look for patterns across many days, not just transcription of one day.** That's the difference between a *summary* and a *log dump*.
+- **For the insights list**, ask AI to group findings by theme (weather, equipment, productivity, safety, etc.) so the output is scannable.
 
-### Hallucination Warning
+### Hallucination Warning -- Double Down
 
-Here's an important exercise: after AI rewrites this document, look for any facts it **added** that weren't in the original. AI sometimes "improves" text by inventing plausible-sounding details -- a specific CPARS score you never mentioned, a hurricane name, a precise date for the injury.
+Daily reports are dense, repetitive, and full of specific facts: dates, equipment numbers, crew counts, weather readings, hours worked, footage placed. This is exactly the kind of source material where **AI is most tempted to invent details that sound right**.
 
-If you find invented details, congratulations -- you've caught a **hallucination**. This is exactly why you must always verify AI output against your source material.
+After AI gives you the summary and insights, do a side-by-side check:
 
-> **Key Takeaway:** AI excels at restructuring and polishing rough drafts. But always check for hallucinations -- AI may add plausible-sounding details that are completely fabricated.
+- Pick three specific facts in AI's output (a date, a number, a name).
+- Search the source PDF for each one. Does the source actually say that?
+- If you can't find it, AI made it up. That's a **hallucination**.
+
+This habit -- **source-grounding** every claim in your output back to the actual document -- is the single most important skill for working with AI on real company material.
+
+> **Key Takeaway:** Rewriting often means *transforming* dense source material into something useful. AI excels at this. But the more facts in the source, the more critical it is to verify every specific claim AI makes against the original.
 `,
   },
   {
