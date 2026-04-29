@@ -52,6 +52,17 @@ export async function POST(request: NextRequest) {
     const { uploadChatAttachment, deleteChatAttachment } = await import('@jazzmind/busibox-app');
     const libraryId = process.env.TRAINING_VIDEOS_LIBRARY_ID;
 
+    console.info(
+      '[video] upload starting',
+      JSON.stringify({
+        path: libraryId ? 'library' : 'chat-attachment',
+        libraryId: libraryId ?? null,
+        sizeBytes: file.size,
+        mimeType: file.type,
+        userId: auth.userId,
+      }),
+    );
+
     let uploaded: { fileId: string; mimeType: string; sizeBytes: number };
     try {
       if (libraryId) {
@@ -73,6 +84,14 @@ export async function POST(request: NextRequest) {
       const message = err instanceof Error ? err.message : 'Upload to storage failed';
       return NextResponse.json({ error: message }, { status: 502 });
     }
+
+    console.info(
+      '[video] upload succeeded',
+      JSON.stringify({
+        path: libraryId ? 'library' : 'chat-attachment',
+        fileId: uploaded.fileId,
+      }),
+    );
     let video;
     try {
       const ids = await ensureDataDocuments(auth.apiToken);

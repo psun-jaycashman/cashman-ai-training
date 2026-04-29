@@ -352,7 +352,9 @@ export type PlaybackInfo =
   | { kind: 'external'; provider: ExternalVideoProvider; url: string };
 
 export interface TrainingVideoWithPlayback extends TrainingVideo {
-  playback: PlaybackInfo;
+  // null when the metadata record is visible but the underlying file is
+  // not accessible to the requester (e.g. another user's MinIO upload).
+  playback: PlaybackInfo | null;
 }
 
 export interface VideoProgress {

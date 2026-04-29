@@ -95,6 +95,13 @@ export default function VideoPlayer({ video }: Props) {
   };
 
   const inner = (() => {
+    if (video.playback === null) {
+      return (
+        <div className="flex h-full w-full items-center justify-center bg-gray-900 text-sm text-gray-300">
+          This video is not available to your account yet. Please contact an administrator.
+        </div>
+      );
+    }
     if (video.playback.kind === 'uploaded') {
       return (
         <UploadedPlayer
