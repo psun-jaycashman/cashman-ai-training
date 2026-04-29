@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireAdmin } from '@/lib/video-admin-role';
 import { ensureDataDocuments } from '@/lib/data-api-client';
-import { insertVideo, listAllVideos } from '@/lib/video-data-api';
+import { insertVideo, listAllVideos, uploadVideoToLibrary } from '@/lib/video-data-api';
 import { detectProvider } from '@/lib/video-embed';
 
 export const runtime = 'nodejs';
@@ -50,14 +50,24 @@ export async function POST(request: NextRequest) {
     const order = typeof orderRaw === 'string' && orderRaw !== '' ? Number(orderRaw) : 0;
 
     const { uploadChatAttachment, deleteChatAttachment } = await import('@jazzmind/busibox-app');
+    const libraryId = process.env.TRAINING_VIDEOS_LIBRARY_ID;
 
-    let uploaded: Awaited<ReturnType<typeof uploadChatAttachment>>;
+    let uploaded: { fileId: string; mimeType: string; sizeBytes: number };
     try {
-      uploaded = await uploadChatAttachment(file, {
-        accessToken: auth.apiToken,
-        userId: auth.userId,
-        timeout: UPLOAD_TIMEOUT_MS,
-      });
+      if (libraryId) {
+        uploaded = await uploadVideoToLibrary(file, libraryId, {
+          accessToken: auth.apiToken,
+          userId: auth.userId,
+          timeout: UPLOAD_TIMEOUT_MS,
+        });
+      } else {
+        const result = await uploadChatAttachment(file, {
+          accessToken: auth.apiToken,
+          userId: auth.userId,
+          timeout: UPLOAD_TIMEOUT_MS,
+        });
+        uploaded = { fileId: result.fileId, mimeType: result.mimeType, sizeBytes: result.sizeBytes };
+      }
     } catch (err) {
       console.error('[video] MinIO upload failed', err);
       const message = err instanceof Error ? err.message : 'Upload to storage failed';

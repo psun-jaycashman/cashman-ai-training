@@ -8,11 +8,41 @@
 
 import {
   queryRecords, insertRecords, updateRecords, deleteRecords,
-  generateId, getNow, deleteChatAttachment,
+  generateId, getNow, deleteChatAttachment, dataFetch,
 } from '@jazzmind/busibox-app';
 import type { TrainingVideo, VideoProgress } from './types';
 
 const COMPLETION_THRESHOLD = 0.95;
+
+/**
+ * Upload a video file to data-api, scoping access via a shared library so
+ * any user with a role bound to that library can fetch the file's presigned
+ * URL. This bypasses the user-scoped chat-attachment path used by
+ * uploadChatAttachment(), which is why admin uploads weren't visible to
+ * other users.
+ */
+export async function uploadVideoToLibrary(
+  file: File,
+  libraryId: string,
+  options: { accessToken: string; userId: string; timeout?: number },
+): Promise<{ fileId: string; mimeType: string; sizeBytes: number }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('libraryId', libraryId);
+  const res = await dataFetch('Upload training video to library', '/upload', {
+    method: 'POST',
+    body: formData,
+    accessToken: options.accessToken,
+    userId: options.userId,
+    timeout: options.timeout,
+  });
+  const data = await res.json();
+  return {
+    fileId: data.fileId,
+    mimeType: data.mimeType ?? file.type,
+    sizeBytes: data.sizeBytes ?? file.size,
+  };
+}
 
 export async function listVideosForModule(
   token: string,
