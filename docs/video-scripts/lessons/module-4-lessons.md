@@ -1,7 +1,7 @@
 # Module 4 — Lesson Scripts
 
 **Module:** Spreadsheets and Data
-**Instructor:** Bobby
+**Instructor:** Peter
 **Audience:** Cashman employees, brand new to AI
 
 Each lesson script is sized for a ~2–3 minute Descript voiceover. Professional
@@ -11,13 +11,13 @@ terms appear in **bold** the first time they're used and are explained inline.
 
 ## Lesson 1 — AI-Powered Formulas
 
-**Lesson runtime estimate:** ~2 min 45 sec
-**Activity at end of lesson:** Exercise — paste in three AI-generated Excel formulas
+**Lesson runtime estimate:** ~3 min 30 sec
+**Activity at end of lesson:** Exercise — download the $32M Schedule of Values workbook and paste back the AI-generated formulas
 
 ### Title card
 
 > **Lesson 1 — AI-Powered Formulas**
-> Stop Googling. Start describing.
+> A real $32M schedule of values. Real formulas. Real verification.
 
 ### Script
 
@@ -25,38 +25,54 @@ Quick show of hands -- how many people in this room have, in the last week, Goog
 
 That whole workflow goes away with AI.
 
-The new workflow is: open Copilot in Excel, or open the Cashman AI Portal, and just *describe what you want in plain English*. "I have a budget in column B and actual spend in column C. Give me a formula in column F that says OVER BUDGET if Spent is greater than Budget, ON TRACK if it's within ten percent, and UNDER BUDGET otherwise."
+The new workflow is: open Copilot in Excel, or the Cashman AI Portal, and just *describe what you want in plain English*. "Total Billed equals Previously Billed plus This Period." Done. AI hands you the formula.
 
-Done. AI hands you the formula.
+But I don't want to demo this on a toy example. So for this lesson, we built a downloadable Excel workbook -- a hypothetical thirty-two-million-dollar marine project, with a real-shaped **schedule of values**. That term is worth knowing. A schedule of values is a line-by-line breakdown of the contract, organized by **CSI MasterFormat division** -- the standard construction taxonomy: zero-one for general requirements, zero-three for concrete, zero-five for metals, three-five for marine, and so on. The owner pays from this schedule, line by line, with a percent-complete on each.
 
-There are a couple of professional terms here worth knowing. The fancy name for what we're building is **conditional logic** -- formulas that produce different results depending on what's in the data. The Excel functions that do this are usually called `IF`, `IFS`, or `SWITCH`. AI will pick the right one.
+The workbook has twenty-one line items. We've filled in three columns for you: Total Contract Amount, Previously Billed, and This Period. Your job, with AI's help, is to write the formulas for the rest:
 
-There's also a concept called **absolute vs. relative cell references**. A reference like `B2` shifts when you copy the formula down -- that's relative. A reference like `$B$2` doesn't shift -- that's absolute. Get this wrong and your formulas silently break when you fill them down a column. AI usually gets it right, but not always. Which leads me to the rule for this whole module.
+**Total Billed.** Previously plus this period.
 
-**Always test the formula.** Always. Even when it looks right.
+**Percent Complete.** Total Billed divided by Total Contract -- watch out for divide-by-zero on empty rows.
 
-The drill is simple. Plug in numbers where you already know the answer. If your budget is $100,000 and spent is $110,000, the status flag should say OVER BUDGET. If the formula says ON TRACK, you've found a bug. Better to find it now than in a board meeting next week.
+**Remaining.** Total Contract minus Total Billed.
 
-There's a name for this discipline that comes from software engineering. It's called **unit testing** -- you test small pieces of logic in isolation with known inputs to make sure they work. Same idea. Test your formulas with known values before you trust them.
+**Retention.** Ten percent of Total Billed -- the owner holds that back until punch list completion.
 
-Below you'll see a project cost spreadsheet layout. Ask AI for formulas for the Remaining column, the % Complete column, and the Status Flag column. Paste them into the exercise. Let's go.
+**Net Earned.** Total Billed minus Retention.
+
+**Status flag.** Multi-condition: COMPLETE, NEAR COMPLETE, IN PROGRESS, or NOT STARTED, depending on the percent-complete.
+
+Plus -- and this is the harder part -- **division subtotals**. For each division, you need a `SUMIFS` formula that totals just the lines belonging to that division. And a project-total row at the bottom.
+
+A few professional terms while we're here. **Conditional logic** -- formulas that produce different results depending on the data. That's the `IF`, `IFS`, or `SWITCH` family. **Absolute versus relative references** -- `B2` shifts when you drag the formula down, `$B$2` doesn't. Get that wrong and your SUMIFS criteria silently move and you get nonsense subtotals.
+
+And the rule for the whole module, applied to a real-money project: **always test the formula.** A wrong formula on a thirty-two-million-dollar pay app is a real-money mistake. The drill: plug in known values. The Bonds and Insurance line is one hundred percent billed -- so its status should say COMPLETE and its remaining should be zero. The Backfill line hasn't started -- its status should say NOT STARTED and its remaining should equal the contract amount. If the formula gives the wrong answer there, you've found a bug. There's a name for this in software: **unit testing**. Test small pieces of logic with known inputs.
+
+One last gotcha: the project-wide percent complete should be computed from the *totals* -- total billed divided by total contract -- not by averaging the row percentages. A weighted average is not the average of weighted values. AI will sometimes confidently get this wrong. Catch it.
+
+Download the workbook below. Run your prompts. Verify with known values. Paste your formulas in.
 
 ### B-roll / Visuals
 
-- 0:00–0:15 — Bobby on camera.
+- 0:00–0:15 — Peter on camera.
 - 0:15–0:30 — Comic-style montage: someone Googling Excel formulas, scrolling forum threads. Caption: "The old way."
-- 0:30–1:00 — Screen capture: Copilot pane in Excel, plain-English description typed, formula auto-fills.
-- 1:00–1:30 — Animated graphic: an `IF` formula expanding visually. Captions appear: "Conditional Logic."
-- 1:30–1:55 — Side-by-side: relative vs absolute references. A formula being copied down a column. The relative shifts; the absolute holds.
-- 1:55–2:25 — Quick sequence: typing a known-answer test value into the spreadsheet, formula returning the expected result, green checkmark. Caption: "Unit testing for formulas."
-- 2:25–2:40 — Bobby hands off to the exercise.
+- 0:30–1:00 — Screen capture of the downloadable workbook scrolling through the 21 line items. Captions appear: "Schedule of Values · CSI MasterFormat · 21 line items · 7 divisions."
+- 1:00–1:25 — Two-column animation: "Filled in" (Total Contract, Previously, This Period) vs "You write" (Total Billed, % Complete, Remaining, Retention, Net Earned, Status, SUMIFS, Project Total).
+- 1:25–1:50 — Animated graphic showing an `IFS` formula building the four-condition status flag. Caption: "Order matters: most-specific first."
+- 1:50–2:15 — A SUMIFS formula being typed; division subtotals filling in. Caption: "SUMIFS by division."
+- 2:15–2:40 — A test row: Bonds & Insurance, 100% billed, status flag flashes "COMPLETE." A test row: Backfill, 0% billed, status "NOT STARTED." Green checkmarks. Caption: "Verify with known values."
+- 2:40–3:05 — Side-by-side: weighted project % complete (correct) vs simple average of row %s (wrong). Caption: "Weighted ≠ averaged."
+- 3:05–3:25 — Peter hands off to the exercise; cursor clicks the workbook download.
 
 ### On-screen text cues
 
-- "Describe it. Don't Google it."
+- "Real $32M schedule of values. Downloadable."
+- "New term: CSI MasterFormat — the construction division taxonomy."
 - "New term: Conditional Logic — IF / IFS / SWITCH."
-- "New term: Absolute vs Relative References."
+- "New term: SUMIFS — subtotal by criteria."
 - "Always test with known values."
+- "Project % complete is weighted — never averaged from rows."
 
 ---
 
@@ -94,13 +110,13 @@ Down below, your task is to ask AI what analyses to run on a dataset of fifty co
 
 ### B-roll / Visuals
 
-- 0:00–0:15 — Bobby on camera.
+- 0:00–0:15 — Peter on camera.
 - 0:15–0:35 — Screen capture: someone staring at a giant spreadsheet of project records, scrolling endlessly.
 - 0:35–1:05 — Animated graphic: pivot table forming itself in Excel from raw data. Caption: "Pivot Table."
 - 1:05–1:30 — Two animated lines moving in sync. Caption: "Correlation." Then: "Correlation ≠ Causation" with a red strikethrough on the equals sign.
 - 1:30–1:55 — Bar chart with only a handful of bars per category. Tiny "p-value" tooltip appears, then a sad face. Caption: "Statistical significance."
 - 1:55–2:25 — Split screen: AI suggesting an analysis (left) and a human reviewing it critically (right). Caption: "Domain expertise."
-- 2:25–2:45 — Bobby hands off to the exercise.
+- 2:25–2:45 — Peter hands off to the exercise.
 
 ### On-screen text cues
 
@@ -141,13 +157,13 @@ Your exercise is below. Three messy equipment formats from three different super
 
 ### B-roll / Visuals
 
-- 0:00–0:15 — Bobby on camera.
+- 0:00–0:15 — Peter on camera.
 - 0:15–0:30 — Visual: three sticky notes with three messy formats, getting fed into a "normalizer" funnel.
 - 0:30–0:55 — Out of the funnel: a single clean table. Caption: "Data Normalization."
 - 0:55–1:20 — Animated diagram of a schema: column names and types lining up. Caption: "Schema."
 - 1:20–1:50 — Highlighter drawing attention to a row in the cleaned table where an edge case ("all day") was interpreted. Caption: "Spot-check the edges."
 - 1:50–2:15 — Quick text overlay listing data quality dimensions: Accuracy · Completeness · Consistency · Timeliness.
-- 2:15–2:30 — Bobby wraps Module 4.
+- 2:15–2:30 — Peter wraps Module 4.
 
 ### On-screen text cues
 

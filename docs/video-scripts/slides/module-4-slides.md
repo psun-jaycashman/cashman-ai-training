@@ -1,6 +1,6 @@
 # Module 4 — Slide Decks
 
-Four decks for Module 4: **Spreadsheets and Data** (instructor: Bobby).
+Four decks for Module 4: **Spreadsheets and Data** (instructor: Peter).
 
 ---
 
@@ -46,58 +46,84 @@ Four decks for Module 4: **Spreadsheets and Data** (instructor: Bobby).
 
 ---
 
-## Deck B — Lesson 1: AI-Powered Formulas (~2 min 45 sec)
+## Deck B — Lesson 1: AI-Powered Formulas (~3 min 30 sec)
 
 ### Slide B1 — Title
 - **Layout:** Full-bleed title
-- **Headline:** Lesson 1 — AI-Powered Formulas
-- **Subhead:** Stop Googling. Start describing.
-- **Visual:** Excel icon with sparkles.
-- **Timing:** 0:00–0:10
+- **Headline:** Lesson 1 — $32M Schedule of Values
+- **Subhead:** Real-shaped formulas. Real verification. Downloadable.
+- **Visual:** Excel icon over a stylized version of the SoV header (cream/green).
+- **Timing:** 0:00–0:15
 
-### Slide B2 — Sample Prompt
-- **Layout:** Code/quote block
-- **Headline:** Sample prompt:
-- **Body:** *"I have a budget in column B and actual spend in column C. Give me a formula in column F that says OVER BUDGET if Spent is greater than Budget, ON TRACK if within 10%, and UNDER BUDGET otherwise."*
-- **Visual:** Excel sidebar mockup with the prompt typed.
+### Slide B2 — The Project
+- **Layout:** Image + caption
+- **Headline:** Hypothetical $32M marine project
+- **Body:**
+  - 21 line items, 7 CSI MasterFormat divisions
+  - ~32% billed through this period
+  - 10% retention until punch-list closeout
+- **Visual:** Cropped screenshot of the workbook header showing the green-styled headers and a few rows.
 - **Timing:** 0:15–0:45
 
-### Slide B3 — Define Conditional Logic
-- **Layout:** Term + definition
-- **Headline:** New term: Conditional Logic
-- **Body:** Formulas that produce different results depending on what's in the data. In Excel: `IF`, `IFS`, `SWITCH`.
-- **Visual:** Decision tree branching.
-- **Timing:** 0:45–1:10
-
-### Slide B4 — Define Cell References
-- **Layout:** Two-column comparison
-- **Headline:** New term: Absolute vs Relative References
+### Slide B3 — Define Schedule of Values + CSI MasterFormat
+- **Layout:** Two-term card
+- **Headline:** Two terms worth knowing
 - **Body:**
-  - **Relative** (`B2`) — shifts when copied
-  - **Absolute** (`$B$2`) — stays put
-- **Visual:** Excel grid showing both behaviors as a formula is dragged down.
-- **Timing:** 1:10–1:40
+  - **Schedule of Values** — line-by-line breakdown of the contract, used for owner pay applications.
+  - **CSI MasterFormat** — the standard division taxonomy: 01 General, 03 Concrete, 05 Metals, 31 Earthwork, 35 Marine, etc.
+- **Visual:** Construction taxonomy tree with a few divisions highlighted.
+- **Timing:** 0:45–1:15
 
-### Slide B5 — Always Test
+### Slide B4 — Inputs vs Formulas
+- **Layout:** Two-column split
+- **Headline:** What's filled in. What you write.
+- **Body:**
+  - **Filled in:** Total Contract · Previously Billed · This Period
+  - **You write:** Total Billed · % Complete · Remaining · Retention · Net Earned · Status · SUMIFS subtotals · Project total
+- **Visual:** Two columns of a workbook screenshot, with the "you write" side highlighted green.
+- **Timing:** 1:15–1:45
+
+### Slide B5 — IFS Status Flag
+- **Layout:** Code/quote block
+- **Headline:** Order matters in `IFS`.
+- **Body:** *Most-specific first:*
+  `=IFS(D6=0,"",H6=1,"COMPLETE",H6>=0.9,"NEAR COMPLETE",H6>0,"IN PROGRESS",TRUE,"NOT STARTED")`
+- **Visual:** Animation showing the formula evaluating top-down on three test rows.
+- **Timing:** 1:45–2:15
+
+### Slide B6 — SUMIFS by Division
+- **Layout:** Code/quote block
+- **Headline:** Subtotal by division
+- **Body:** `=SUMIFS(D$6:D$26, $B$6:$B$26, $B28)`
+  - First arg = column to SUM
+  - Then alternating range/criteria pairs
+  - Use `$` to lock the data range when dragging
+- **Visual:** Workbook screenshot with the division subtotal block highlighted.
+- **Timing:** 2:15–2:45
+
+### Slide B7 — Always Test
 - **Layout:** Big text card
-- **Headline:** Rule: Always test the formula.
-- **Body:** Plug in numbers where you already know the answer.
-- **Visual:** Excel cell with $100K budget, $110K spent → cell shows "OVER BUDGET" → green check.
-- **Timing:** 1:40–2:05
+- **Headline:** Test with known rows.
+- **Body:**
+  - Bonds & Insurance: 100% billed → status = COMPLETE, remaining = $0
+  - Backfill: 0% billed → status = NOT STARTED, remaining = $1.4M
+  - Sum of division subtotals (D) should = $32,000,000
+- **Visual:** Three test rows with green checkmarks.
+- **Timing:** 2:45–3:05
 
-### Slide B6 — Define Unit Testing
-- **Layout:** Term + definition
-- **Headline:** New term: Unit Testing
-- **Body:** From software engineering — testing small pieces of logic in isolation with known inputs to confirm they work.
-- **Visual:** Beaker icon with checkmark.
-- **Timing:** 2:05–2:25
+### Slide B8 — Weighted ≠ Averaged
+- **Layout:** Warning card
+- **Headline:** Project % complete is weighted.
+- **Body:** Use `=SUM(G6:G26)/SUM(D6:D26)`. NOT `=AVERAGE(H6:H26)`. AI gets this wrong sometimes — catch it.
+- **Visual:** Side-by-side: weighted (33%, correct) vs averaged (51%, wrong) — red strikethrough on the wrong one.
+- **Timing:** 3:05–3:25
 
-### Slide B7 — Action
+### Slide B9 — Action
 - **Layout:** Action card
 - **Headline:** Your turn.
-- **Body:** Use AI to generate formulas for columns D, E, F. Paste them back.
-- **Visual:** Down-arrow.
-- **Timing:** 2:25–2:45
+- **Body:** Download the workbook. Run your prompts. Verify with known values. Paste your formulas back.
+- **Visual:** Down-arrow + Excel icon.
+- **Timing:** 3:25–3:30
 
 ---
 

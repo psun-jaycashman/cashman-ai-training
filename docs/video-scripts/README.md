@@ -37,7 +37,7 @@ for roughly **60–90 seconds** of voiceover and is written for someone who is
 | 1 | Your AI Toolkit | Wes | [module-1-intro.md](module-1-intro.md) |
 | 2 | AI and Email | Wes | [module-2-intro.md](module-2-intro.md) |
 | 3 | Reports and Documents | Bobby | [module-3-intro.md](module-3-intro.md) |
-| 4 | Spreadsheets and Data | Bobby | [module-4-intro.md](module-4-intro.md) |
+| 4 | Spreadsheets and Data | Peter | [module-4-intro.md](module-4-intro.md) |
 | 5 | Images, Video, and Media | Bobby | [module-5-intro.md](module-5-intro.md) |
 | 6 | Document Processing and Search | Peter | [module-6-intro.md](module-6-intro.md) |
 | 7 | AI Agents | Peter | [module-7-intro.md](module-7-intro.md) |

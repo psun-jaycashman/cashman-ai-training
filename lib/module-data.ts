@@ -461,39 +461,68 @@ const mod4Lessons: Lesson[] = [
   {
     id: 'mod-4-les-1',
     title: 'AI-Powered Formulas',
-    estimatedMinutes: 5,
+    estimatedMinutes: 10,
     order: 1,
     activityType: 'exercise',
     activityId: 'ex-mod4-les1',
     content: `
 ## AI-Powered Formulas
 
-Stop Googling Excel formulas. Describe what you need in plain English and AI writes the formula for you.
+Stop Googling Excel formulas. Describe what you need in plain English and AI writes the formula for you. In this lesson you'll do it on a *real-world-shaped* spreadsheet -- not a toy example.
+
+### The Project
+
+You're working on a hypothetical **$32 million marine construction project**. The owner pays from a **schedule of values** -- a line-by-line breakdown of every chunk of work, organized by **CSI MasterFormat division** (the standard construction taxonomy: 01 General Requirements, 02 Existing Conditions, 03 Concrete, 05 Metals, 31 Earthwork, 33 Utilities, 35 Marine Construction).
+
+Each line item has:
+- **Total Contract Amount** -- the negotiated value for that piece of work.
+- **Previously Billed** -- everything paid through prior pay applications.
+- **This Period** -- what we're billing on the current pay app.
+
+The project is roughly **32% billed** through this period. Your job is to build the formulas that take this raw data and turn it into a working pay-application worksheet.
+
+### Download the Workbook
+
+[**📥 Download the Schedule of Values workbook (Excel, ~15 KB)**](/downloads/sov-32m-project.xlsx)
+
+The workbook has **21 line items**, division subtotal rows, and a project-total row. Columns A–F are filled in. Columns G–L need formulas. So do the division subtotals and the project total.
 
 ### The Task
 
-You have a project cost spreadsheet with these columns:
-- **A:** Line Item Description
-- **B:** Budgeted Amount
-- **C:** Spent to Date
-- **D:** Remaining (you need a formula)
-- **E:** % Complete (you need a formula)
-- **F:** Status Flag -- should say "OVER BUDGET" if Spent > Budgeted, "ON TRACK" if within 10%, "UNDER BUDGET" otherwise
+Use AI (Copilot in Excel, the Cashman AI Portal, or your tool of choice) to write the following formulas. Describe each one in plain English -- AI handles the syntax. Then paste your formulas into the exercise below.
 
-Your job:
-1. **Use Copilot in Excel** or ask the Cashman AI Portal: "Write me Excel formulas for columns D, E, and F"
-2. **Give it the column layout described above**
-3. **Paste the three formulas** into the exercise below
+**1. Total Billed (column G)** -- sum of Previously Billed (E) and This Period (F).
+
+**2. % Complete (column H)** -- Total Billed divided by Total Contract Amount, formatted as a percentage. Watch for divide-by-zero on rows where Total Contract Amount is empty.
+
+**3. Remaining (column I)** -- Total Contract Amount minus Total Billed.
+
+**4. Retention 10% (column J)** -- 10% of Total Billed (held back by the owner until punch-list completion).
+
+**5. Net Earned to Date (column K)** -- Total Billed minus Retention. This is what we've actually earned in cash terms.
+
+**6. Status flag (column L)** -- a multi-condition formula:
+   - "COMPLETE" if % Complete = 100%
+   - "NEAR COMPLETE" if % Complete ≥ 90% (but less than 100%)
+   - "IN PROGRESS" if % Complete > 0% (but less than 90%)
+   - "NOT STARTED" if % Complete = 0%
+
+**7. Division subtotals** -- for each division (01, 02, 03, 05, 31, 33, 35), use **SUMIFS** to total the Total Contract, Total Billed, and Remaining columns by division.
+
+**8. Project Total row** -- sum of every numeric column across all 21 line items. Compute the project-wide % Complete from the totals (not by averaging the row-level percentages -- that's a classic mistake).
 
 ### Verification Is Critical
 
-Here's the thing about AI and formulas: they usually *look* right. But sometimes they have subtle errors -- a wrong cell reference, an inverted condition, a missing absolute reference.
+AI formulas usually *look* right. But subtle errors are common: a wrong cell reference, an inverted condition, an unprotected divide-by-zero, a SUMIFS that filters on the wrong column.
 
-**Always test AI formulas with known data.** Put in numbers where you already know the answer, and verify the formula gives you the right result.
+**Test with known values:**
+- A line where Previously = $1,200,000, This Period = $0 should give Total Billed = $1,200,000, Remaining = $0 (if Total Contract is also $1.2M), and Status = "COMPLETE."
+- A line where Previously = $0, This Period = $0 should show 0% Complete and Status = "NOT STARTED."
+- The Project Total row should sum to **$32,000,000** in column D and roughly **$10.5M** in column G (Total Billed). If your division subtotals don't add up to the project total, your SUMIFS criteria are wrong.
 
-For example: if Budget is $100,000 and Spent is $110,000, the Status Flag should say "OVER BUDGET." Does the formula actually produce that? Test it.
+A pro habit on spreadsheets at this stake: build a separate "verification" cell that compares your division subtotal sum to the project total. They should match exactly. If they don't, you have a bug.
 
-> **Key Takeaway:** Describe formulas in plain English and AI writes them. Always test with known values before trusting them in production.
+> **Key Takeaway:** AI writes the formula in seconds. *You* verify with known values. The bigger the project, the more important the verification — a wrong formula in a $32M pay app produces a real-money mistake.
 `,
   },
   {
@@ -1112,7 +1141,7 @@ export const MODULES: Module[] = [
     id: 'mod-4',
     title: 'Spreadsheets and Data',
     description: 'Generate Excel formulas, analyze datasets, and clean up messy data using AI.',
-    instructor: 'Bobby',
+    instructor: 'Peter',
     estimatedMinutes: 14,
     order: 4,
     icon: 'Table',

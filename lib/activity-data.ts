@@ -632,59 +632,89 @@ The most significant challenges over the period were weather-driven cold snaps a
     id: 'ex-mod4-les1',
     moduleId: 'mod-4',
     lessonId: 'mod-4-les-1',
-    title: 'AI-Generated Excel Formulas',
+    title: 'Schedule of Values Formulas',
     variant: 'paste-back',
     instructions:
-      'Using the column layout from the lesson (A: Description, B: Budget, C: Spent, D: Remaining, E: % Complete, F: Status Flag), ask AI to generate formulas for columns D, E, and F. Paste the three formulas below.',
+      'Download the $32M Schedule of Values workbook from the lesson. Use AI to generate the formulas for columns G–L (Total Billed, % Complete, Remaining, Retention 10%, Net Earned to Date, Status), the division subtotals (SUMIFS), and the project total row. Paste your formulas below — labeled by column or section.',
     scenario:
-      'Column D should be B-C (Remaining). Column E should be C/B as a percentage. Column F should flag "OVER BUDGET" if C>B, "ON TRACK" if within 10%, and "UNDER BUDGET" otherwise.',
+      'A hypothetical $32M marine construction project. 21 line items grouped by CSI MasterFormat division. Inputs: Total Contract Amount (D), Previously Billed (E), This Period (F). Trainee writes formulas for: Total Billed (G = E+F), % Complete (H = G/D), Remaining (I = D−G), Retention (J = G×10%), Net Earned (K = G−J), Status (L = COMPLETE/NEAR COMPLETE/IN PROGRESS/NOT STARTED), Division subtotals via SUMIFS, and Project Total row via SUM. Project Total should reconcile to $32,000,000 contract value.',
     hints: [
-      'Describe the rule in plain English. AI handles the syntax. Example: "Show OVER BUDGET if spent is greater than budget."',
-      'Be precise about which columns are which. "B is budget, C is spent" leaves no ambiguity.',
-      'Define your thresholds exactly. "Within 10%" is ambiguous — say "spent is between 90% and 110% of budget."',
-      'Always test with known values: $100K budget, $110K spent should flag OVER BUDGET. $95K spent should flag ON TRACK. $50K spent should flag UNDER BUDGET.',
-      'Decide whether you want relative (`B2`) or absolute (`$B$2`) references. Absolute matters when a formula points to a single header cell that shouldn\'t shift.',
+      'Describe the rule in plain English. Example: "Total Billed equals Previously Billed plus This Period." AI handles the syntax.',
+      'Tell AI exactly which columns are which: "D is Total Contract Amount, E is Previously Billed, F is This Period." Removes ambiguity.',
+      'Guard against divide-by-zero on the % Complete column. Use `=IFERROR(G2/D2, 0)` or `=IF(D2=0, 0, G2/D2)` so empty rows don\'t show #DIV/0!.',
+      'For the Status flag, order your IF conditions from most-specific to least-specific (100% first, then ≥90%, then >0%, else 0%). Backwards order produces wrong labels.',
+      'For SUMIFS, the *first* argument is the column to SUM, then alternating criteria-range / criteria pairs. Easy to flip if you\'re rusty.',
+      'Cross-check: division subtotals should add up exactly to the project total. If they don\'t, your SUMIFS criteria are mis-quoted (e.g., "01" vs "01 — General Requirements").',
+      'Project-wide % Complete should be calculated from the totals (Project Total Billed / Project Total Contract), NOT averaged from row percentages — a weighted average ≠ the average of weighted values.',
     ],
     goodExamples: [
       {
-        title: 'Example — Three working formulas',
-        body: `**Column D (Remaining) — formula for row 2:**
-\`=B2-C2\`
+        title: 'Example — All formulas with verification',
+        body: `**Per-row formulas (paste in row 6, drag down to row 26):**
 
-**Column E (% Complete) — formula for row 2, formatted as a percentage:**
-\`=C2/B2\`
-*(In the Number group, set the cell format to Percentage so it displays as e.g. 75% rather than 0.75.)*
+| Column | Formula | What it does |
+|---|---|---|
+| G (Total Billed) | \`=E6+F6\` | Sum of Previously and This Period |
+| H (% Complete) | \`=IFERROR(G6/D6, 0)\` | Total Billed ÷ Total Contract; 0 on empty rows |
+| I (Remaining) | \`=D6-G6\` | Total Contract minus Total Billed |
+| J (Retention 10%) | \`=G6*0.1\` | 10% of Total Billed |
+| K (Net Earned to Date) | \`=G6-J6\` | Total Billed minus Retention |
+| L (Status) | \`=IFS(D6=0,"",H6=1,"COMPLETE",H6>=0.9,"NEAR COMPLETE",H6>0,"IN PROGRESS",TRUE,"NOT STARTED")\` | Multi-condition status |
 
-**Column F (Status Flag) — formula for row 2:**
-\`=IF(C2>B2, "OVER BUDGET", IF(C2>=0.9*B2, "ON TRACK", "UNDER BUDGET"))\`
+**Division subtotals — SUMIFS keyed off the Division column (B):**
 
-**How to read column F:**
-- If Spent (C) is greater than Budget (B) → "OVER BUDGET"
-- Else if Spent is at least 90% of Budget → "ON TRACK"
-- Else → "UNDER BUDGET"
+\`=SUMIFS(D$6:D$26, $B$6:$B$26, $B28)\`  — drag across to total each metric per division. (Assumes division names appear verbatim in column B; the workbook uses the full label like \`"01 — General Requirements"\`.)
 
-**Verification (always do this):**
+To do this for each metric column:
+- Total Contract (D):  \`=SUMIFS(D$6:D$26, $B$6:$B$26, $B28)\`
+- Total Billed (G):    \`=SUMIFS(G$6:G$26, $B$6:$B$26, $B28)\`
+- Remaining (I):       \`=SUMIFS(I$6:I$26, $B$6:$B$26, $B28)\`
+- (etc. for any other column you want subtotaled)
 
-| B (Budget) | C (Spent) | Expected F | Formula returns |
-|---|---|---|---|
-| 100,000 | 110,000 | OVER BUDGET | OVER BUDGET ✓ |
-| 100,000 | 95,000 | ON TRACK | ON TRACK ✓ |
-| 100,000 | 50,000 | UNDER BUDGET | UNDER BUDGET ✓ |
+**Project Total row — straight SUM across the line items:**
 
-Drag each formula down the column. Excel auto-adjusts the row references.`,
-        note: 'Gives all three formulas, explains the column F logic in plain English, and most importantly — shows the verification table. Always include a verification table when you use AI-generated formulas. That\'s the whole point of the lesson.',
+\`=SUM(D6:D26)\` for Total Contract — should equal **$32,000,000**.
+\`=SUM(G6:G26)\` for Total Billed — should equal roughly **$10,539,600** (about 32.94%).
+\`=SUM(I6:I26)\` for Remaining — should equal Total Contract minus Total Billed.
+
+**Project-wide % Complete — weighted, NOT averaged:**
+
+\`=SUM(G6:G26)/SUM(D6:D26)\`
+
+This gives the true project % complete (~32.94%). DO NOT do \`=AVERAGE(H6:H26)\`. That returns the unweighted average of the row percentages, which weights a $320K demob row equally with a $5.8M sheet pile install — wrong.
+
+---
+
+**Verification I performed:**
+
+| Test | Expected | Got |
+|---|---|---|
+| Bonds & Insurance: Prev = $480K, This = $0, Contract = $480K | Total Billed $480K, % = 100%, Status = COMPLETE | ✓ |
+| Backfill: Prev = $0, This = $0, Contract = $1.4M | Total Billed $0, % = 0%, Status = NOT STARTED, Remaining $1.4M | ✓ |
+| Sheet pile fab: Prev = $2.4M, This = $330K, Contract = $4.2M | Total Billed $2.73M, % = 65%, Status = IN PROGRESS | ✓ |
+| Sum of division subtotals (Total Contract column) | $32,000,000 | ✓ |
+| Project Total Billed | ~$10.54M | ✓ |
+
+**One bug AI initially produced:**
+The first time I asked, AI wrote the IFS conditions in a different order — it had \`H6>0\` before \`H6>=0.9\`, which meant any row above 0% got tagged "IN PROGRESS" and the "NEAR COMPLETE" branch was unreachable. IFS evaluates top-down — order matters. I caught it because the sheet pile fabrication row at 65% looked right but a hypothetical 95% row would have been mislabeled.`,
+        note: 'Hits every formula the lesson asks for, includes the SUMIFS for division subtotals, calls out the divide-by-zero guard with IFERROR, AND identifies the weighted-vs-averaged trap on project % complete. The "one bug AI initially produced" note is the gold — finding an IFS-ordering bug by reasoning about the corner case proves the trainee verified rather than trusted.',
       },
     ],
     evaluationRubric: {
       criteria: [
-        'Provides a formula for column D (Remaining) that subtracts Spent from Budget',
-        'Provides a formula for column E (% Complete) that divides Spent by Budget',
-        'Provides a formula for column F (Status Flag) with conditional logic for OVER BUDGET, ON TRACK, and UNDER BUDGET',
-        'Formulas use correct Excel syntax (=, cell references, IF/IFS functions)',
+        'Provides a Total Billed formula (column G) that adds Previously Billed and This Period',
+        'Provides a % Complete formula (column H) — divides Total Billed by Total Contract — and ideally guards against divide-by-zero',
+        'Provides a Remaining formula (column I) that subtracts Total Billed from Total Contract',
+        'Provides Retention (column J) and Net Earned (column K) formulas with correct logic',
+        'Provides a Status formula (column L) with all four conditions in correct order (COMPLETE / NEAR COMPLETE / IN PROGRESS / NOT STARTED)',
+        'Includes SUMIFS-based division subtotal formula(s)',
+        'Includes a project total approach (SUM, with project % complete computed from totals — not averaged from rows)',
+        'Formulas use correct Excel syntax and cell references',
+        'Mentions or demonstrates verification with known values, OR identifies the divide-by-zero / IFS-ordering / weighted-average pitfalls',
       ],
-      passingScore: 3,
+      passingScore: 6,
       systemPrompt:
-        'You are evaluating Excel formulas generated with AI assistance. The trainee was given a project cost spreadsheet layout and asked to generate formulas for Remaining (B-C), % Complete (C/B), and a Status Flag with three conditions. Evaluate whether the formulas are syntactically correct and logically sound. Minor variations in approach (IF vs IFS, nested vs flat) are all acceptable.',
+        'You are evaluating AI-generated Excel formulas for a $32M Schedule of Values workbook. The trainee was given a 21-line schedule with three input columns (D=Total Contract, E=Previously Billed, F=This Period) and asked to write formulas for columns G–L plus division subtotals and a project total. Evaluate whether they covered the required formulas (Total Billed, % Complete, Remaining, Retention, Net Earned, Status, SUMIFS subtotals, project totals) with correct Excel syntax and logic. Be lenient on minor syntactic variation (IF vs IFS, IFERROR vs explicit IF for divide-by-zero) — both work. Award credit for verification habits: testing with known values, calling out divide-by-zero, identifying the weighted-vs-averaged % complete trap, or noting an IFS ordering bug. The trainee does NOT need to paste a literal verification table to pass — discussing the verification step is enough.',
     },
   },
   {
