@@ -113,7 +113,10 @@ export async function POST(request: NextRequest) {
       console.error('[video] insert failed after upload', err);
       return NextResponse.json({ error: 'Failed to record video metadata' }, { status: 500 });
     }
-    return NextResponse.json(video, { status: 201 });
+    return NextResponse.json(
+      { ...video, _upload: { path: libraryId ? 'library' : 'chat-attachment', libraryId: libraryId ?? null } },
+      { status: 201 },
+    );
   }
 
   if (contentType.startsWith('application/json')) {
