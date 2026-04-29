@@ -22,6 +22,9 @@ export function detectProvider(raw: string): ExternalVideoProvider {
   if (host === 'vimeo.com' || host === 'player.vimeo.com') {
     return 'vimeo';
   }
+  if (host === 'share.descript.com') {
+    return 'descript';
+  }
   return 'other';
 }
 
@@ -62,6 +65,21 @@ export function extractVimeoId(raw: string): string | null {
   }
 }
 
+export function extractDescriptId(raw: string): string | null {
+  try {
+    const url = requireUrl(raw);
+    const host = url.hostname.replace(/^www\./, '');
+    if (host !== 'share.descript.com') return null;
+    // Descript share URLs come in two shapes:
+    //   https://share.descript.com/view/<id>   ← the default Share button
+    //   https://share.descript.com/embed/<id>  ← the iframe-friendly form
+    const match = url.pathname.match(/^\/(?:view|embed)\/([^/]+)/);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
+}
+
 export function toEmbedUrl(raw: string): string {
   const provider = detectProvider(raw);
   if (provider === 'youtube') {
@@ -73,6 +91,11 @@ export function toEmbedUrl(raw: string): string {
     const id = extractVimeoId(raw);
     if (!id) throw new Error('Could not extract Vimeo video id');
     return `https://player.vimeo.com/video/${id}`;
+  }
+  if (provider === 'descript') {
+    const id = extractDescriptId(raw);
+    if (!id) throw new Error('Could not extract Descript video id');
+    return `https://share.descript.com/embed/${id}`;
   }
   return raw;
 }

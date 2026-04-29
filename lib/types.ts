@@ -324,7 +324,7 @@ export interface Certificate {
 // ==========================================================================
 
 export type VideoSource = 'uploaded' | 'external';
-export type ExternalVideoProvider = 'youtube' | 'vimeo' | 'other';
+export type ExternalVideoProvider = 'youtube' | 'vimeo' | 'descript' | 'other';
 
 export interface TrainingVideo {
   id: string;

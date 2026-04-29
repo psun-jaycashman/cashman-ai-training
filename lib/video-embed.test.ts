@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectProvider, toEmbedUrl, extractYouTubeId, extractVimeoId } from './video-embed';
+import { detectProvider, toEmbedUrl, extractYouTubeId, extractVimeoId, extractDescriptId } from './video-embed';
 
 describe('detectProvider', () => {
   it('detects youtube.com', () => {
@@ -13,6 +13,10 @@ describe('detectProvider', () => {
   });
   it('detects vimeo player domain', () => {
     expect(detectProvider('https://player.vimeo.com/video/76979871')).toBe('vimeo');
+  });
+  it('detects descript share', () => {
+    expect(detectProvider('https://share.descript.com/view/abcDEF123')).toBe('descript');
+    expect(detectProvider('https://share.descript.com/embed/abcDEF123')).toBe('descript');
   });
   it('returns other for arbitrary https urls', () => {
     expect(detectProvider('https://example.com/video.mp4')).toBe('other');
@@ -50,12 +54,36 @@ describe('extractVimeoId', () => {
   });
 });
 
+describe('extractDescriptId', () => {
+  it('extracts from /view/ URL', () => {
+    expect(extractDescriptId('https://share.descript.com/view/abcDEF123')).toBe('abcDEF123');
+  });
+  it('extracts from /embed/ URL', () => {
+    expect(extractDescriptId('https://share.descript.com/embed/abcDEF123')).toBe('abcDEF123');
+  });
+  it('strips trailing query params', () => {
+    expect(extractDescriptId('https://share.descript.com/view/abcDEF123?foo=bar')).toBe('abcDEF123');
+  });
+  it('returns null when no id', () => {
+    expect(extractDescriptId('https://share.descript.com/')).toBeNull();
+  });
+  it('returns null for non-descript host', () => {
+    expect(extractDescriptId('https://example.com/view/abc')).toBeNull();
+  });
+});
+
 describe('toEmbedUrl', () => {
   it('returns youtube-nocookie embed for youtube', () => {
     expect(toEmbedUrl('https://www.youtube.com/watch?v=abc123')).toBe('https://www.youtube-nocookie.com/embed/abc123');
   });
   it('returns vimeo player embed for vimeo', () => {
     expect(toEmbedUrl('https://vimeo.com/76979871')).toBe('https://player.vimeo.com/video/76979871');
+  });
+  it('rewrites descript /view/ to /embed/', () => {
+    expect(toEmbedUrl('https://share.descript.com/view/abcDEF123')).toBe('https://share.descript.com/embed/abcDEF123');
+  });
+  it('passes through descript /embed/ unchanged', () => {
+    expect(toEmbedUrl('https://share.descript.com/embed/abcDEF123')).toBe('https://share.descript.com/embed/abcDEF123');
   });
   it('returns the original url for other', () => {
     expect(toEmbedUrl('https://example.com/video')).toBe('https://example.com/video');

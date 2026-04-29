@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/video-admin-role';
 import { ensureDataDocuments } from '@/lib/data-api-client';
 import { insertVideo, listAllVideos, uploadVideoToLibrary } from '@/lib/video-data-api';
 import { detectProvider } from '@/lib/video-embed';
+import type { ExternalVideoProvider } from '@/lib/types';
 
 export const runtime = 'nodejs';
 export const maxDuration = 600;
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten() }, { status: 400 });
     }
-    let provider: 'youtube' | 'vimeo' | 'other';
+    let provider: ExternalVideoProvider;
     try { provider = detectProvider(parsed.data.externalUrl); } catch (err) {
       return NextResponse.json({ error: 'Invalid external URL', message: String(err) }, { status: 400 });
     }

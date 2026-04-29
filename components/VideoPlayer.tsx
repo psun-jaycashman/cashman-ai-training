@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import UploadedPlayer, { type VideoPlayerHandle } from './video-players/UploadedPlayer';
 import YouTubePlayer from './video-players/YouTubePlayer';
 import VimeoPlayer from './video-players/VimeoPlayer';
+import DescriptPlayer from './video-players/DescriptPlayer';
 import IframePlayer from './video-players/IframePlayer';
 import type { TrainingVideoWithPlayback, VideoProgress } from '@/lib/types';
 
@@ -119,6 +120,9 @@ export default function VideoPlayer({ video }: Props) {
     }
     if (video.playback.provider === 'vimeo') {
       return <VimeoPlayer ref={playerRef} url={video.playback.url} onTimeUpdate={handleTimeUpdate} />;
+    }
+    if (video.playback.provider === 'descript') {
+      return <DescriptPlayer ref={playerRef} url={video.playback.url} />;
     }
     return <IframePlayer ref={playerRef} url={video.playback.url} />;
   })();
