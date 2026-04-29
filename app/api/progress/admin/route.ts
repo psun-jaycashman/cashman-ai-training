@@ -40,9 +40,15 @@ export async function GET(request: NextRequest) {
     const allProgress = progressResult.records;
     const allQuizScores = quizResult.records;
 
-    // Total lessons across all modules
-    const totalLessons = MODULES.reduce((sum, m) => sum + m.lessons.length, 0);
-    const totalModules = MODULES.length;
+    // Total lessons / modules across required (non-bonus) modules only.
+    // Bonus modules (e.g. Lunch and Learn) don't count toward an admin
+    // user's reported completion percentage.
+    const requiredModules = MODULES.filter((m) => !m.isBonus);
+    const totalLessons = requiredModules.reduce(
+      (sum, m) => sum + m.lessons.length,
+      0
+    );
+    const totalModules = requiredModules.length;
 
     // Group data by visitor
     const userMap = new Map<
@@ -83,7 +89,7 @@ export async function GET(request: NextRequest) {
         data.progress.filter((p) => p.completed).map((p) => `${p.moduleId}:${p.lessonId}`)
       );
 
-      const modulesCompleted = MODULES.filter((mod) =>
+      const modulesCompleted = requiredModules.filter((mod) =>
         mod.lessons.every((l) => completedLessons.has(`${mod.id}:${l.id}`))
       ).length;
 

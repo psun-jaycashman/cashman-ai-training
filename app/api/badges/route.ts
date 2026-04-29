@@ -119,11 +119,6 @@ export async function POST(request: NextRequest) {
       await tryAward("search-pro");
     }
 
-    // agent-handler: all Module 7 lessons completed
-    if (isModuleComplete("mod-7")) {
-      await tryAward("agent-handler");
-    }
-
     // power-user: all Module 8 lessons completed
     if (isModuleComplete("mod-8")) {
       await tryAward("power-user");
@@ -135,15 +130,27 @@ export async function POST(request: NextRequest) {
       await tryAward("perfect-score");
     }
 
-    // completionist: all 8 modules fully completed
-    const allModulesComplete = MODULES.every((m) => isModuleComplete(m.id));
-    if (allModulesComplete) {
+    // completionist: all required (non-bonus) modules fully completed
+    const requiredModules = MODULES.filter((m) => !m.isBonus);
+    const allRequiredComplete = requiredModules.every((m) =>
+      isModuleComplete(m.id)
+    );
+    if (allRequiredComplete) {
       await tryAward("completionist");
     }
 
-    // think-aimpossible: >= 95% of all lessons complete + final assessment >= 80%
-    const totalLessons = MODULES.reduce((sum, m) => sum + m.lessons.length, 0);
-    if (totalLessons > 0 && totalCompleted / totalLessons >= 0.95) {
+    // think-aimpossible: >= 95% of *required* lessons complete + final assessment >= 80%.
+    // Bonus module lessons don't count toward the threshold or denominator.
+    const requiredLessons = requiredModules.flatMap((m) =>
+      m.lessons.map((l) => `${m.id}:${l.id}`)
+    );
+    const completedRequired = requiredLessons.filter((key) =>
+      completedSet.has(key)
+    ).length;
+    if (
+      requiredLessons.length > 0 &&
+      completedRequired / requiredLessons.length >= 0.95
+    ) {
       const finalQuiz = quizScores.find(
         (s) => s.quizId === "quiz-final" && s.maxScore > 0
       );

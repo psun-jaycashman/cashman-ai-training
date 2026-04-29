@@ -19,15 +19,14 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 const ALL_BADGE_DEFINITIONS: BadgeDefinition[] = [
   { type: 'first-steps', name: 'First Steps', description: 'Completed your first lesson', icon: 'Footprints', criteria: 'Complete any 1 lesson' },
   { type: 'quick-learner', name: 'Quick Learner', description: 'Completed 5 lessons in one session', icon: 'Zap', criteria: 'Complete 5 lessons in one session' },
-  { type: 'email-ace', name: 'Email Ace', description: 'Completed the AI and Email module', icon: 'Mail', criteria: 'Complete Module 2' },
-  { type: 'report-writer', name: 'Report Writer', description: 'Completed Reports and Documents', icon: 'FileText', criteria: 'Complete Module 3' },
-  { type: 'data-wrangler', name: 'Data Wrangler', description: 'Completed Spreadsheets and Data', icon: 'Table', criteria: 'Complete Module 4' },
-  { type: 'media-maker', name: 'Media Maker', description: 'Completed Images, Video, and Media', icon: 'Image', criteria: 'Complete Module 5' },
-  { type: 'search-pro', name: 'Search Pro', description: 'Completed Document Processing and Search', icon: 'Search', criteria: 'Complete Module 6' },
-  { type: 'agent-handler', name: 'Agent Handler', description: 'Completed the AI Agents module', icon: 'Bot', criteria: 'Complete Module 7' },
-  { type: 'power-user', name: 'Power User', description: 'Completed Power User Tools', icon: 'Rocket', criteria: 'Complete Module 8' },
+  { type: 'email-ace', name: 'Email Ace', description: 'Completed the AI and Email module', icon: 'Mail', criteria: 'Complete the AI and Email module' },
+  { type: 'report-writer', name: 'Report Writer', description: 'Completed Reports and Documents', icon: 'FileText', criteria: 'Complete the Reports and Documents module' },
+  { type: 'data-wrangler', name: 'Data Wrangler', description: 'Completed Spreadsheets and Data', icon: 'Table', criteria: 'Complete the Spreadsheets and Data module' },
+  { type: 'media-maker', name: 'Media Maker', description: 'Completed Images, Video, and Media', icon: 'Image', criteria: 'Complete the Images, Video, and Media module' },
+  { type: 'search-pro', name: 'Search Pro', description: 'Completed Document Processing and Search', icon: 'Search', criteria: 'Complete the Document Processing and Search module' },
+  { type: 'power-user', name: 'Power User', description: 'Completed Power User Tools', icon: 'Rocket', criteria: 'Complete the Power User Tools module' },
   { type: 'perfect-score', name: 'Perfect Score', description: 'Got 100% on any quiz', icon: 'Star', criteria: 'Score 100% on any quiz' },
-  { type: 'completionist', name: 'Completionist', description: 'Completed all 8 modules', icon: 'Trophy', criteria: 'Complete all modules' },
+  { type: 'completionist', name: 'Completionist', description: 'Completed every required module', icon: 'Trophy', criteria: 'Complete all required (non-bonus) modules' },
   { type: 'think-aimpossible', name: 'Think (AI)mpossible', description: 'Earned the AI Training Certificate', icon: 'Award', criteria: 'Complete 95% of lessons + pass final assessment (80%+)' },
 ];
 
@@ -69,13 +68,27 @@ export default function ProfilePage() {
     fetchData();
   }, []);
 
-  const completedLessons = progress.filter((p) => p.completed);
-  const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
-  const overallPercent = totalLessons > 0 ? (completedLessons.length / totalLessons) * 100 : 0;
+  // Bonus modules (e.g. AI Lunch and Learn) are excluded from the % complete
+  // calculation and from "modules completed" counts. They still appear in the
+  // Modules list — they just don't gate the certificate.
+  const requiredModules = modules.filter((m) => !m.isBonus);
+  const requiredModuleIds = new Set(requiredModules.map((m) => m.id));
 
-  const completedModules = modules.filter((m) => {
+  const completedLessons = progress.filter(
+    (p) => p.completed && requiredModuleIds.has(p.moduleId)
+  );
+  const totalLessons = requiredModules.reduce(
+    (sum, m) => sum + (m.lessons?.length || 0),
+    0
+  );
+  const overallPercent =
+    totalLessons > 0 ? (completedLessons.length / totalLessons) * 100 : 0;
+
+  const completedModules = requiredModules.filter((m) => {
     const modLessons = m.lessons?.length || 0;
-    const modCompleted = progress.filter((p) => p.moduleId === m.id && p.completed).length;
+    const modCompleted = progress.filter(
+      (p) => p.moduleId === m.id && p.completed
+    ).length;
     return modLessons > 0 && modCompleted >= modLessons;
   });
 

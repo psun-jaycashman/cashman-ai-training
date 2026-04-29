@@ -40,8 +40,8 @@ for roughly **60–90 seconds** of voiceover and is written for someone who is
 | 4 | Spreadsheets and Data | Peter | [module-4-intro.md](module-4-intro.md) |
 | 5 | Images, Video, and Media | Bobby | [module-5-intro.md](module-5-intro.md) |
 | 6 | Document Processing and Search | Peter | [module-6-intro.md](module-6-intro.md) |
-| 7 | AI Agents | Peter | [module-7-intro.md](module-7-intro.md) |
-| 8 | Power User Tools | Wes | [module-8-intro.md](module-8-intro.md) |
+| 7 | Power User Tools | Wes | [module-8-intro.md](module-8-intro.md) |
+| Bonus | AI Lunch and Learn | Wes | _(uses recorded video + provided PDF — no script)_ |
 
 ### Lesson videos (3 lessons per module, ~2–3 min each)
 
@@ -57,8 +57,7 @@ inline with one-sentence definitions so AI newcomers stay oriented.
 | 4 | [lessons/module-4-lessons.md](lessons/module-4-lessons.md) | AI-Powered Formulas · Data Analysis with AI · Data Cleanup |
 | 5 | [lessons/module-5-lessons.md](lessons/module-5-lessons.md) | Creating Images · Presentations with AI · Video, Audio, Transcription |
 | 6 | [lessons/module-6-lessons.md](lessons/module-6-lessons.md) | Searching Company Documents · Analyzing a Document · Extracting Structured Data |
-| 7 | [lessons/module-7-lessons.md](lessons/module-7-lessons.md) | What Agents Can Do · Using Portal Agents · Effective Agent Prompting |
-| 8 | [lessons/module-8-lessons.md](lessons/module-8-lessons.md) | Claude Cowork · Claude Code · Building Your AI Workflow |
+| 7 | [lessons/module-8-lessons.md](lessons/module-8-lessons.md) | Claude Cowork · Claude Code · Building Your AI Workflow |
 
 ### Slide decks (PowerPoint outlines, intro + 3 lessons per module)
 
@@ -76,5 +75,4 @@ visual cue, timing, and the line of script that triggers the cut. See
 | 4 | [slides/module-4-slides.md](slides/module-4-slides.md) | Intro + 3 lessons |
 | 5 | [slides/module-5-slides.md](slides/module-5-slides.md) | Intro + 3 lessons |
 | 6 | [slides/module-6-slides.md](slides/module-6-slides.md) | Intro + 3 lessons |
-| 7 | [slides/module-7-slides.md](slides/module-7-slides.md) | Intro + 3 lessons |
-| 8 | [slides/module-8-slides.md](slides/module-8-slides.md) | Intro + 3 lessons |
+| 7 | [slides/module-8-slides.md](slides/module-8-slides.md) | Intro + 3 lessons |

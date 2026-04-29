@@ -2,7 +2,8 @@
  * Cashman AI Training - Module Data
  *
  * Experiential, task-driven curriculum anchored in practical work.
- * 8 modules progressing from email through custom apps.
+ * 7 required modules progressing from AI fundamentals through power-user tools,
+ * plus a bonus AI Lunch and Learn module that does NOT count toward completion.
  * Security/risk awareness woven into every module via hands-on activities.
  *
  * This file is the single source of truth for course content rendered in the UI.
@@ -846,132 +847,6 @@ Your table should capture every discrete requirement, categorize them logically 
 ];
 
 // ==========================================================================
-// Module 7: AI Agents
-// ==========================================================================
-
-const mod7Lessons: Lesson[] = [
-  {
-    id: 'mod-7-les-1',
-    title: 'What Agents Can Do',
-    estimatedMinutes: 4,
-    order: 1,
-    quizId: 'quiz-mod7-les1',
-    activityType: 'quiz',
-    activityId: 'quiz-mod7-les1',
-    content: `
-## What Agents Can Do
-
-You've been using AI as a chatbot -- you type a question, it types an answer. **Agents** go further. They can take actions.
-
-### Chatbot vs Agent
-
-| | Chatbot | Agent |
-|---|---|---|
-| **Input** | Your question | Your goal |
-| **Output** | Text response | Text + actions taken |
-| **Tools** | None | Search, databases, APIs, calculations |
-| **Memory** | Current conversation only | Can access external data |
-| **Example** | "Draft an email" | "Search our project database, find overdue RFIs, draft follow-up emails for each, and update the tracker" |
-
-### Real Examples in the Cashman AI Portal
-
-The Cashman AI Portal already has agents that can:
-
-- **Search your documents** and answer questions with citations
-- **Query project data** to find specific records across multiple sources
-- **Aggregate data** to calculate totals, averages, and trends
-- **Chain multiple steps** -- find data, analyze it, and produce a report
-
-### The Key Difference
-
-A chatbot is like talking to that well-read intern. An agent is like giving that intern **a desk, a computer, and access to your file systems**. They can actually go find things and do things, not just talk about them.
-
-### Human in the Loop
-
-Even sophisticated agents need human oversight. Think of agents as very capable assistants who should **propose actions** and **wait for approval** on anything consequential. You wouldn't let an intern sign a contract -- don't let an agent make decisions without review either.
-
-> **Key Takeaway:** Agents can take actions (search, query, calculate), not just generate text. They're powerful but need human oversight for consequential decisions.
-`,
-  },
-  {
-    id: 'mod-7-les-2',
-    title: 'Using Agents in the Cashman AI Portal',
-    estimatedMinutes: 5,
-    order: 2,
-    activityType: 'exercise',
-    activityId: 'ex-mod7-les2',
-    content: `
-## Using Agents in the Cashman AI Portal
-
-The Cashman AI Portal includes pre-built agents for common tasks. Let's use one.
-
-### The Task
-
-1. **Open the Cashman AI Portal**
-2. **Find an available agent** (look for the agents section or chat with agent selection)
-3. **Give the agent a task** -- for example:
-   - "Search our documents for information about environmental monitoring requirements"
-   - "What safety incidents have been documented this quarter?"
-   - "Find all projects with budget overruns greater than 10%"
-4. **Notice what the agent does differently from a regular chat** -- does it show you what tools it's using? Does it cite specific data sources?
-5. **Paste the agent's response** and your observations into the exercise below
-
-If agents aren't configured yet in your Portal, use the regular chat and ask: "If you had access to our project database, how would you answer the question: Which projects are currently at risk of schedule delays?" Paste that response.
-
-### What to Watch For
-
-When an agent works, you should see:
-- **Tool calls** -- the agent tells you it's searching or querying something
-- **Citations** -- the agent references specific documents or records
-- **Multi-step reasoning** -- the agent breaks your request into smaller tasks
-
-> **Key Takeaway:** Agents in the Cashman AI Portal can search, query, and analyze your data. Watch for tool calls and citations as indicators of quality responses.
-`,
-  },
-  {
-    id: 'mod-7-les-3',
-    title: 'Effective Agent Prompting',
-    estimatedMinutes: 5,
-    order: 3,
-    activityType: 'exercise',
-    activityId: 'ex-mod7-les3',
-    content: `
-## Effective Agent Prompting
-
-Agents are more capable than chatbots, but they still need clear instructions. The way you prompt an agent significantly affects the quality of results.
-
-### Good vs Bad Agent Prompts
-
-| Bad Prompt | Good Prompt |
-|---|---|
-| "Tell me about the project" | "Search our project documents for the Galveston Wharf project and give me: current schedule status, any open RFIs, and the last safety inspection date" |
-| "Check the data" | "Query the equipment tracking data for crane #CR-205. Show me total operating hours this month and compare to the maintenance threshold of 500 hours" |
-| "Help with the report" | "Find all safety incidents from Q1 2026, group them by type, and draft a summary paragraph for the quarterly safety report" |
-
-### The Task
-
-Write three prompts for a Cashman AI Portal agent. Each should be specific, include what data to search, and describe the desired output format:
-
-1. A prompt to find a specific piece of project information
-2. A prompt to analyze data across multiple records
-3. A prompt to produce a formatted deliverable (report section, email, summary)
-
-**Paste your three prompts** into the exercise below.
-
-### Agent Over-Trust
-
-Here's the risk with agents: because they seem so capable (they search! they calculate! they cite sources!), people tend to trust their output more than they should.
-
-An agent can confidently cite a document that doesn't say what the agent claims. It can perform a calculation with a subtle error. It can miss relevant data because the search didn't return it.
-
-**Treat agent output like the work of a very capable but fallible assistant.** Verify the citations. Spot-check the calculations. Ask yourself: "Does this answer make sense based on what I know?"
-
-> **Key Takeaway:** Good agent prompts are specific about what data to search, what analysis to perform, and what output format to produce. Always verify agent output -- capability doesn't equal accuracy.
-`,
-  },
-];
-
-// ==========================================================================
 // Module 8: Custom Apps and Power User Tools
 // ==========================================================================
 
@@ -1088,13 +963,62 @@ Throughout this training, you've encountered security risks woven into practical
 - **Module 4:** Wrong formulas -- AI producing calculations that look right but are subtly wrong
 - **Module 5:** Deepfakes -- AI-generated images and audio used to deceive
 - **Module 6:** Data leakage -- uploading company documents to the wrong tool
-- **Module 7:** Agent over-trust -- assuming agent output is correct because it cited sources
 
 ### The Final Assessment
 
 The survey below asks you to reflect on what you've learned and how you plan to use AI in your work. Complete it to finish the training.
 
 > **Key Takeaway:** You now have a complete AI toolkit. Use the right tool for each task, verify AI output, and protect company data. Congratulations on completing the training.
+`,
+  },
+];
+
+// ==========================================================================
+// Bonus Module: AI Lunch and Learn
+// ==========================================================================
+
+const bonusLunchLearnLessons: Lesson[] = [
+  {
+    id: 'mod-bonus-lunch-learn-les-1',
+    title: 'AI Lunch and Learn — April 23, 2026',
+    estimatedMinutes: 60,
+    order: 1,
+    content: `
+## AI Lunch and Learn — April 23, 2026
+
+This is the recording and slide deck from our first company-wide **AI Lunch and Learn**. It covers what AI is, what's changed in the last couple of years, the tools we use at Cashman, and what's on the road map. It's a great refresher and a good thing to send to a teammate who hasn't taken the course yet.
+
+> This module is **bonus content**. It does not count toward your 95% completion threshold or your certificate.
+
+### Watch the recording
+
+The video is embedded above this lesson page (or will be once an admin attaches it via the Admin → Videos panel). Both **YouTube** and **Vimeo** sources are supported.
+
+### Download the slide deck
+
+[**📥 Download the AI Lunch and Learn slides (PDF, ~7.6 MB)**](/downloads/lunch-learn-2026-04-23.pdf)
+
+You can also preview the slides right here:
+
+<pdf src="/downloads/lunch-learn-2026-04-23.pdf" />
+
+### What's in the deck
+
+- A quick history: what changed in late 2022 and why "Generative AI" is everywhere now.
+- The four main tools we use at Cashman, and where each one fits.
+- A walk-through of the Cashman AI Portal — chat, document search, agents, and custom apps.
+- "AI Caution" — the things you should and should not do with AI at work.
+- Support and education resources from the AI team.
+- A sample project: Maritime Tracking, showing how an internal AI app can give a competitive edge.
+- Our roadmap: Awareness → Experimenting → Optimizing → Transforming.
+
+### Get involved
+
+- **Office hours:** Wednesdays, 11–12.
+- **Questions, ideas, or want to scope a project?** Email **aiteam@jaycashman.com** or stop by the team's office.
+- We host occasional training sessions and meet-and-greets — keep an eye on company comms.
+
+> **Key Takeaway:** AI is moving fast. The Lunch and Learn series is how the AI team keeps everyone current. Watch the recording, share it, and reach out if you've got an idea you want to explore.
 `,
   },
 ];
@@ -1171,26 +1095,27 @@ export const MODULES: Module[] = [
     lessons: mod6Lessons,
   },
   {
-    id: 'mod-7',
-    title: 'AI Agents',
-    description: 'Use AI agents that search, query, and take actions -- not just answer questions.',
-    instructor: 'Peter',
-    estimatedMinutes: 14,
-    order: 7,
-    icon: 'Bot',
-    videoUrl: '',
-    lessons: mod7Lessons,
-  },
-  {
     id: 'mod-8',
     title: 'Power User Tools',
     description: 'Claude Cowork for deep analysis, Claude Code for automation, and building your personal AI workflow.',
     instructor: 'Wes',
     estimatedMinutes: 14,
-    order: 8,
+    order: 7,
     icon: 'Rocket',
     videoUrl: '',
     lessons: mod8Lessons,
+  },
+  {
+    id: 'mod-bonus-lunch-learn',
+    title: 'AI Lunch and Learn',
+    description: 'Bonus session: a recorded company-wide AI Lunch and Learn. Watch the recording, download the slide deck, and revisit anytime. Does not count toward course completion.',
+    instructor: 'Wes',
+    estimatedMinutes: 60,
+    order: 99,
+    icon: 'Sparkles',
+    videoUrl: '',
+    lessons: bonusLunchLearnLessons,
+    isBonus: true,
   },
 ];
 
@@ -1238,48 +1163,6 @@ export const QUIZZES: Quiz[] = [
         ],
         correctAnswer: 1,
         explanation: 'Hallucination is the term for when AI generates plausible-sounding but factually incorrect information. It happens because AI optimizes for likely-sounding text, not for truth.',
-      },
-    ],
-  },
-  {
-    id: 'quiz-mod7-les1',
-    moduleId: 'mod-7',
-    lessonId: 'mod-7-les-1',
-    title: 'Agents vs Chatbots',
-    questions: [
-      {
-        id: 'q7-1',
-        type: 'multiple-choice',
-        question: 'What is the key difference between a chatbot and an AI agent?',
-        options: [
-          'Agents use newer technology',
-          'Agents can take actions and use tools, not just generate text',
-          'Chatbots are free and agents are paid',
-          'Agents are always more accurate',
-        ],
-        correctAnswer: 1,
-        explanation: 'Agents can take actions through tools -- searching databases, calling APIs, performing calculations -- while chatbots only generate text responses.',
-      },
-      {
-        id: 'q7-2',
-        type: 'multiple-choice',
-        question: 'A superintendent asks: "What PPE is required for over-water work?" This is best handled by:',
-        options: [
-          'An agent with multi-step workflow',
-          'A chatbot with access to the safety manual',
-          'A code assistant',
-          'An image generator',
-        ],
-        correctAnswer: 1,
-        explanation: 'This is a straightforward Q&A from a known document. A chatbot with the safety manual in its knowledge base (via RAG) can answer this quickly without multi-step orchestration.',
-      },
-      {
-        id: 'q7-3',
-        type: 'true-false',
-        question: 'Because agents cite their sources, their output can be trusted without verification.',
-        options: ['True', 'False'],
-        correctAnswer: 1,
-        explanation: 'False. Agents can cite documents that don\'t actually say what the agent claims. Always verify citations and spot-check calculations, even when sources are cited.',
       },
     ],
   },
@@ -1367,19 +1250,6 @@ export const QUIZZES: Quiz[] = [
         ],
         correctAnswer: 1,
         explanation: 'RAG searches your documents for relevant passages and feeds them to AI to generate an answer -- like an open-book exam. Documents stay on company infrastructure and are not sent to external services.',
-      },
-      {
-        id: 'fa-q7',
-        type: 'multiple-choice',
-        question: '(Module 7) An AI agent cites a specific company document in its answer. Can you trust the citation?',
-        options: [
-          'Yes -- if it cites the source, the information is accurate',
-          'No -- agents can cite documents that don\'t actually say what the agent claims',
-          'Only if the agent used multiple sources',
-          'Only if the answer is short',
-        ],
-        correctAnswer: 1,
-        explanation: 'Agents can confidently cite sources that don\'t support their claims. Always verify important citations by checking the actual document. Agent capability does not equal accuracy.',
       },
       {
         id: 'fa-q8',
@@ -1474,18 +1344,11 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     criteria: 'Complete Module 6',
   },
   {
-    type: 'agent-handler',
-    name: 'Agent Handler',
-    description: 'Complete the AI Agents module',
-    icon: 'Bot',
-    criteria: 'Complete Module 7',
-  },
-  {
     type: 'power-user',
     name: 'Power User',
     description: 'Complete the Power User Tools module',
     icon: 'Rocket',
-    criteria: 'Complete Module 8',
+    criteria: 'Complete the Power User Tools module',
   },
   {
     type: 'perfect-score',
@@ -1497,9 +1360,9 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   {
     type: 'completionist',
     name: 'Completionist',
-    description: 'Complete all 8 modules',
+    description: 'Complete every required module',
     icon: 'Trophy',
-    criteria: 'Complete all modules',
+    criteria: 'Complete all required (non-bonus) modules',
   },
   {
     type: 'think-aimpossible',

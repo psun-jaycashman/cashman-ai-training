@@ -78,6 +78,12 @@ export interface Module {
   icon: string;
   videoUrl: string;
   lessons: Lesson[];
+  /**
+   * Bonus modules don't count toward the certificate's 95% completion
+   * threshold and don't earn module-specific badges. They show up in the UI
+   * with a "Bonus" tag and stay outside the main progression.
+   */
+  isBonus?: boolean;
 }
 
 export type ActivityType = 'quiz' | 'exercise' | 'game' | 'survey';
@@ -250,7 +256,6 @@ export type BadgeType =
   | 'data-wrangler'
   | 'media-maker'
   | 'search-pro'
-  | 'agent-handler'
   | 'power-user'
   | 'perfect-score'
   | 'completionist'

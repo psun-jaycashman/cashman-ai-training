@@ -112,10 +112,15 @@ export default function ModulesPage() {
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       {mod.title}
                     </h3>
+                    {mod.isBonus && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300 border border-green-200 dark:border-green-800">
+                        Bonus · doesn&apos;t count toward completion
+                      </span>
+                    )}
                     {isComplete && <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />}
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">

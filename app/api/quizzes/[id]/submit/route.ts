@@ -184,8 +184,13 @@ async function checkQuizBadges(
       allProgress.filter((p) => p.completed).map((p) => `${p.moduleId}:${p.lessonId}`)
     );
 
-    const totalLessons = MODULES.reduce((sum, m) => sum + m.lessons.length, 0);
-    const completedLessons = MODULES.reduce(
+    // Only required (non-bonus) modules count toward the 95% threshold.
+    const requiredModules = MODULES.filter((m) => !m.isBonus);
+    const totalLessons = requiredModules.reduce(
+      (sum, m) => sum + m.lessons.length,
+      0
+    );
+    const completedLessons = requiredModules.reduce(
       (sum, m) =>
         sum + m.lessons.filter((l) => completedSet.has(`${m.id}:${l.id}`)).length,
       0

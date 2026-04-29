@@ -1048,131 +1048,16 @@ DECKS: list[Deck] = [
         ],
     ),
     # ===================================================================== #
-    # MODULE 7 — AI Agents
-    # ===================================================================== #
-    Deck(
-        module=7,
-        slug="module-7-intro",
-        title="Module 7 Intro — AI Agents",
-        slides=[
-            Slide(
-                kind="title",
-                eyebrow="Module 7",
-                headline="AI Agents",
-                subhead="Up to now, AI just talked. Now it can do.",
-            ),
-            Slide(
-                kind="concept",
-                eyebrow="The big shift",
-                headline="Chatbots talk. Agents act.",
-                body=[
-                    "An agent is the same intern — now with a desk and file access.",
-                    "1.  What agents can do",
-                    "2.  Use one in the Portal",
-                    "3.  Prompt them well",
-                ],
-            ),
-        ],
-    ),
-    Deck(
-        module=7,
-        slug="lesson-7-1-what-agents-do",
-        title="Lesson 7.1 — What Agents Can Do",
-        slides=[
-            Slide(
-                kind="title",
-                eyebrow="Lesson 1",
-                headline="What Agents Can Do",
-                subhead="Same intern. New desk.",
-            ),
-            Slide(
-                kind="concept",
-                eyebrow="Three new terms",
-                headline="Tool use · Multi-step · Orchestration",
-                body=[
-                    "Tool use — agent invoking search, queries, calculations.",
-                    "Multi-step reasoning — breaking a goal into sub-tasks.",
-                    "Orchestration — stringing tools together in the right order.",
-                ],
-            ),
-            Slide(
-                kind="callout",
-                eyebrow="Design principle",
-                headline="Human in the loop.",
-                callout="Capable agents propose consequential actions.\nA human approves before anything irreversible happens.",
-            ),
-        ],
-    ),
-    Deck(
-        module=7,
-        slug="lesson-7-2-portal-agents",
-        title="Lesson 7.2 — Using Portal Agents",
-        slides=[
-            Slide(
-                kind="title",
-                eyebrow="Lesson 2",
-                headline="Using Portal Agents",
-                subhead="Watch the agent show its work.",
-            ),
-            Slide(
-                kind="concept",
-                eyebrow="What to watch for",
-                headline="Tool calls · Citations · Steps",
-                body=[
-                    "•  Tool calls — \"Searching project DB…\"",
-                    "•  Citations — clickable sources you can verify",
-                    "•  Multi-step output — visible reasoning",
-                ],
-            ),
-            Slide(
-                kind="callout",
-                eyebrow="The trap",
-                headline="Automation Bias",
-                callout="People over-trust polished automated systems.\nClick the citations. Spot-check the math. Always.",
-            ),
-        ],
-    ),
-    Deck(
-        module=7,
-        slug="lesson-7-3-agent-prompting",
-        title="Lesson 7.3 — Effective Agent Prompting",
-        slides=[
-            Slide(
-                kind="title",
-                eyebrow="Lesson 3",
-                headline="Effective Agent Prompting",
-                subhead="Vague goals get vague results.",
-            ),
-            Slide(
-                kind="concept",
-                eyebrow="Prompting framework",
-                headline="WHO · WHAT · WHERE · HOW",
-                body=[
-                    "•  WHO     — the persona or agent",
-                    "•  WHAT    — the specific task",
-                    "•  WHERE   — the data source",
-                    "•  HOW     — the output format",
-                ],
-            ),
-            Slide(
-                kind="callout",
-                eyebrow="Pro tip",
-                headline="Constraints + Output Schema",
-                callout="Tell the agent what NOT to do.\nGive it the exact column names and structure you want back.",
-            ),
-        ],
-    ),
-    # ===================================================================== #
-    # MODULE 8 — Power User Tools
+    # MODULE 7 — Power User Tools
     # ===================================================================== #
     Deck(
         module=8,
         slug="module-8-intro",
-        title="Module 8 Intro — Power User Tools",
+        title="Module 7 Intro — Power User Tools",
         slides=[
             Slide(
                 kind="title",
-                eyebrow="Module 8",
+                eyebrow="Module 7",
                 headline="Power User Tools",
                 subhead="Bigger problems. Better tools. Your personal AI playbook.",
             ),
@@ -1191,7 +1076,7 @@ DECKS: list[Deck] = [
     Deck(
         module=8,
         slug="lesson-8-1-cowork",
-        title="Lesson 8.1 — Claude Cowork for Research and Analysis",
+        title="Lesson 7.1 — Claude Cowork for Research and Analysis",
         slides=[
             Slide(
                 kind="title",
@@ -1220,7 +1105,7 @@ DECKS: list[Deck] = [
     Deck(
         module=8,
         slug="lesson-8-2-code",
-        title="Lesson 8.2 — Claude Code for Technical Users",
+        title="Lesson 7.2 — Claude Code for Technical Users",
         slides=[
             Slide(
                 kind="title",
@@ -1249,7 +1134,7 @@ DECKS: list[Deck] = [
     Deck(
         module=8,
         slug="lesson-8-3-workflow",
-        title="Lesson 8.3 — Building Your AI Workflow",
+        title="Lesson 7.3 — Building Your AI Workflow",
         slides=[
             Slide(
                 kind="title",
