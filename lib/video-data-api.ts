@@ -115,7 +115,9 @@ export async function insertVideo(
     uploadedAt: getNow(),
     ...input,
   };
-  await insertRecords(token, documentId, [video]);
+  // Records default to creator-personal even when the document is
+  // 'authenticated'; force inherit so every authed user can see the row.
+  await insertRecords(token, documentId, [video], { recordVisibility: 'inherit' });
   return video;
 }
 

@@ -52,7 +52,12 @@ describe('insertVideo', () => {
     });
     expect(v.id).toBe('vid-generated');
     expect(v.uploadedAt).toBe('2026-04-17T12:00:00Z');
-    expect(busibox.insertRecords).toHaveBeenCalledWith(TOKEN, DOC, [expect.objectContaining({ id: 'vid-generated' })]);
+    expect(busibox.insertRecords).toHaveBeenCalledWith(
+      TOKEN,
+      DOC,
+      [expect.objectContaining({ id: 'vid-generated' })],
+      { recordVisibility: 'inherit' },
+    );
   });
 });
 
