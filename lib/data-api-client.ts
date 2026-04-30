@@ -49,7 +49,10 @@ export const progressSchema: AppDataSchema = {
   displayName: 'Training Progress',
   itemLabel: 'Progress Entry',
   sourceApp: 'cashman-ai-training',
-  visibility: 'personal',
+  // Shared so the leaderboard can read every user's lesson completion.
+  // Bind app/employee roles to the document in data-api admin to control
+  // which users can see each other's progress.
+  visibility: 'shared',
   allowSharing: false,
   graphNode: '',
   graphRelationships: [],
@@ -181,7 +184,7 @@ export async function ensureDataDocuments(token: string): Promise<{
       progress: {
         name: DOCUMENTS.PROGRESS,
         schema: progressSchema,
-        visibility: 'personal',
+        visibility: 'shared',
       },
       quizScores: {
         name: DOCUMENTS.QUIZ_SCORES,
@@ -305,7 +308,10 @@ export async function markLessonComplete(
     timeSpentSeconds: 0,
   };
 
-  await insertRecords(token, documentId, [progress]);
+  // Records default to creator-personal RLS even when the document is
+  // 'shared'/'authenticated'; force inherit so the leaderboard can read
+  // every user's completion across the org.
+  await insertRecords(token, documentId, [progress], { recordVisibility: 'inherit' });
   return progress;
 }
 

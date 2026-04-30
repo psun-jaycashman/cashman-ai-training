@@ -4,20 +4,14 @@ import { ensureDataDocuments, getAllBadges } from "@/lib/data-api-client";
 import { queryRecords } from "@jazzmind/busibox-app";
 import type { UserProgress, LeaderboardEntry } from "@/lib/types";
 
-interface StoredQuizScore {
-  id: string;
-  visitorId: string;
-  score: number;
-  maxScore: number;
-  answers: string;
-  [key: string]: unknown;
-}
-
 /**
  * GET /api/leaderboard
  *
  * Returns top 10 users by points plus the current user's rank.
- * Points: 10 pts per lesson completed, 5 pts per quiz point scored, 25 pts per badge.
+ * Points: 10 pts per lesson completed, 25 pts per badge. Quiz scores are
+ * intentionally excluded — quiz answers are private and quizScores rows
+ * stay personal-scoped, so reading them cross-user would either leak
+ * answers or undercount everyone but the requester.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -26,13 +20,11 @@ export async function GET(request: NextRequest) {
 
     const documentIds = await ensureDataDocuments(auth.apiToken);
 
-    // Fetch all progress, quiz scores, and badges
-    const [progressResult, quizResult, allBadges] = await Promise.all([
+    // Fetch progress and badges (both cross-user readable when
+    // recordVisibility is 'inherit' on a 'shared'/'authenticated' doc).
+    const [progressResult, allBadges] = await Promise.all([
       queryRecords<UserProgress>(auth.apiToken, documentIds.progress, {
         orderBy: [{ field: "startedAt", direction: "desc" }],
-      }),
-      queryRecords<StoredQuizScore>(auth.apiToken, documentIds.quizScores, {
-        orderBy: [{ field: "completedAt", direction: "desc" }],
       }),
       getAllBadges(auth.apiToken, documentIds.badges),
     ]);
@@ -40,14 +32,13 @@ export async function GET(request: NextRequest) {
     // Group by visitor
     const visitorStats = new Map<
       string,
-      { lessonsCompleted: number; quizPoints: number; badgeCount: number }
+      { lessonsCompleted: number; badgeCount: number }
     >();
 
     function getStats(visitorId: string) {
       if (!visitorStats.has(visitorId)) {
         visitorStats.set(visitorId, {
           lessonsCompleted: 0,
-          quizPoints: 0,
           badgeCount: 0,
         });
       }
@@ -68,11 +59,6 @@ export async function GET(request: NextRequest) {
       getStats(visitorId).lessonsCompleted = lessons.size;
     }
 
-    // Sum quiz scores per visitor
-    for (const q of quizResult.records) {
-      getStats(q.visitorId).quizPoints += q.score;
-    }
-
     // Count badges per visitor
     const badgeCountMap = new Map<string, number>();
     for (const b of allBadges) {
@@ -86,18 +72,13 @@ export async function GET(request: NextRequest) {
     const entries: LeaderboardEntry[] = [];
     for (const [visitorId, stats] of visitorStats) {
       const totalPoints =
-        stats.lessonsCompleted * 10 +
-        stats.quizPoints * 5 +
-        stats.badgeCount * 25;
+        stats.lessonsCompleted * 10 + stats.badgeCount * 25;
 
-      // Count fully completed modules
-      const completedLessons = completedLessonsMap.get(visitorId);
-      // Module completion count not needed for points but included in response
       entries.push({
         visitorId,
         displayName: visitorId, // Display name not available from progress data
         totalPoints,
-        modulesCompleted: 0, // Will be calculated if needed
+        modulesCompleted: 0,
         badgesEarned: stats.badgeCount,
         rank: 0,
       });
