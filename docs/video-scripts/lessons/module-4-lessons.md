@@ -21,13 +21,11 @@ terms appear in **bold** the first time they're used and are explained inline.
 
 ### Script
 
-Quick show of hands -- how many people in this room have, in the last week, Googled "Excel IF formula" or "VLOOKUP example"? Yeah. Same.
+In the last week, have you Googled "Excel IF formula" or "VLOOKUP example"? Yeah, I have. Now, there's another way to get the formulas, ask GPT, CoPilot, and Cashman AI. 
 
-That whole workflow goes away with AI.
+One workflow is: open Copilot in Excel, or the Cashman AI Portal, and just *describe what you want in plain English*. "Total Billed equals Previously Billed plus This Period." 
 
-The new workflow is: open Copilot in Excel, or the Cashman AI Portal, and just *describe what you want in plain English*. "Total Billed equals Previously Billed plus This Period." Done. AI hands you the formula.
-
-But I don't want to demo this on a toy example. So for this lesson, we built a downloadable Excel workbook -- a hypothetical thirty-two-million-dollar marine project, with a real-shaped **schedule of values**. That term is worth knowing. A schedule of values is a line-by-line breakdown of the contract, organized by **CSI MasterFormat division** -- the standard construction taxonomy: zero-one for general requirements, zero-three for concrete, zero-five for metals, three-five for marine, and so on. The owner pays from this schedule, line by line, with a percent-complete on each.
+So for this lesson, we built a downloadable Excel workbook -- a hypothetical thirty-two-million-dollar marine project, with a real-shaped **schedule of values**.  A schedule of values is a line-by-line breakdown of the contract, organized by **CSI MasterFormat division** -- the standard construction taxonomy: zero-one for general requirements, zero-three for concrete, zero-five for metals, three-five for marine, and so on. The owner pays from this schedule, line by line, with a percent-complete on each.
 
 The workbook has twenty-one line items. We've filled in three columns for you: Total Contract Amount, Previously Billed, and This Period. Your job, with AI's help, is to write the formulas for the rest:
 

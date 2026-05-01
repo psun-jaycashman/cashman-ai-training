@@ -16,7 +16,7 @@
 
 ## Script
 
-Hey, I'm Peter. Welcome to Module 4.
+Hi, Welcome to Module 4.
 
 Quick question: when you need a tricky Excel formula, what do you do? If you're like most people, you Google it, click on a forum from 2014, scroll past four ads, and then try to adapt some stranger's example to your spreadsheet.
 
