@@ -10,6 +10,17 @@ const AGENT_API_URL =
 
 const XLSX_MAX_BYTES = 5 * 1024 * 1024; // 5 MB plenty for a SoV-shaped workbook
 
+// Which busibox agent + tier handles the rubric evaluation. Both default to
+// the cloud-LLM-backed "simple" record-extractor; set these to whatever
+// agent + tier your busibox agent-api has wired to an on-prem model when
+// you want grading to stay inside the network.
+const EVALUATOR_AGENT_NAME = process.env.EVALUATOR_AGENT_NAME ?? "record-extractor";
+const EVALUATOR_AGENT_TIER = (process.env.EVALUATOR_AGENT_TIER ?? "simple") as
+  | "simple"
+  | "complex"
+  | "batch"
+  | string;
+
 const EVALUATION_SCHEMA = {
   name: "exercise_evaluation",
   strict: true,
@@ -165,10 +176,10 @@ Evaluate the submission against each criterion. Be fair but thorough. Give encou
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        agent_name: "record-extractor",
+        agent_name: EVALUATOR_AGENT_NAME,
         input: { prompt },
         response_schema: EVALUATION_SCHEMA,
-        agent_tier: "simple",
+        agent_tier: EVALUATOR_AGENT_TIER,
       }),
     });
 
