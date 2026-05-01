@@ -13,6 +13,8 @@ import {
   Lightbulb,
   X,
   Download,
+  Upload,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -26,6 +28,7 @@ interface ExerciseComponentProps {
 
 export default function ExerciseComponent({ exercise, onComplete, isSubmitting = false }: ExerciseComponentProps) {
   const [response, setResponse] = useState('');
+  const [file, setFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showModelAnswer, setShowModelAnswer] = useState(false);
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
@@ -37,29 +40,46 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
   const hasRubric = !!exercise.evaluationRubric;
   const hasGoodExamples = !!exercise.goodExamples && exercise.goodExamples.length > 0;
   const hasHints = !!exercise.hints && exercise.hints.length > 0;
-  const hasFeedbackPanel = hasGoodExamples || hasHints;
+  const hasAnswerKey = !!exercise.answerKey;
+  const hasFeedbackPanel = hasGoodExamples || hasHints || hasAnswerKey;
+  const acceptedFileTypes = exercise.acceptedFileTypes ?? [];
+  const acceptsFile = acceptedFileTypes.length > 0;
+  const acceptAttr = acceptedFileTypes.join(',');
   const feedbackPanelLabel =
     hasGoodExamples && hasHints
       ? 'View Hints & Examples'
       : hasHints
         ? 'View Hints'
-        : 'View Good Examples';
+        : hasGoodExamples
+          ? 'View Good Examples'
+          : 'View Answer Key';
+
+  const canSubmit = file !== null || response.trim().length > 0;
 
   const handleSubmit = async () => {
-    if (!response.trim()) return;
+    if (!canSubmit) return;
 
     if (hasRubric) {
       setEvaluating(true);
       setEvalError(null);
       try {
-        const res = await fetch('/api/activities/evaluate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            exerciseId: exercise.id,
-            userResponse: response,
-          }),
-        });
+        let res: Response;
+        if (file) {
+          const fd = new FormData();
+          fd.append('exerciseId', exercise.id);
+          fd.append('file', file);
+          if (response.trim()) fd.append('userResponse', response);
+          res = await fetch('/api/activities/evaluate', { method: 'POST', body: fd });
+        } else {
+          res = await fetch('/api/activities/evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              exerciseId: exercise.id,
+              userResponse: response,
+            }),
+          });
+        }
 
         if (!res.ok) {
           const err = await res.json().catch(() => ({ error: 'Evaluation failed' }));
@@ -73,7 +93,9 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
           setActiveExample(0);
           setShowExamples(true);
         }
-        onComplete(response);
+        // For tracking, persist either the typed text or a stub describing the
+        // upload so the activity record carries something meaningful.
+        onComplete(response.trim() || (file ? `[uploaded: ${file.name}]` : ''));
       } catch (err) {
         setEvalError(err instanceof Error ? err.message : 'Failed to evaluate. Try again.');
         setSubmitted(true);
@@ -81,7 +103,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
           setActiveExample(0);
           setShowExamples(true);
         }
-        onComplete(response);
+        onComplete(response.trim() || (file ? `[uploaded: ${file.name}]` : ''));
       } finally {
         setEvaluating(false);
       }
@@ -91,7 +113,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
         setActiveExample(0);
         setShowExamples(true);
       }
-      onComplete(response);
+      onComplete(response.trim() || (file ? `[uploaded: ${file.name}]` : ''));
     }
   };
 
@@ -100,6 +122,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
     setEvaluation(null);
     setEvalError(null);
     setShowExamples(false);
+    setFile(null);
   };
 
   const submitLabel =
@@ -180,28 +203,6 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
       {/* Response area / Evaluation results */}
       {submitted ? (
         <div className="space-y-4">
-          {/* Answer-key download — only revealed after submission, intentionally
-              gated so trainees attempt the exercise first. */}
-          {exercise.answerKey && (
-            <a
-              href={`${basePath}${exercise.answerKey.href}`}
-              download
-              className="flex items-start gap-3 p-4 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
-            >
-              <span className="flex-shrink-0 w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
-                <Download className="w-4 h-4" />
-              </span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold">{exercise.answerKey.label}</p>
-                {exercise.answerKey.description && (
-                  <p className="text-xs mt-0.5 text-emerald-800 dark:text-emerald-300/80">
-                    {exercise.answerKey.description}
-                  </p>
-                )}
-              </div>
-            </a>
-          )}
-
           {/* Evaluation results */}
           {evaluation ? (
             <div className="space-y-4">
@@ -346,19 +347,89 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
           <textarea
             value={response}
             onChange={(e) => setResponse(e.target.value)}
-            placeholder="Paste your result here..."
+            placeholder={
+              acceptsFile
+                ? 'Paste your formulas here, or use the upload button below to submit your spreadsheet…'
+                : 'Paste your result here...'
+            }
             rows={6}
             className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 resize-y"
           />
+
+          {acceptsFile && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <span className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+                <span>or upload your file</span>
+                <span className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+              </div>
+              <label
+                className={`flex items-center gap-3 p-4 rounded-lg border-2 border-dashed cursor-pointer transition-colors ${
+                  file
+                    ? 'border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-900/20'
+                    : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:border-indigo-400 dark:hover:border-indigo-600'
+                }`}
+              >
+                <input
+                  type="file"
+                  accept={acceptAttr}
+                  className="sr-only"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0] ?? null;
+                    setFile(f);
+                  }}
+                />
+                <span className="flex-shrink-0 w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                  {file ? <FileSpreadsheet className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
+                </span>
+                <div className="flex-1 min-w-0">
+                  {file ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {file.name}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {(file.size / 1024).toFixed(1)} KB · click to change
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        Click to choose a file
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Accepted: {acceptedFileTypes.join(', ')}
+                      </p>
+                    </>
+                  )}
+                </div>
+                {file && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setFile(null);
+                    }}
+                    className="flex-shrink-0 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                    aria-label="Remove file"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </label>
+            </div>
+          )}
+
           <button
             onClick={handleSubmit}
-            disabled={!response.trim() || isSubmitting || evaluating}
+            disabled={!canSubmit || isSubmitting || evaluating}
             className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             {evaluating ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Evaluating...
+                {file ? 'Parsing & evaluating…' : 'Evaluating...'}
               </>
             ) : isSubmitting ? (
               'Submitting...'
@@ -415,6 +486,28 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
 
             {/* Body — scrolls when content overflows */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {/* Answer-key download — gated to post-submission so trainees
+                  attempt the exercise first. */}
+              {exercise.answerKey && (
+                <a
+                  href={`${basePath}${exercise.answerKey.href}`}
+                  download
+                  className="flex items-start gap-3 p-4 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+                >
+                  <span className="flex-shrink-0 w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
+                    <Download className="w-4 h-4" />
+                  </span>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold">{exercise.answerKey.label}</p>
+                    {exercise.answerKey.description && (
+                      <p className="text-xs mt-0.5 text-emerald-800 dark:text-emerald-300/80">
+                        {exercise.answerKey.description}
+                      </p>
+                    )}
+                  </div>
+                </a>
+              )}
+
               {hasHints && exercise.hints && (
                 <div className="p-4 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20">
                   <p className="text-xs font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-2">

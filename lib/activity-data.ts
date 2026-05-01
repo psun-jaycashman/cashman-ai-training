@@ -640,8 +640,9 @@ The most significant challenges over the period were weather-driven cold snaps a
       description:
         'Every formula filled in: G–L per row, SUMIFS division subtotals, and the project total. Open it after you submit yours and compare.',
     },
+    acceptedFileTypes: ['.xlsx'],
     instructions:
-      'Download the $32M Schedule of Values workbook from the lesson. Use AI to generate the formulas for columns G–L (Total Billed, % Complete, Remaining, Retention 10%, Net Earned to Date, Status), the division subtotals (SUMIFS), and the project total row. Paste your formulas below — labeled by column or section.',
+      'Download the $32M Schedule of Values workbook from the lesson. Use AI to generate the formulas for columns G–L (Total Billed, % Complete, Remaining, Retention 10%, Net Earned to Date, Status), the division subtotals (SUMIFS), and the project total row. Either paste your formulas below labeled by column or section, OR upload your filled-in .xlsx workbook directly — we\'ll parse it and grade the formulas you wrote.',
     scenario:
       'A hypothetical $32M marine construction project. 21 line items grouped by CSI MasterFormat division. Inputs: Total Contract Amount (D), Previously Billed (E), This Period (F). Trainee writes formulas for: Total Billed (G = E+F), % Complete (H = G/D), Remaining (I = D−G), Retention (J = G×10%), Net Earned (K = G−J), Status (L = COMPLETE/NEAR COMPLETE/IN PROGRESS/NOT STARTED), Division subtotals via SUMIFS, and Project Total row via SUM. Project Total should reconcile to $32,000,000 contract value.',
     hints: [

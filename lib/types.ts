@@ -188,6 +188,13 @@ export interface Exercise {
   hints?: string[];
   /** Shown only after the trainee submits — e.g. a completed answer-key file. */
   answerKey?: AnswerKeyDownload;
+  /**
+   * When set, exposes a file picker alongside the textarea. Trainee can
+   * choose to upload one of these extensions instead of pasting text.
+   * Server parses the file and runs the same rubric evaluation.
+   * Example: ['.xlsx'] for the Module 4 Lesson 1 spreadsheet exercise.
+   */
+  acceptedFileTypes?: string[];
   articleUrl?: string;
   reflectionPrompt?: string;
   evaluationRubric?: EvaluationRubric;

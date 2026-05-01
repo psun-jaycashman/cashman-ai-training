@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
 import { getExercise } from "@/lib/activity-data";
+import { summarizeWorkbook } from "@/lib/xlsx-summary";
+
+export const runtime = "nodejs";
 
 const AGENT_API_URL =
   process.env.AGENT_API_URL || process.env.NEXT_PUBLIC_AGENT_API_URL || "http://localhost:8000";
+
+const XLSX_MAX_BYTES = 5 * 1024 * 1024; // 5 MB plenty for a SoV-shaped workbook
 
 const EVALUATION_SCHEMA = {
   name: "exercise_evaluation",
@@ -39,21 +44,82 @@ const EVALUATION_SCHEMA = {
  * POST /api/activities/evaluate
  *
  * Evaluate a trainee's exercise submission using LLM via agent-api runs/invoke.
- * Body: { exerciseId, userResponse }
+ *
+ * Two body shapes:
+ *   - JSON `{ exerciseId, userResponse }` — pasted text
+ *   - multipart/form-data with `exerciseId`, optional `userResponse`,
+ *     and a `file` (.xlsx). Server parses the workbook into a text summary
+ *     of formulas + values and grades that against the rubric.
  */
 export async function POST(request: NextRequest) {
   try {
     const auth = await requireAuthWithTokenExchange(request, "agent-api");
     if (auth instanceof NextResponse) return auth;
 
-    const body = await request.json();
-    const { exerciseId, userResponse } = body;
+    const contentType = request.headers.get("content-type") ?? "";
+    let exerciseId: string;
+    let userResponse: string;
 
-    if (!exerciseId || !userResponse) {
-      return NextResponse.json(
-        { error: "exerciseId and userResponse are required" },
-        { status: 400 }
-      );
+    if (contentType.startsWith("multipart/form-data")) {
+      let formData: FormData;
+      try {
+        formData = await request.formData();
+      } catch {
+        return NextResponse.json({ error: "Invalid multipart body" }, { status: 400 });
+      }
+      exerciseId = String(formData.get("exerciseId") ?? "");
+      const pastedText = String(formData.get("userResponse") ?? "").trim();
+      const fileEntry = formData.get("file");
+      if (!exerciseId) {
+        return NextResponse.json({ error: "exerciseId is required" }, { status: 400 });
+      }
+
+      if (fileEntry instanceof File) {
+        if (fileEntry.size > XLSX_MAX_BYTES) {
+          return NextResponse.json(
+            { error: `File too large (max ${XLSX_MAX_BYTES / 1024 / 1024} MB)` },
+            { status: 413 }
+          );
+        }
+        const lower = fileEntry.name.toLowerCase();
+        if (!lower.endsWith(".xlsx")) {
+          return NextResponse.json(
+            { error: "Only .xlsx files are supported for evaluation" },
+            { status: 415 }
+          );
+        }
+        let summary: string;
+        try {
+          const buf = Buffer.from(await fileEntry.arrayBuffer());
+          summary = await summarizeWorkbook(buf);
+        } catch (err) {
+          console.error("[EVALUATE] failed to parse uploaded workbook", err);
+          return NextResponse.json(
+            { error: "Could not read the uploaded workbook. Make sure it opens in Excel." },
+            { status: 422 }
+          );
+        }
+        userResponse = pastedText
+          ? `${pastedText}\n\n---\n\n## Uploaded workbook contents\n${summary}`
+          : `## Uploaded workbook contents\n${summary}`;
+      } else if (pastedText) {
+        userResponse = pastedText;
+      } else {
+        return NextResponse.json(
+          { error: "Provide a userResponse or attach a file" },
+          { status: 400 }
+        );
+      }
+    } else {
+      const body = await request.json();
+      exerciseId = body.exerciseId;
+      userResponse = body.userResponse;
+      if (!exerciseId || !userResponse) {
+        return NextResponse.json(
+          { error: "exerciseId and userResponse are required" },
+          { status: 400 }
+        );
+      }
     }
 
     const exercise = getExercise(exerciseId);
@@ -90,7 +156,7 @@ ${userResponse}
 
 ---
 
-Evaluate the submission against each criterion. Be fair but thorough. Give encouraging, constructive feedback.`;
+Evaluate the submission against each criterion. Be fair but thorough. Give encouraging, constructive feedback. If the submission was an uploaded workbook, the formulas and values are reproduced verbatim under "Uploaded workbook contents" — judge each criterion against those formulas, not against any text the trainee may also have typed.`;
 
     const res = await fetch(`${AGENT_API_URL}/runs/invoke`, {
       method: "POST",
