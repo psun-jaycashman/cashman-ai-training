@@ -12,7 +12,10 @@ import {
   Loader2,
   Lightbulb,
   X,
+  Download,
 } from 'lucide-react';
+
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 import type { Exercise, EvaluationResult } from '@/lib/types';
 
 interface ExerciseComponentProps {
@@ -177,6 +180,28 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
       {/* Response area / Evaluation results */}
       {submitted ? (
         <div className="space-y-4">
+          {/* Answer-key download — only revealed after submission, intentionally
+              gated so trainees attempt the exercise first. */}
+          {exercise.answerKey && (
+            <a
+              href={`${basePath}${exercise.answerKey.href}`}
+              download
+              className="flex items-start gap-3 p-4 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+            >
+              <span className="flex-shrink-0 w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
+                <Download className="w-4 h-4" />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">{exercise.answerKey.label}</p>
+                {exercise.answerKey.description && (
+                  <p className="text-xs mt-0.5 text-emerald-800 dark:text-emerald-300/80">
+                    {exercise.answerKey.description}
+                  </p>
+                )}
+              </div>
+            </a>
+          )}
+
           {/* Evaluation results */}
           {evaluation ? (
             <div className="space-y-4">

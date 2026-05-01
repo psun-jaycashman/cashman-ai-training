@@ -634,6 +634,12 @@ The most significant challenges over the period were weather-driven cold snaps a
     lessonId: 'mod-4-les-1',
     title: 'Schedule of Values Formulas',
     variant: 'paste-back',
+    answerKey: {
+      href: '/downloads/sov-32m-project-completed.xlsx',
+      label: 'Download the completed answer-key workbook',
+      description:
+        'Every formula filled in: G–L per row, SUMIFS division subtotals, and the project total. Open it after you submit yours and compare.',
+    },
     instructions:
       'Download the $32M Schedule of Values workbook from the lesson. Use AI to generate the formulas for columns G–L (Total Billed, % Complete, Remaining, Retention 10%, Net Earned to Date, Status), the division subtotals (SUMIFS), and the project total row. Paste your formulas below — labeled by column or section.',
     scenario:

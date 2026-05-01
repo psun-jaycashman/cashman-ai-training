@@ -109,7 +109,7 @@ CURRENCY = "$#,##0.00"
 # --------------------------------------------------------------------------- #
 
 
-def build_workbook(output_path: Path) -> None:
+def build_workbook(output_path: Path, *, completed: bool = False) -> None:
     wb = Workbook()
     ws = wb.active
     ws.title = "Schedule of Values"
@@ -133,7 +133,10 @@ def build_workbook(output_path: Path) -> None:
         ws.column_dimensions[col].width = w
 
     # ---------- Project header ----------
-    ws["A1"] = "Cashman Marine — Hypothetical Project"
+    ws["A1"] = (
+        "Cashman Marine — Hypothetical Project"
+        + ("  ·  ANSWER KEY" if completed else "")
+    )
     ws["A1"].font = TITLE_FONT
     ws.merge_cells("A1:L1")
 
@@ -144,10 +147,16 @@ def build_workbook(output_path: Path) -> None:
     ws["A2"].font = SUBTITLE_FONT
     ws.merge_cells("A2:L2")
 
-    ws["A3"] = (
-        "Columns G, H, I, J, K, L need formulas. Use AI to generate them, then "
-        "test with known values before trusting the totals."
-    )
+    if completed:
+        ws["A3"] = (
+            "Reference workbook with all formulas filled in. Compare against your "
+            "submission. Click any G–L cell to see the actual formula."
+        )
+    else:
+        ws["A3"] = (
+            "Columns G, H, I, J, K, L need formulas. Use AI to generate them, then "
+            "test with known values before trusting the totals."
+        )
     ws["A3"].font = Font(name="Calibri", size=10, italic=True, color=CASHMAN_GREEN)
     ws.merge_cells("A3:L3")
 
@@ -191,6 +200,27 @@ def build_workbook(output_path: Path) -> None:
         ws.cell(row=r, column=5, value=prev)
         ws.cell(row=r, column=6, value=this)
 
+        if completed:
+            # G — Total Billed = Previously Billed + This Period
+            ws.cell(row=r, column=7, value=f"=E{r}+F{r}")
+            # H — % Complete with divide-by-zero guard
+            ws.cell(row=r, column=8, value=f"=IFERROR(G{r}/D{r},0)")
+            # I — Remaining = Total Contract − Total Billed
+            ws.cell(row=r, column=9, value=f"=D{r}-G{r}")
+            # J — Retention = 10% of Total Billed
+            ws.cell(row=r, column=10, value=f"=G{r}*0.1")
+            # K — Net Earned = Total Billed − Retention
+            ws.cell(row=r, column=11, value=f"=G{r}-J{r}")
+            # L — Status with conditions ordered most-specific first
+            ws.cell(
+                row=r,
+                column=12,
+                value=(
+                    f'=IFS(D{r}=0,"",H{r}=1,"COMPLETE",H{r}>=0.9,"NEAR COMPLETE",'
+                    f'H{r}>0,"IN PROGRESS",TRUE,"NOT STARTED")'
+                ),
+            )
+
         for c in (4, 5, 6):
             ws.cell(row=r, column=c).number_format = CURRENCY
             ws.cell(row=r, column=c).alignment = RIGHT
@@ -198,7 +228,9 @@ def build_workbook(output_path: Path) -> None:
         # the trainee fills in formulas, the result displays correctly.
         for c in (7, 9, 10, 11):
             ws.cell(row=r, column=c).number_format = CURRENCY
+            ws.cell(row=r, column=c).alignment = RIGHT
         ws.cell(row=r, column=8).number_format = "0.00%"
+        ws.cell(row=r, column=8).alignment = RIGHT
         ws.cell(row=r, column=12).alignment = CENTER
 
         for c in range(1, 13):
@@ -230,16 +262,52 @@ def build_workbook(output_path: Path) -> None:
         "35 — Marine Construction",
     ]
     SUB_DATA_START = SUB_START + 1
+    data_first = DATA_START
+    data_last = DATA_END
     for offset, div in enumerate(divisions):
         r = SUB_DATA_START + offset
         ws.cell(row=r, column=2, value=div).alignment = LEFT
-        ws.cell(row=r, column=3, value="(SUMIFS by division — formula needed)").alignment = LEFT
-        ws.cell(row=r, column=3).font = Font(
-            name="Calibri", size=10, italic=True, color="888888"
-        )
+
+        if completed:
+            ws.cell(row=r, column=3, value="(SUMIFS by division)").alignment = LEFT
+            ws.cell(row=r, column=3).font = Font(
+                name="Calibri", size=10, italic=True, color="888888"
+            )
+            # Each numeric column subtotaled by Division (col B). Absolute
+            # ranges so a future "drag-down" wouldn't shift them.
+            for c in (4, 5, 6, 7, 9, 10, 11):
+                col_letter = get_column_letter(c)
+                ws.cell(
+                    row=r,
+                    column=c,
+                    value=(
+                        f"=SUMIFS({col_letter}${data_first}:{col_letter}${data_last},"
+                        f"$B${data_first}:$B${data_last},$B{r})"
+                    ),
+                )
+            # Division-level % Complete = subtotal Total Billed / subtotal Total Contract
+            ws.cell(row=r, column=8, value=f"=IFERROR(G{r}/D{r},0)")
+            # Status uses the same logic as line rows
+            ws.cell(
+                row=r,
+                column=12,
+                value=(
+                    f'=IFS(D{r}=0,"",H{r}=1,"COMPLETE",H{r}>=0.9,"NEAR COMPLETE",'
+                    f'H{r}>0,"IN PROGRESS",TRUE,"NOT STARTED")'
+                ),
+            )
+        else:
+            ws.cell(row=r, column=3, value="(SUMIFS by division — formula needed)").alignment = LEFT
+            ws.cell(row=r, column=3).font = Font(
+                name="Calibri", size=10, italic=True, color="888888"
+            )
+
         for c in (4, 5, 6, 7, 9, 10, 11):
             ws.cell(row=r, column=c).number_format = CURRENCY
+            ws.cell(row=r, column=c).alignment = RIGHT
         ws.cell(row=r, column=8).number_format = "0.00%"
+        ws.cell(row=r, column=8).alignment = RIGHT
+        ws.cell(row=r, column=12).alignment = CENTER
         for c in range(1, 13):
             ws.cell(row=r, column=c).font = SUBTOTAL_FONT
             ws.cell(row=r, column=c).fill = SUBTOTAL_FILL
@@ -253,13 +321,45 @@ def build_workbook(output_path: Path) -> None:
     # ---------- Grand total ----------
     GRAND = SPACER2 + 1
     ws.cell(row=GRAND, column=2, value="PROJECT TOTAL").alignment = LEFT
-    ws.cell(row=GRAND, column=3, value="(SUM across all line items — formula needed)").alignment = LEFT
-    ws.cell(row=GRAND, column=3).font = Font(
-        name="Calibri", size=10, italic=True, color="EEEEEE"
-    )
+
+    if completed:
+        ws.cell(row=GRAND, column=3, value="(SUM across all line items)").alignment = LEFT
+        ws.cell(row=GRAND, column=3).font = Font(
+            name="Calibri", size=10, italic=True, color="EEEEEE"
+        )
+        for c in (4, 5, 6, 7, 9, 10, 11):
+            col_letter = get_column_letter(c)
+            ws.cell(
+                row=GRAND,
+                column=c,
+                value=f"=SUM({col_letter}{DATA_START}:{col_letter}{DATA_END})",
+            )
+        # Project-wide % Complete is computed from the totals (NOT averaged).
+        ws.cell(
+            row=GRAND,
+            column=8,
+            value=f"=IFERROR(G{GRAND}/D{GRAND},0)",
+        )
+        ws.cell(
+            row=GRAND,
+            column=12,
+            value=(
+                f'=IFS(D{GRAND}=0,"",H{GRAND}=1,"COMPLETE",H{GRAND}>=0.9,"NEAR COMPLETE",'
+                f'H{GRAND}>0,"IN PROGRESS",TRUE,"NOT STARTED")'
+            ),
+        )
+    else:
+        ws.cell(row=GRAND, column=3, value="(SUM across all line items — formula needed)").alignment = LEFT
+        ws.cell(row=GRAND, column=3).font = Font(
+            name="Calibri", size=10, italic=True, color="EEEEEE"
+        )
+
     for c in (4, 5, 6, 7, 9, 10, 11):
         ws.cell(row=GRAND, column=c).number_format = CURRENCY
+        ws.cell(row=GRAND, column=c).alignment = RIGHT
     ws.cell(row=GRAND, column=8).number_format = "0.00%"
+    ws.cell(row=GRAND, column=8).alignment = RIGHT
+    ws.cell(row=GRAND, column=12).alignment = CENTER
     for c in range(1, 13):
         cell = ws.cell(row=GRAND, column=c)
         cell.fill = GREEN_FILL
@@ -303,9 +403,12 @@ def build_workbook(output_path: Path) -> None:
 
 def main() -> None:
     repo_root = Path(__file__).resolve().parent.parent
-    output = repo_root / "public" / "downloads" / "sov-32m-project.xlsx"
-    build_workbook(output)
-    print(f"Generated {output.relative_to(repo_root)}")
+    blank = repo_root / "public" / "downloads" / "sov-32m-project.xlsx"
+    completed = repo_root / "public" / "downloads" / "sov-32m-project-completed.xlsx"
+    build_workbook(blank, completed=False)
+    build_workbook(completed, completed=True)
+    print(f"Generated {blank.relative_to(repo_root)}")
+    print(f"Generated {completed.relative_to(repo_root)}")
     # Verify totals
     total_contract = sum(item[3] for item in LINE_ITEMS)
     total_billed = sum(item[4] + item[5] for item in LINE_ITEMS)

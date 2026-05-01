@@ -168,6 +168,13 @@ export interface GoodExample {
   note?: string;
 }
 
+export interface AnswerKeyDownload {
+  /** Public path under /public — the Exercise component prepends basePath. */
+  href: string;
+  label: string;
+  description?: string;
+}
+
 export interface Exercise {
   id: string;
   moduleId: string;
@@ -179,6 +186,8 @@ export interface Exercise {
   modelAnswer?: string;
   goodExamples?: GoodExample[];
   hints?: string[];
+  /** Shown only after the trainee submits — e.g. a completed answer-key file. */
+  answerKey?: AnswerKeyDownload;
   articleUrl?: string;
   reflectionPrompt?: string;
   evaluationRubric?: EvaluationRubric;
