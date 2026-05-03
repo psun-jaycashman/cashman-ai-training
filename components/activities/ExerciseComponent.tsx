@@ -223,7 +223,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                       ? 'text-green-800 dark:text-green-300'
                       : 'text-amber-800 dark:text-amber-300'
                   }`}>
-                    {evaluation.passed ? 'Passed!' : 'Not quite -- try again'}
+                    {evaluation.passed ? 'Nice work!' : 'Almost there — give it another shot'}
                     {' '}&middot;{' '}
                     {evaluation.score}/{evaluation.maxScore} criteria met
                   </p>
@@ -290,7 +290,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                 <CheckCircle2 className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
-                    Submitted, but evaluation unavailable
+                    Got your submission — evaluator is taking a moment
                   </p>
                   <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
                     {evalError}

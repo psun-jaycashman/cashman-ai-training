@@ -31,8 +31,12 @@ const EVALUATION_SCHEMA = {
     properties: {
       score: { type: "number", description: "Number of criteria met" },
       maxScore: { type: "number", description: "Total number of criteria" },
-      feedback: { type: "string", description: "Overall feedback for the trainee (2-3 sentences, encouraging tone)" },
-      passed: { type: "boolean", description: "Whether the trainee met enough criteria to pass" },
+      feedback: {
+        type: "string",
+        description:
+          "Warm, encouraging overall feedback addressed directly to the user as 'you' (never 'the trainee', 'the user', or third-person). 2-3 sentences. Lead with something specific they did well, then name the most important next step in friendly language. Never scold; never list every gap.",
+      },
+      passed: { type: "boolean", description: "Whether enough criteria were met to pass" },
       criteriaResults: {
         type: "array",
         maxItems: 10,
@@ -43,7 +47,11 @@ const EVALUATION_SCHEMA = {
           properties: {
             criterion: { type: "string", description: "The criterion being evaluated" },
             met: { type: "boolean", description: "Whether this criterion was met" },
-            comment: { type: "string", description: "Brief explanation of the evaluation for this criterion" },
+            comment: {
+              type: "string",
+              description:
+                "One short sentence on this specific criterion, addressed to the user as 'you'. If unmet, suggest a concrete fix; if met, briefly affirm what worked. Never use the word 'trainee'.",
+            },
           },
         },
       },
@@ -162,12 +170,19 @@ ${criteria.map((c, i) => `${i + 1}. ${c}`).join("\n")}
 
 **Passing threshold:** ${passingScore} of ${criteria.length} criteria must be met.
 
-## Trainee's Submission
+## The Submission
 ${userResponse}
 
 ---
 
-Evaluate the submission against each criterion. Be fair but thorough. Give encouraging, constructive feedback. If the submission was an uploaded workbook, the formulas and values are reproduced verbatim under "Uploaded workbook contents" — judge each criterion against those formulas, not against any text the trainee may also have typed.`;
+Evaluate the submission against each criterion. If the submission included an uploaded workbook, the formulas and values are reproduced verbatim under "Uploaded workbook contents" — judge each criterion against those formulas, not against any text that may also have been typed alongside.
+
+**Tone rules — these are non-negotiable:**
+- Address the person directly as "you" (never "the trainee", "the user", "they", or third-person).
+- Open the \`feedback\` with one specific thing they got right, then name the single most important next step in friendly, supportive language.
+- Keep \`feedback\` to 2–3 sentences. Don't enumerate every missing criterion there — that's what \`criteriaResults\` is for.
+- In \`criteriaResults[].comment\`, when a criterion isn't met, suggest a concrete fix in one short sentence; when it's met, affirm briefly. Always speak to the person, not about them.
+- Never scold, never use the word "trainee", never lecture.`;
 
     const res = await fetch(`${AGENT_API_URL}/runs/invoke`, {
       method: "POST",

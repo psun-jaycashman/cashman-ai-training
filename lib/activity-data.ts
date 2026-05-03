@@ -46,7 +46,7 @@ Just describe what you're trying to do and I'll help. If you have specific compa
       ],
       passingScore: 2,
       systemPrompt:
-        'You are evaluating whether a trainee successfully logged into an AI portal and asked it what it can do. The trainee should paste the AI\'s response. Evaluate whether the pasted text looks like a genuine AI response describing capabilities. Be lenient -- any reasonable AI response counts.',
+        'You are evaluating whether a user successfully logged into an AI portal and asked it what it can do. The user should paste the AI\'s response. Evaluate whether the pasted text looks like a genuine AI response describing capabilities. Be lenient -- any reasonable AI response counts.',
     },
   },
 
@@ -143,7 +143,7 @@ Jim`,
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a rewritten email. The original was poorly written by a construction superintendent -- vague subject, bad grammar, mixed topics, no structure. The trainee should have used AI to improve it. Evaluate the rewrite against the criteria. A good rewrite has a clear subject, professional tone, organized sections, and clear action items.',
+        'You are evaluating a rewritten email. The original was poorly written by a construction superintendent -- vague subject, bad grammar, mixed topics, no structure. The user should have used AI to improve it. Evaluate the rewrite against the criteria. A good rewrite has a clear subject, professional tone, organized sections, and clear action items.',
     },
   },
   {
@@ -216,7 +216,7 @@ Action items: Tom places the AZ-24 PO by end of day Thursday; Dave finalizes the
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a summary of an email thread about a construction project sheet pile design change. The thread involves Sarah (PM), Dave (Structural), Tom (Procurement), and Mike (Client). Evaluate whether the trainee\'s summary captures the key information accurately.',
+        'You are evaluating a summary of an email thread about a construction project sheet pile design change. The thread involves Sarah (PM), Dave (Structural), Tom (Procurement), and Mike (Client). Evaluate whether the user\'s summary captures the key information accurately.',
     },
   },
   {
@@ -407,7 +407,7 @@ Precast cap delivery delayed ~2 weeks by manufacturer. Mitigation in progress wi
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a monthly progress report for a $4.2M Galveston Wharf Rehabilitation project. The trainee was given raw notes and asked to produce a formal report. Evaluate structure, completeness, professionalism, and accuracy against the source notes.',
+        'You are evaluating a monthly progress report for a $4.2M Galveston Wharf Rehabilitation project. The user was given raw notes and asked to produce a formal report. Evaluate structure, completeness, professionalism, and accuracy against the source notes.',
     },
   },
   {
@@ -419,7 +419,7 @@ Precast cap delivery delayed ~2 weeks by manufacturer. Mitigation in progress wi
     instructions:
       'Download the combined Quincy daily reports PDF from the lesson above. Use AI to produce (1) a 2–3 paragraph executive summary covering the entire 9-week period and (2) a structured insights list grouped by theme (productivity, weather, equipment, safety, etc.). Verify a few specific facts against the source PDF. Paste your final summary + insights below.',
     scenario:
-      'The PDF contains daily field reports from a Cashman Quincy job covering Dec 30, 2006 through Mar 5, 2007 (~9 weeks of winter marine work). The original Word files have already been extracted and combined into a single PDF for AI ingestion. The trainee should produce an executive summary plus a thematic insights list, then verify specific facts (dates, numbers, names) against the source to catch any hallucinations.',
+      'The PDF contains daily field reports from a Cashman Quincy job covering Dec 30, 2006 through Mar 5, 2007 (~9 weeks of winter marine work). The original Word files have already been extracted and combined into a single PDF for AI ingestion. The user should produce an executive summary plus a thematic insights list, then verify specific facts (dates, numbers, names) against the source to catch any hallucinations.',
     hints: [
       'Tell AI who is reading the summary (operations director? client? internal team?). Same source, different audience, different deliverable.',
       'Ask explicitly for **patterns across many days**, not a transcription. The whole point is the season\'s story, not a log dump.',
@@ -505,7 +505,7 @@ The most significant challenges over the period were weather-driven cold snaps a
       ],
       passingScore: 4,
       systemPrompt:
-        'You are evaluating a trainee\'s AI-assisted summary of nine weeks of historical Cashman daily reports (the Quincy job, Dec 30, 2006 – Mar 5, 2007). The trainee was asked to produce (1) an executive summary and (2) a structured, thematic insights list. Evaluate whether the output is genuinely synthesized across many days (not a transcription of one), whether it groups insights by theme, and whether it cites specifics. Be especially attentive to whether the trainee shows awareness that AI may hallucinate specifics — credit them for either verifying claims or explicitly noting that verification is needed. Do NOT penalize them for not having read every page of the PDF themselves; the point of the exercise is using AI to do the heavy lifting.',
+        'You are evaluating a user\'s AI-assisted summary of nine weeks of historical Cashman daily reports (the Quincy job, Dec 30, 2006 – Mar 5, 2007). The user was asked to produce (1) an executive summary and (2) a structured, thematic insights list. Evaluate whether the output is genuinely synthesized across many days (not a transcription of one), whether it groups insights by theme, and whether it cites specifics. Be especially attentive to whether the user shows awareness that AI may hallucinate specifics — credit them for either verifying claims or explicitly noting that verification is needed. Do NOT penalize them for not having read every page of the PDF themselves; the point of the exercise is using AI to do the heavy lifting.',
     },
   },
   {
@@ -517,7 +517,7 @@ The most significant challenges over the period were weather-driven cold snaps a
     instructions:
       'Think of a document you write repeatedly at work. Ask AI to create a reusable template with placeholder fields. Paste the template below.',
     scenario:
-      'The trainee should identify a repeated document type (daily report, meeting agenda, safety briefing, submittal review, etc.) and have AI generate a template with clear placeholder brackets for project-specific details.',
+      'The user should identify a repeated document type (daily report, meeting agenda, safety briefing, submittal review, etc.) and have AI generate a template with clear placeholder brackets for project-specific details.',
     hints: [
       'Pick a document you actually do every week or every project. The more repetitive, the bigger the time savings.',
       'Use square brackets for placeholders, e.g. `[Project Name]`, `[Date]`, `[Crew Count]`. They\'re visually obvious and easy to find/replace later.',
@@ -623,7 +623,7 @@ The most significant challenges over the period were weather-driven cold snaps a
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a reusable document template created with AI assistance. The trainee was asked to pick a document they write repeatedly and create a template. Evaluate whether the template is practical, well-organized, and includes appropriate placeholder fields.',
+        'You are evaluating a reusable document template created with AI assistance. The user was asked to pick a document they write repeatedly and create a template. Evaluate whether the template is practical, well-organized, and includes appropriate placeholder fields.',
     },
   },
 
@@ -704,7 +704,7 @@ This gives the true project % complete (~32.94%). DO NOT do \`=AVERAGE(H6:H26)\`
 
 **One bug AI initially produced:**
 The first time I asked, AI wrote the IFS conditions in a different order — it had \`H6>0\` before \`H6>=0.9\`, which meant any row above 0% got tagged "IN PROGRESS" and the "NEAR COMPLETE" branch was unreachable. IFS evaluates top-down — order matters. I caught it because the sheet pile fabrication row at 65% looked right but a hypothetical 95% row would have been mislabeled.`,
-        note: 'Hits every formula the lesson asks for, includes the SUMIFS for division subtotals, calls out the divide-by-zero guard with IFERROR, AND identifies the weighted-vs-averaged trap on project % complete. The "one bug AI initially produced" note is the gold — finding an IFS-ordering bug by reasoning about the corner case proves the trainee verified rather than trusted.',
+        note: 'Hits every formula the lesson asks for, includes the SUMIFS for division subtotals, calls out the divide-by-zero guard with IFERROR, AND identifies the weighted-vs-averaged trap on project % complete. The "one bug AI initially produced" note is the gold — finding an IFS-ordering bug by reasoning about the corner case proves the user verified rather than trusted.',
       },
     ],
     evaluationRubric: {
@@ -721,7 +721,7 @@ The first time I asked, AI wrote the IFS conditions in a different order — it 
       ],
       passingScore: 6,
       systemPrompt:
-        'You are evaluating AI-generated Excel formulas for a $32M Schedule of Values workbook. The trainee was given a 21-line schedule with three input columns (D=Total Contract, E=Previously Billed, F=This Period) and asked to write formulas for columns G–L plus division subtotals and a project total. Evaluate whether they covered the required formulas (Total Billed, % Complete, Remaining, Retention, Net Earned, Status, SUMIFS subtotals, project totals) with correct Excel syntax and logic. Be lenient on minor syntactic variation (IF vs IFS, IFERROR vs explicit IF for divide-by-zero) — both work. Award credit for verification habits: testing with known values, calling out divide-by-zero, identifying the weighted-vs-averaged % complete trap, or noting an IFS ordering bug. The trainee does NOT need to paste a literal verification table to pass — discussing the verification step is enough.',
+        'You are evaluating AI-generated Excel formulas for a $32M Schedule of Values workbook. The user was given a 21-line schedule with three input columns (D=Total Contract, E=Previously Billed, F=This Period) and asked to write formulas for columns G–L plus division subtotals and a project total. Evaluate whether they covered the required formulas (Total Billed, % Complete, Remaining, Retention, Net Earned, Status, SUMIFS subtotals, project totals) with correct Excel syntax and logic. Be lenient on minor syntactic variation (IF vs IFS, IFERROR vs explicit IF for divide-by-zero) — both work. Award credit for verification habits: testing with known values, calling out divide-by-zero, identifying the weighted-vs-averaged % complete trap, or noting an IFS ordering bug. The user does NOT need to paste a literal verification table to pass — discussing the verification step is enough.',
     },
   },
   {
@@ -733,7 +733,7 @@ The first time I asked, AI wrote the IFS conditions in a different order — it 
     instructions:
       'Ask AI what analyses to run on 50 completed projects to understand which types go over budget. Also ask for recommended Excel pivot tables or charts. Paste AI\'s recommendations below.',
     scenario:
-      'Dataset: 50 projects with Type, Contract Value, Final Cost, Duration (planned/actual), Change Orders, Client Satisfaction. The trainee should get analysis suggestions from AI.',
+      'Dataset: 50 projects with Type, Contract Value, Final Cost, Duration (planned/actual), Change Orders, Client Satisfaction. The user should get analysis suggestions from AI.',
     hints: [
       'Don\'t ask AI to "analyze the data." Ask: "What analyses *should* I run to answer X?" That\'s the difference between AI doing the work and AI being your analyst.',
       'Tell AI exactly which fields you have. "Type, Contract Value, Final Cost, Duration, Change Orders, Satisfaction." That keeps suggestions grounded.',
@@ -794,7 +794,7 @@ The first time I asked, AI wrote the IFS conditions in a different order — it 
       ],
       passingScore: 2,
       systemPrompt:
-        'You are evaluating a data analysis plan generated with AI assistance. The trainee has 50 completed construction projects and wants to understand which types go over budget. Evaluate whether the recommended analyses are relevant and practical.',
+        'You are evaluating a data analysis plan generated with AI assistance. The user has 50 completed construction projects and wants to understand which types go over budget. Evaluate whether the recommended analyses are relevant and practical.',
     },
   },
   {
@@ -851,7 +851,7 @@ The first time I asked, AI wrote the IFS conditions in a different order — it 
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a normalized data table created with AI assistance. The trainee was given three different formats of equipment utilization data from different construction superintendents and asked to normalize them into a consistent table. Evaluate whether the normalization is correct and consistent.',
+        'You are evaluating a normalized data table created with AI assistance. The user was given three different formats of equipment utilization data from different construction superintendents and asked to normalize them into a consistent table. Evaluate whether the normalization is correct and consistent.',
     },
   },
 
@@ -865,7 +865,7 @@ The first time I asked, AI wrote the IFS conditions in a different order — it 
     instructions:
       'Use AI to generate an image for a safety briefing presentation cover slide. Describe the image you generated and paste the prompt you used.',
     scenario:
-      'The trainee should write a descriptive prompt for an AI image generator, specifying scene (marine construction), safety elements (PPE, equipment), and style (professional/realistic).',
+      'The user should write a descriptive prompt for an AI image generator, specifying scene (marine construction), safety elements (PPE, equipment), and style (professional/realistic).',
     hints: [
       'Use the **Subject · Composition · Style · Exclusions** framework — every solid image prompt has all four.',
       'Be specific about composition: "wide shot," "low angle," "golden hour lighting." Vague prompts produce vague images.',
@@ -897,11 +897,11 @@ The image is AI-generated and should be labeled as an "illustration" rather than
         'Includes the prompt they used to generate the image',
         'The prompt is specific about the scene (marine/construction context)',
         'The prompt mentions safety-relevant elements (PPE, equipment, workers)',
-        'The trainee describes the resulting image or notes what worked/didn\'t work',
+        'The user describes the resulting image or notes what worked/didn\'t work',
       ],
       passingScore: 2,
       systemPrompt:
-        'You are evaluating an image generation exercise. The trainee was asked to generate a safety briefing cover image using AI. They should provide both the prompt they used and a description of the result. Be lenient -- the focus is on learning to write good image prompts.',
+        'You are evaluating an image generation exercise. The user was asked to generate a safety briefing cover image using AI. They should provide both the prompt they used and a description of the result. Be lenient -- the focus is on learning to write good image prompts.',
     },
   },
   {
@@ -997,7 +997,7 @@ The image is AI-generated and should be labeled as an "illustration" rather than
     instructions:
       'Describe a recent or typical meeting in 4-5 bullet points. Ask AI to generate: a formal summary, an action item list, and a follow-up email. Paste the follow-up email below.',
     scenario:
-      'The trainee describes a meeting from their work experience and uses AI to generate professional meeting documentation. The follow-up email should reference specific decisions and action items.',
+      'The user describes a meeting from their work experience and uses AI to generate professional meeting documentation. The follow-up email should reference specific decisions and action items.',
     hints: [
       'The bullets you feed AI matter — be specific about what was decided and who agreed to do what. Vague input produces vague follow-ups.',
       'Tell AI the audience for the follow-up email (everyone in the meeting? leadership? a subcontractor not in the room?). Same content, different framings.',
@@ -1047,7 +1047,7 @@ Thanks all,
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a meeting follow-up email generated with AI assistance. The trainee described a meeting and asked AI to draft documentation. Evaluate the follow-up email for professionalism, specificity, and actionability.',
+        'You are evaluating a meeting follow-up email generated with AI assistance. The user described a meeting and asked AI to draft documentation. Evaluate the follow-up email for professionalism, specificity, and actionability.',
     },
   },
 
@@ -1061,7 +1061,7 @@ Thanks all,
     instructions:
       'Use the Cashman AI Portal search/chat to ask a question about company procedures. Paste the question you asked and the answer you received. If documents aren\'t loaded yet, ask AI to explain how RAG works.',
     scenario:
-      'The trainee demonstrates use of the AI Portal\'s document search feature. If the Portal has documents, they should get an answer with citations. If not, an explanation of RAG is acceptable.',
+      'The user demonstrates use of the AI Portal\'s document search feature. If the Portal has documents, they should get an answer with citations. If not, an explanation of RAG is acceptable.',
     hints: [
       'Ask in plain English — "What\'s our process for handling a differing site condition?" beats "DSC procedure."',
       'Click any citations the system returns. Verify they actually say what AI claims.',
@@ -1106,7 +1106,7 @@ When a differing site condition is encountered, the field team should:
       ],
       passingScore: 2,
       systemPrompt:
-        'You are evaluating a document search exercise. The trainee was asked to search company documents using the Cashman AI Portal. If documents were available, they should show a Q&A with citations. If not, an explanation of RAG is acceptable. Be lenient -- the goal is demonstrating they used the tool.',
+        'You are evaluating a document search exercise. The user was asked to search company documents using the Cashman AI Portal. If documents were available, they should show a Q&A with citations. If not, an explanation of RAG is acceptable. Be lenient -- the goal is demonstrating they used the tool.',
     },
   },
   {
@@ -1118,7 +1118,7 @@ When a differing site condition is encountered, the field team should:
     instructions:
       'Upload a non-sensitive document to the Cashman AI Portal (or paste a section into AI). Ask three questions: key requirements, deadlines, and potential risks. Paste the AI\'s answers below.',
     scenario:
-      'The trainee should analyze a document and demonstrate the ability to ask targeted questions. Any document type is acceptable as long as the questions are substantive.',
+      'The user should analyze a document and demonstrate the ability to ask targeted questions. Any document type is acceptable as long as the questions are substantive.',
     hints: [
       'Use the **Requirements · Deadlines · Risks** pattern. It works on virtually any document.',
       'Be specific in your questions — "What environmental permits are required and when must they be obtained?" beats "summarize this."',
@@ -1180,7 +1180,7 @@ The document establishes the following requirements for the contractor:
       ],
       passingScore: 2,
       systemPrompt:
-        'You are evaluating a document analysis exercise. The trainee uploaded or pasted a document into AI and asked about requirements, deadlines, and risks. Evaluate whether the responses demonstrate genuine document analysis.',
+        'You are evaluating a document analysis exercise. The user uploaded or pasted a document into AI and asked about requirements, deadlines, and risks. Evaluate whether the responses demonstrate genuine document analysis.',
     },
   },
   {
@@ -1237,7 +1237,7 @@ Source paragraph contains 9 distinct requirements. The table above has 10 rows b
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a data extraction exercise. The trainee was given a dense specification paragraph with 9 requirements and asked to extract them into a structured table. Evaluate completeness, accuracy, and organization.',
+        'You are evaluating a data extraction exercise. The user was given a dense specification paragraph with 9 requirements and asked to extract them into a structured table. Evaluate completeness, accuracy, and organization.',
     },
   },
 
@@ -1251,7 +1251,7 @@ Source paragraph contains 9 distinct requirements. The table above has 10 rows b
     instructions:
       'Write a detailed prompt for a complex analysis task relevant to your work. Run it in Claude Cowork or the Cashman AI Portal. Paste the prompt, the response, and your notes on what was helpful and what you\'d need to verify.',
     scenario:
-      'The trainee should tackle a genuinely complex analysis question -- not a simple lookup but something requiring multi-step reasoning, comparison, or evaluation.',
+      'The user should tackle a genuinely complex analysis question -- not a simple lookup but something requiring multi-step reasoning, comparison, or evaluation.',
     hints: [
       'Pick a question that genuinely requires *thinking*, not just lookup. "Compare three project delivery methods for X" beats "What\'s a CMAR contract?"',
       'Use the **Frame · Provide · Structure · Iterate** workflow. Frame the question, drop in the source material, ask for structured analysis, refine.',
@@ -1307,7 +1307,7 @@ Tone: cautious. If the clause language is ambiguous, say so explicitly."
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a complex analysis exercise. The trainee was asked to run a deep analysis task using AI and reflect on the results. Evaluate whether the task was genuinely complex, whether the trainee engaged critically with the output, and whether they identified verification needs.',
+        'You are evaluating a complex analysis exercise. The user was asked to run a deep analysis task using AI and reflect on the results. Evaluate whether the task was genuinely complex, whether the user engaged critically with the output, and whether they identified verification needs.',
     },
   },
   {
@@ -1319,7 +1319,7 @@ Tone: cautious. If the clause language is ambiguous, say so explicitly."
     instructions:
       'Describe a repetitive task from your work. If you\'re technical, ask Claude Code to write a script. If not, ask AI whether the task could be automated and how. Paste the description and AI\'s response below.',
     scenario:
-      'The trainee identifies a repetitive workflow and explores automation potential -- either with a concrete script or a conceptual automation plan.',
+      'The user identifies a repetitive workflow and explores automation potential -- either with a concrete script or a conceptual automation plan.',
     hints: [
       'Pick a task you actually do every week or every project. The more repetitive, the bigger the ROI.',
       'Describe the task in detail — current steps, time per occurrence, frequency, edge cases. Vague descriptions get vague automation plans.',
@@ -1421,7 +1421,7 @@ Time savings: roughly 20 minutes every two weeks.`,
       ],
       passingScore: 2,
       systemPrompt:
-        'You are evaluating an automation exploration exercise. The trainee described a repetitive work task and asked AI about automating it. Evaluate whether the task description is specific and whether the automation suggestion is practical.',
+        'You are evaluating an automation exploration exercise. The user described a repetitive work task and asked AI about automating it. Evaluate whether the task description is specific and whether the automation suggestion is practical.',
     },
   },
 ];
