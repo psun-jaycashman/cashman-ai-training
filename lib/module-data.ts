@@ -22,6 +22,17 @@ import type {
   Survey,
 } from './types';
 
+// Optional shared library URL where users upload Module 4 deliverables.
+// Set NEXT_PUBLIC_STUDENT_SUBMISSIONS_LIBRARY_URL in env to surface the link
+// in lesson copy. Empty string hides the section.
+const SUBMISSIONS_LIBRARY_URL =
+  process.env.NEXT_PUBLIC_STUDENT_SUBMISSIONS_LIBRARY_URL ?? '';
+
+const submissionsLink = (label: string) =>
+  SUBMISSIONS_LIBRARY_URL
+    ? `[${label}](${SUBMISSIONS_LIBRARY_URL})`
+    : `**${label}** *(ask your trainer for the shared library link)*`;
+
 // ==========================================================================
 // Module 1: Your AI Toolkit
 // ==========================================================================
@@ -529,66 +540,138 @@ A pro habit on spreadsheets at this stake: build a separate "verification" cell 
   {
     id: 'mod-4-les-2',
     title: 'Data Analysis with AI',
-    estimatedMinutes: 5,
+    estimatedMinutes: 8,
     order: 2,
     activityType: 'exercise',
     activityId: 'ex-mod4-les2',
     content: `
 ## Data Analysis with AI
 
-AI can help you analyze data even if you're not a data analyst. You describe what you want to understand, and AI suggests the right approach.
+AI can help you analyze data even if you're not a data analyst. You describe what you want to understand, AI suggests the analysis approach, you run it (or have AI run it), and you decide what the answer means.
+
+In this lesson you'll do that on a *real-shaped* portfolio dataset — 32 hypothetical projects across the four work types Cashman and its subsidiaries actually do.
+
+### Download the Dataset
+
+[**📥 Download the Cashman Project Portfolio (Excel, ~12 KB)**](/downloads/cashman-project-portfolio.xlsx)
+
+The workbook contains 32 projects across:
+- **Dredging** (Cashman marine)
+- **Pile Driving** (Cashman marine)
+- **IPC Lydon** (industrial process and mechanical contracting)
+- **Preload Cryogenics** (LNG and cryogenic tank construction)
+
+Each row has: project name, type, region, **Contract Value**, **Final Cost**, **Cost Variance**, **Planned vs Actual Duration**, **# Change Orders**, **Change Order Total**, **Client Satisfaction (1–5)**, PM, status.
+
+### The Question
+
+**Which project type tends to go over budget, and what's driving it?**
+
+The answer isn't obvious from eyeballing the rows — you need to aggregate by type, look at variance patterns, and cross-reference with change orders and satisfaction scores.
 
 ### The Task
 
-You have a dataset of 50 completed Cashman projects from the last 5 years with these fields: Project Name, Type (Dredging/Pile Driving/Bulkhead/General Marine), Contract Value, Final Cost, Duration (planned vs actual), Number of Change Orders, Client Satisfaction Score (1-5).
-
-You want to understand: **Which project types tend to go over budget, and why?**
-
-Your job:
-1. **Ask AI:** "I have a dataset of 50 marine construction projects. What analyses should I run to understand which project types tend to go over budget?"
-2. **Follow up** with: "What Excel pivot table or chart would best show this?"
-3. **Paste AI's recommended analysis approach and any formulas** into the exercise below
+1. **Open the workbook in Excel** (or upload it to ChatGPT / Cashman AI Portal).
+2. **Ask AI to suggest an analysis approach.** A good prompt is specific:
+   > "I have a portfolio of 32 construction projects across four work types. Each row has contract value, final cost, planned vs actual duration, number of change orders, and client satisfaction. I want to understand which project type tends to go over budget and why. What aggregations and visualizations should I run?"
+3. **Run at least one of AI's suggestions.** Examples:
+   - A pivot table grouped by Project Type showing average % cost overrun, average # change orders, and average satisfaction.
+   - A bar chart of Cost Variance by type.
+   - A scatter plot of Change Order Total vs Cost Variance to see if change orders explain the overrun.
+4. **Form a hypothesis about *why*.** Don't just report "IPC Lydon is over budget by X%." Suggest a plausible reason rooted in the data (e.g., "IPC Lydon has 5+ change orders on average vs 2 for dredging — scope growth is the driver").
+5. **Paste your AI prompt(s), the analysis approach AI suggested, your top finding, and your hypothesis** into the exercise below.
 
 ### The Trap: Plausible but Wrong Analysis
 
-AI might suggest a sophisticated-sounding analysis technique that doesn't actually apply to your data. For example, it might recommend a regression analysis when you have 50 data points spread across 4 categories -- that's not enough data to be statistically meaningful.
+AI might suggest a sophisticated-sounding analysis that doesn't actually apply to your data. With only 8 projects per type, a regression analysis is not statistically meaningful. With four categories, a t-test pair is overkill. Plain averages, totals, and a pivot table are usually the right answer for portfolios this size.
 
 **Think critically about whether AI's suggested approach makes sense for your situation.** You know your data better than AI does.
 
-> **Key Takeaway:** AI is a great analysis partner -- it suggests approaches you might not think of. But apply your domain expertise to evaluate whether the suggestions make sense.
+### Verification
+
+Whatever AI tells you, sanity-check it against the raw data:
+- If AI says "IPC Lydon overruns by 15%," confirm by summing IPC Lydon's contract and final columns yourself.
+- If AI says "change orders correlate with cost overrun," look at the rows with the *most* change orders and confirm they're the worst overruns.
+- If a number sounds wrong, it probably is — re-prompt AI with the specific row that conflicts and see if it admits the error.
+
+> **Key Takeaway:** AI is a great analysis partner — it suggests approaches you might not think of and runs them in seconds. But you bring the domain knowledge to evaluate whether the answer makes sense. Without that filter, AI confidently produces plausible-but-wrong analyses.
+
+### Share Your Analysis
+
+When you're done, drop your finished workbook (with your pivot table, chart, or notes added) into the shared submissions library so other PMs can compare approaches. Same dataset, different angles — you'll learn as much from peers' analyses as from your own.
+
+📤 ${submissionsLink('Open the shared submissions library')}
 `,
   },
   {
     id: 'mod-4-les-3',
     title: 'Data Cleanup and Transformation',
-    estimatedMinutes: 4,
+    estimatedMinutes: 12,
     order: 3,
     activityType: 'exercise',
     activityId: 'ex-mod4-les3',
     content: `
 ## Data Cleanup and Transformation
 
-Messy data is the norm in construction. Equipment logs with inconsistent formats, subcontractor invoices with different date formats, crew counts mixed with notes. AI can help you clean it up.
+Real Cashman projects don't end with one clean spreadsheet. They end with **a folder full of mismatched files** — superintendent logs in Word, the PM's cost-tracking spreadsheet, an accountant's payment log, meeting transcripts in three different formats, daily safety notes, and a saved-emails dump.
 
-### The Task
+When something goes wrong on a project — a dispute, an audit, a lessons-learned review — somebody has to make sense of all of it. AI can do in 20 minutes what used to take a junior PM two days.
 
-Below is messy equipment utilization data from three different superintendents. Each one tracked it differently.
+### The Scenario: IPC Lydon — Sunflower Plains, KS
 
-**Superintendent A's format:**
-> 200T Crane - 8hrs, Excavator CAT 330 - 6.5hrs, Barge MV Cashman - all day
+You're closing out **IPC-2025-184**, a large boiler installation IPC Lydon ran for a hypothetical client in central Kansas.
 
-**Superintendent B's format:**
-> Equipment: Manitowoc 2250 (200 ton) operated 0600-1400. Hyundai excavator 4 hours. Tug on standby.
+- **Original contract:** $8.4M
+- **Final cost:** ~$9.86M (≈+17%)
+- **Schedule:** ~3 weeks late
+- **Recordable safety incident:** 1 burn during steam blow
+- **Open dispute:** owner-added 17-item punch list
+- **Two superintendents** (one stepped off mid-project)
+- **10 change orders, 8 pay applications, 4 weekly status meetings, daily safety notes, ~8 emails**
 
-**Superintendent C's format:**
-> crane,8,operating | excavator,6.5,operating | barge,10,standby | pump,3,operating
+The leadership team wants three deliverables for the lessons-learned file. You've got one afternoon.
 
-Your job:
-1. **Paste all three formats into AI**
-2. **Ask it to normalize into a consistent table** with columns: Equipment Type, Equipment Description, Hours, Status (Operating/Standby)
-3. **Paste the normalized table** into the exercise below
+### Download the Project File Bundle
 
-> **Key Takeaway:** AI excels at parsing inconsistent data formats into clean, standardized tables. This saves hours of manual reformatting.
+📦 **[Download the IPC Lydon Kansas Boiler project bundle (ZIP, ~95 KB)](/downloads/ipc-lydon-kansas-boiler.zip)**
+
+Inside the zip:
+- \`README.txt\` — index of files and the deliverables you owe
+- \`cost-tracking.xlsx\` — change orders, requisitions, PM cost-bucket forecast (3 sheets)
+- \`payment-log.xlsx\` — accountant's pay-app log with received amounts and dispute notes
+- \`superintendent-logs.docx\` — daily logs from Dale Brennan (Oct '25–Feb '26) and Mateo Ortiz (Feb–Jun '26)
+- \`safety-officer-notes.docx\` — Janelle Carter's daily safety notes (with some gaps)
+- \`meeting-transcripts.txt\` — four weekly status meetings in three different transcript styles
+- \`project-emails.txt\` — eight selected emails covering the biggest disputes
+
+### Your Deliverables
+
+1. **One-page project summary in Word** — what happened, the top 3-5 reasons we're at $9.86M instead of $8.4M, and the open disputes still on the table.
+2. **Sequence-of-events timeline in Excel** — date, event, source file, dollar/schedule impact. Audit-quality. Dated rows in chronological order so a stranger could reconstruct the project.
+3. **Lessons learned in PowerPoint *(bonus)*** — 5-8 slides distilling what to do differently next time.
+
+### How to Use AI for This
+
+You don't have to read all 7 files cover-to-cover. Pick your tool:
+
+- **ChatGPT (paid plan):** upload the entire zip and prompt: *"You're helping me close out a Cashman project. Read all of these files and pull a chronological list of every event with a cost or schedule impact. Cite the source file for each row."*
+- **Cashman AI Portal:** paste the contents of one file at a time and ask focused questions per file (cheaper on tokens, easier to verify).
+- **Hybrid:** use AI to draft the timeline, then **open the source files yourself** and confirm the dollar amounts. Your judgment is the audit trail — AI is the typist.
+
+### What Your Senior PM Will Look For
+
+- **Numbers tie back to source files.** If you say "burn incident cost $48K," that number better appear in \`cost-tracking.xlsx\`.
+- **Dates are chronological and consistent.** AI will sometimes scramble the order. Spot-check.
+- **You called out the abandoned chem tank discovery, the wrong-material blowdown tank, and the punch-list dispute** — these are the three biggest cost drivers and the biggest lessons.
+- **You did *not* invent quotes.** Quote the emails verbatim or don't quote them at all.
+
+### Share Your Work
+
+When you finish, upload your Word summary, Excel timeline, and (optional) PowerPoint to the shared submissions library so other Cashman PMs can see how peers approached the same dataset. Different angles surface different lessons — that's the whole point.
+
+📤 ${submissionsLink('Open the shared submissions library')}
+
+> **Key Takeaway:** AI is the fastest junior PM you've ever had — it can read a stack of mismatched files in minutes. But the audit-quality work product is yours: you cite the source, you tie the numbers, you decide which lessons are worth flagging.
 `,
   },
 ];

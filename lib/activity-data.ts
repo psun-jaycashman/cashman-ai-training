@@ -728,12 +728,19 @@ The first time I asked, AI wrote the IFS conditions in a different order — it 
     id: 'ex-mod4-les2',
     moduleId: 'mod-4',
     lessonId: 'mod-4-les-2',
-    title: 'Data Analysis Approach',
+    title: 'Project Portfolio Analysis',
     variant: 'paste-back',
+    answerKey: {
+      href: '/downloads/cashman-project-portfolio.xlsx',
+      label: 'Re-download the project portfolio',
+      description:
+        '32 projects across the four work types — re-download if you closed it. The lesson body has the same link.',
+    },
+    acceptedFileTypes: ['.xlsx'],
     instructions:
-      'Ask AI what analyses to run on 50 completed projects to understand which types go over budget. Also ask for recommended Excel pivot tables or charts. Paste AI\'s recommendations below.',
+      'Download the Cashman Project Portfolio workbook from the lesson, open it (or upload it to ChatGPT / Cashman AI Portal), and answer: which project type tends to go over budget, and what\'s driving it? Paste your AI prompt(s), the analysis approach AI recommended, your top finding, and a hypothesis about why. Optional: upload your own .xlsx with a pivot table or chart you built.',
     scenario:
-      'Dataset: 50 projects with Type, Contract Value, Final Cost, Duration (planned/actual), Change Orders, Client Satisfaction. The user should get analysis suggestions from AI.',
+      '32-project dataset across Dredging, Pile Driving, IPC Lydon, and Preload Cryogenics. Each row has Contract Value, Final Cost, Cost Variance, Planned vs Actual Duration, # Change Orders, Change Order Total, Client Satisfaction (1-5), PM, Status. The honest top-line finding (after aggregation): IPC Lydon ~15.4% over with 3.2 satisfaction, Preload Cryogenics ~14.5% over but on much larger contracts, Dredging ~4.6% over, Pile Driving ~2.4% over. Change orders track tightly with overrun.',
     hints: [
       'Don\'t ask AI to "analyze the data." Ask: "What analyses *should* I run to answer X?" That\'s the difference between AI doing the work and AI being your analyst.',
       'Tell AI exactly which fields you have. "Type, Contract Value, Final Cost, Duration, Change Orders, Satisfaction." That keeps suggestions grounded.',
@@ -788,70 +795,81 @@ The first time I asked, AI wrote the IFS conditions in a different order — it 
     ],
     evaluationRubric: {
       criteria: [
-        'Suggests at least 2-3 relevant analysis approaches (e.g., average cost overrun by type, correlation analysis, variance comparison)',
-        'Recommends specific Excel features (pivot tables, charts, or formulas)',
-        'The analysis approaches are appropriate for the dataset described',
+        'Includes the actual AI prompt used (not just a summary of the question)',
+        'Describes a concrete analysis approach AI suggested — e.g., overrun % calculation, pivot table by type, bar chart, change-order cross-reference',
+        'Identifies which project type is most over budget (IPC Lydon and/or Preload Cryogenics — both ~15%; either or both is a valid top answer)',
+        'Offers a plausible hypothesis about *why*, grounded in the data (change order count, scope growth, satisfaction scores, etc.)',
+        'Acknowledges a limitation of the analysis — small per-type sample (n≈8), correlation ≠ causation, averages hiding outliers, or similar',
       ],
-      passingScore: 2,
+      passingScore: 3,
       systemPrompt:
-        'You are evaluating a data analysis plan generated with AI assistance. The user has 50 completed construction projects and wants to understand which types go over budget. Evaluate whether the recommended analyses are relevant and practical.',
+        'You are evaluating a portfolio analysis the user produced with AI assistance on a 32-project dataset. Truth from the data: IPC Lydon overruns ~15.4% on average (avg satisfaction 3.2, ~5 change orders/project), Preload Cryogenics overruns ~14.5% on much larger contracts (satisfaction 3.1, big change orders), Dredging ~4.6% over (satisfaction 4.4), Pile Driving ~2.4% over (satisfaction 4.5). Either IPC Lydon or Preload Cryogenics is a defensible "worst" answer. Reject answers that confuse the types or invent numbers. Reward critical-thinking notes (small sample, change orders correlate but may not cause, etc.). Be friendly and direct.',
     },
   },
   {
     id: 'ex-mod4-les3',
     moduleId: 'mod-4',
     lessonId: 'mod-4-les-3',
-    title: 'Normalize Messy Data',
+    title: 'IPC Lydon Project Closeout',
     variant: 'paste-back',
+    answerKey: {
+      href: '/downloads/ipc-lydon-kansas-boiler.zip',
+      label: 'Re-download the IPC Lydon project bundle',
+      description:
+        '7 files (cost tracking, payment log, super logs, safety notes, meeting transcripts, emails, README) zipped together. Re-download if you closed it.',
+    },
+    acceptedFileTypes: ['.docx', '.xlsx', '.pptx', '.pdf'],
     instructions:
-      'Paste the three different equipment data formats from the lesson into AI. Ask it to normalize into a consistent table with columns: Equipment Type, Description, Hours, Status. Paste the normalized table below.',
+      'Use AI (ChatGPT or Cashman AI Portal) on the IPC Lydon project bundle to produce a one-page Word summary, an Excel sequence-of-events timeline, and (bonus) a PowerPoint lessons-learned. Upload your primary deliverable below — the Word summary works best — and paste a short note describing the prompts you used, the top three cost drivers you identified, and the open disputes still on the table. Also share where you uploaded the full set of deliverables for other PMs to see.',
     scenario:
-      'Three superintendents tracked equipment differently. The normalized table should consistently represent: crane (200T), excavator, barge, tug, and pump across all three formats.',
+      'IPC-2025-184 boiler installation in Sunflower Plains, KS. Contract $8.4M → final ~$9.86M (≈+17%), ~3 weeks late, 1 OSHA-recordable burn during steam blow, 10 change orders. The three biggest cost drivers buried in the bundle: (1) abandoned chemical tank discovered during excavation (~$420K change order + 12-day delay), (2) wrong-material blowdown tank shipped by vendor causing rework (~$210K), (3) owner-added 17-item punch list still in dispute at closeout (~$285K exposure). Two superintendents wrote logs in different styles (Dale Brennan terse, Mateo Ortiz structured); meetings are in three transcript formats; safety notes have gaps. Numbers in the user\'s timeline should reconcile to cost-tracking.xlsx.',
     hints: [
-      'Give AI the schema explicitly: "Output a table with columns Equipment Type, Description, Hours, Status."',
-      'Define the values you expect for the Status column: "Operating or Standby — pick one for each row."',
-      'Tell AI how to interpret ambiguous tokens — "all day" = 8, "0600-1400" = 8 hours. Otherwise AI guesses (and may guess wrong).',
-      'Always spot-check at least two rows against the source. AI sometimes drops or merges entries silently.',
-      'If the same equipment appears in multiple formats (e.g. "200T crane" and "Manitowoc 2250"), decide if you want them as one row or three.',
+      'Don\'t ask AI to "summarize the project." Ask: "Read these files and pull every event with a cost or schedule impact, with the source file cited." Specificity gets you cite-able output.',
+      'Build the Excel timeline FIRST, the Word summary SECOND. The summary writes itself once the timeline is in chronological order.',
+      'For the timeline, give AI the columns explicitly: Date | Event | Source File | Cost Impact ($) | Schedule Impact (days). AI fills tables better when you define the schema.',
+      'Spot-check the dollar amounts. AI will sometimes hallucinate a number that "sounds right" — always cross-check the largest 3-5 line items against cost-tracking.xlsx before submitting.',
+      'The two superintendents wrote in very different styles. Tell AI: "Dale\'s logs are terse and free-form; Mateo\'s are structured. Read both carefully — don\'t skip Dale\'s because they\'re short."',
+      'For the lessons-learned PowerPoint, ask AI for "5-8 slides, one lesson per slide, with the supporting evidence from the source files cited on each slide."',
     ],
     goodExamples: [
       {
-        title: 'Example — Clean normalized output',
-        body: `**Normalized equipment utilization table:**
+        title: 'Example — Two-prompt workflow that produces audit-quality output',
+        body: `**Prompt 1 — Build the timeline (Excel):**
 
-| Equipment Type | Description | Hours | Status |
-|---|---|---|---|
-| Crane | 200T (Manitowoc 2250) | 8 | Operating |
-| Excavator | CAT 330 | 6.5 | Operating |
-| Excavator | Hyundai | 4 | Operating |
-| Barge | MV Cashman | 10 | Standby |
-| Tug | (unspecified) | — | Standby |
-| Pump | (unspecified) | 3 | Operating |
+> "I'm uploading a zip with 7 files for IPC project IPC-2025-184. Read all of them. Output a chronological table I can paste into Excel with these columns: Date | Event | Source File | Cost Impact (USD, signed) | Schedule Impact (days, signed) | Notes. Include every change order, every safety incident, every payment dispute, every meeting decision that affected cost or schedule. Cite the source file in every row. If a date is approximate, use the month and write 'approx' in Notes. Do not invent dollar amounts — if a number isn't in a source file, leave it blank."
 
-**Normalization decisions made:**
+**Prompt 2 — Draft the one-page summary (Word):**
 
-- "0600–1400" → 8 hours (operating window).
-- "all day" → 10 hours (standard barge operating day; flag if your shop uses 8 or 12).
-- The 200T crane appeared in two formats (Superintendent A and B); merged into one row with both descriptors noted.
-- The tug was reported "on standby" without hours — left as "—" rather than guessed at.
-- Two excavator entries kept separate (CAT 330 and Hyundai) because they\'re distinct units even though both are excavators.
+> "Using the timeline you just produced, draft a one-page project summary with three sections: (1) What happened — 3-4 sentences, neutral tone. (2) Why we ended at $9.86M instead of $8.4M — top 3 cost drivers in bullets, each with the dollar amount and source file. (3) Open items at closeout — list every dispute or unresolved CO with current exposure. Do not editorialize — this is going in the lessons-learned binder."
 
-**Verification spot-check:**
-- Row 1 (Crane 8 hrs) → matches Superintendent A and B inputs.
-- Row 4 (Barge 10 hrs Standby) → matches Superintendent A ("all day") and C ("barge,10,standby"). ✓`,
-        note: 'Hits the schema, makes the normalization decisions explicit, AND shows a spot-check. The "decisions made" section is critical — without it, the next person to use this data has to reverse-engineer your assumptions.',
+**My top-3 cost drivers (verified against cost-tracking.xlsx):**
+
+1. **Abandoned chemical tank discovered during excavation — CO-003: $418K, 12-day delay.** Owner-side discovery, but our crew sat for those 12 days. Captured in Dale's logs (Nov 14 entry) and the Nov 20 meeting transcript.
+2. **Wrong-material blowdown tank from vendor — CO-007 + rework labor: ≈$210K.** Vendor shipped 304L SS instead of the spec'd 316L. We caught it at receiving but had already poured the pad. Mateo's logs (Mar 8) and the Mar 12 meeting cover the redirect.
+3. **Owner-added 17-item punch list in final 30 days — disputed: $285K exposure.** Email thread (Brenda → Brian, May 22) shows the owner adding scope without a CO. Still open at closeout.
+
+**Open disputes at closeout:**
+
+- 17-item punch list ($285K exposure) — owner asserts these were always in scope; our position is that 11 of 17 are clearly added scope.
+- Final retainage release ($493K) being held pending punch list resolution.
+- Burn-incident workers comp claim — not a project cost but flagged for Risk.
+
+**Where I uploaded my deliverables for other PMs:**
+Saved Word summary, Excel timeline, and lessons-learned PowerPoint to the Cashman shared library at \`Library → Project Closeouts → IPC-2025-184\`. Two other PMs pulled different lessons from the same data — worth comparing.`,
+        note: 'This is what audit-quality looks like. Two prompts (timeline first, summary second), every dollar amount tied to a source file, top-3 drivers verified before claiming, open disputes broken out separately, and the deliverables shared so others can compare approaches.',
       },
     ],
     evaluationRubric: {
       criteria: [
-        'Produces a table with consistent columns (Equipment Type, Description, Hours, Status or similar)',
-        'Correctly parses data from all three superintendent formats',
-        'Standardizes operating/standby status consistently',
-        'Hours are represented as numbers, not mixed text',
+        'Includes the actual prompt(s) given to AI — not just a description of what was asked',
+        'Identifies at least two of the three biggest cost drivers (abandoned chem tank, wrong-material blowdown tank, owner-added punch list) with approximately correct dollar amounts',
+        'Demonstrates that source files were verified — cites which file a number came from, or notes where AI was wrong and was corrected',
+        'Calls out open disputes / unresolved items separately from the closed cost drivers',
+        'Mentions sharing or uploading deliverables to a shared location so other PMs can compare approaches',
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a normalized data table created with AI assistance. The user was given three different formats of equipment utilization data from different construction superintendents and asked to normalize them into a consistent table. Evaluate whether the normalization is correct and consistent.',
+        'You are evaluating a Cashman PM\'s lessons-learned writeup for IPC project IPC-2025-184 (Sunflower Plains KS boiler). They were given a 7-file bundle and asked to produce a Word summary, Excel timeline, and bonus PowerPoint. Truth from the source files: contract $8.4M → final ~$9.86M, 3 weeks late, 1 OSHA-recordable burn. The three biggest cost drivers are: (1) abandoned chemical tank discovered during excavation ~$420K + 12-day delay, (2) wrong-material blowdown tank ~$210K, (3) owner-added 17-item punch list ~$285K still in dispute. Reward users who cite source files and verify numbers. Don\'t penalize for missing one of the three drivers if the other two are well-supported. Be encouraging — this is a hard exercise that crosses 7 files in 3 formats.',
     },
   },
 

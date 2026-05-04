@@ -1,0 +1,173 @@
+================================================================================
+SAVED EMAILS — IPC-2025-184 (SUNFLOWER PLAINS BOILER)
+Exported from Outlook by Karen Hayes for project archive. Selected highlights only.
+================================================================================
+
+
+From: Brad Whitfield <bwhitfield@sunflowerplains.com>
+To: Karen Hayes <khayes@ipclydon.com>
+Date: 2025-11-03 16:42
+Subject: Boiler size
+
+Karen,
+
+Talked to my CFO. We need the bigger 1.2 unit. The dryer 3 expansion is moving
+forward and there's no point putting in a 1.0 if we'll outgrow it in 18 months.
+
+What's the cost delta? Send a CO.
+
+Brad
+
+--
+
+From: Karen Hayes <khayes@ipclydon.com>
+To: Brad Whitfield <bwhitfield@sunflowerplains.com>
+Cc: Tom Nichols <tnichols@ipclydon.com>
+Date: 2025-11-04 09:11
+Subject: RE: Boiler size
+
+Brad,
+
+Per our convo, here's the breakdown for upgrading from 1.0 to 1.2 MMBtu/hr:
+
+  Boiler skid delta:           $185,000
+  Larger feedwater piping:      $32,000
+  Heavier-gauge stack:          $14,000
+  Re-engineering / submittal:    $9,000
+                            ---------
+  Total:                       $240,000
+
+CO-001 attached. Schedule impact ~10 days for resubmittal and re-fab.
+
+Karen
+
+--
+
+From: Karen Hayes <khayes@ipclydon.com>
+To: project-team@ipclydon.com
+Date: 2026-01-07 17:23
+Subject: STAND DOWN — Sunflower Plains gas line
+
+Team,
+
+Crew hit an unmarked abandoned chemical tank during gas line trenching today.
+Owner's maintenance team says it was vented and capped ~15 years ago. No
+exposure observed.
+
+We have ALL gas line crew off site until ESA is complete. Targeting late
+next week.
+
+Will brief at Tuesday's status meeting. Expect a CO and a schedule
+slip — magnitude TBD.
+
+Karen
+
+--
+
+From: Linda Park <linda.park@sunflowerplains.com>
+To: Wei Zhang <wzhang@ipclydon.com>
+Cc: Karen Hayes <khayes@ipclydon.com>; Brad Whitfield <bwhitfield@sunflowerplains.com>
+Date: 2026-01-15 11:07
+Subject: DCS to MES integration
+
+Wei,
+
+Following up on Tuesday's meeting. We need the boiler DCS to push the
+following tags to our MES every 5 seconds:
+
+  - Steam pressure (header)
+  - Steam temperature (header)
+  - Feedwater flow
+  - Stack O2 / CO
+  - Fuel flow (gas)
+  - Burner state
+  - Alarms (any)
+
+This was not in the original scope but it's important for our heat
+balance reporting. Please scope and price.
+
+Linda
+
+--
+
+From: Tom Nichols <tnichols@ipclydon.com>
+To: Karen Hayes <khayes@ipclydon.com>
+Date: 2026-02-26 14:55
+Subject: Req 4 reconciliation — Sunflower
+
+Karen,
+
+Owner approved Req 4 today, but withheld $70k against CO-004 delay. Their
+position is that the chem tank was on their property and they bear that
+risk, but they're claiming we should have phase-loaded the gas crew
+elsewhere to avoid full standby cost. Disputed; we have the daily logs
+showing crew was redirected to controls panel work where possible.
+
+Tom
+
+--
+
+From: Mateo Ortiz <mortiz@ipclydon.com>
+To: Karen Hayes <khayes@ipclydon.com>
+Date: 2026-04-07 18:14
+Subject: Burn incident today — Sunflower
+
+Karen,
+
+Heads up. An insulator from Hawkeye contacted a hot pipe stub during demo
+this afternoon. Minor 1st-degree burn forearm, ~4 sq in. First aid on
+site, refused medical, refused trip to clinic. We've logged it on the
+OSHA recordable.
+
+Janelle is doing a stand-down tomorrow morning for full LOTO refresher.
+
+Root cause: insulator did not verify isolation on what he assumed was a
+cold stub. Procedure update: physical tag verification by a second
+person before any hot work near boiler.
+
+Mateo
+
+--
+
+From: Brad Whitfield <bwhitfield@sunflowerplains.com>
+To: Karen Hayes <khayes@ipclydon.com>
+Date: 2026-05-15 09:02
+Subject: Punch list
+
+Karen,
+
+I know we are at odds on CO-010. The 17 items I added at walkthrough are
+things our maintenance team needs in order to take care of this thing
+once you all leave. Some are direct safety items like missing labels on
+adjacent equipment. I am willing to compromise on the paint and the
+non-safety items, but the safety-related ones I expect you to absorb.
+
+Let's talk Friday.
+
+Brad
+
+--
+
+From: Karen Hayes <khayes@ipclydon.com>
+To: Brad Whitfield <bwhitfield@sunflowerplains.com>
+Date: 2026-05-19 16:33
+Subject: RE: Punch list
+
+Brad,
+
+Reviewing your 17 items, I count:
+   - 4 items that are safety-related and adjacent to our scope.
+     We will absorb these.
+   - 6 items that are safety-related but in spaces we never worked
+     in. These are not our scope.
+   - 7 items that are aesthetic/labeling. Not our scope.
+
+I propose: we close the 4 at our cost and submit a revised CO-010 for
+just the 6 safety items in adjacent spaces, at half rate as a goodwill
+gesture given the project length.
+
+Total revised CO-010 ask: $34,000 (down from $62,000).
+
+Let me know.
+
+Karen

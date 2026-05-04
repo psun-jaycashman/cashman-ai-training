@@ -1,0 +1,155 @@
+================================================================================
+CASHMAN / IPC LYDON — SUNFLOWER PLAINS BOILER (IPC-2025-184)
+WEEKLY OWNER STATUS MEETINGS — PARTIAL TRANSCRIPTS
+================================================================================
+This file aggregates four weekly status meeting transcripts captured over the
+life of the project. Three different transcription tools were used (Otter, Zoom
+auto-transcript, and one set of hand-typed notes), so formats vary.
+
+
+--------------------------------------------------------------------------------
+MEETING 1 — Tuesday, October 14, 2025  (Otter export)
+Attendees (per Otter): Karen Hayes (IPC), Dale Brennan (IPC), Brad Whitfield (Owner),
+Linda Park (Owner Eng), Tom Nichols (Acct, dial-in)
+--------------------------------------------------------------------------------
+
+00:00:12  Karen:  thanks everybody. quick walk through where we are. dale you want to
+                  start with field?
+00:00:24  Dale:   yeah so um pad excavation hit the rebar on monday like i mentioned.
+                  brad you saw the photo right
+00:00:34  Brad:   i did. i didn't know that was there
+00:00:38  Dale:   yeah it's not on any drawing your maintenance guy stan
+                  said it was from the old equipment pad you all pulled in 03 i think
+00:00:51  Brad:   stan would know
+00:00:54  Karen:  so we'll write that up as a CO. probably 70-ish thousand
+00:01:02  Brad:   approved subject to seeing the breakdown
+00:01:10  Linda:  on insulation i've been thinking we should bump to 2 inch on the steam
+                  header. the existing piping in that gallery runs hot
+00:01:22  Karen:  okay we can price that. probably another CO
+00:01:28  Dale:   that's gonna affect schedule by like a week for material
+00:01:33  Brad:   acceptable
+00:01:38  Karen:  tom anything from accounting
+00:01:41  Tom:    [audio clipped] req 1 went out friday should hit 21 days
+00:01:48  Karen:  okay any other items? no? thanks all
+
+
+--------------------------------------------------------------------------------
+MEETING 2 — Tuesday, January 13, 2026  (Zoom auto-transcript, raw)
+--------------------------------------------------------------------------------
+
+[Karen Hayes]: All right, I think we have everybody. Let's start. Dale,
+do you want to give us the field update?
+
+[Dale Brennan]: Yeah uh so as everybody knows on Wednesday we hit the
+chem tank. Or, the place where there used to be a chem tank. The owner
+maintenance team says it was vented and capped maybe 15 years ago. We
+stood the gas line crew down. We've got an ESA scheduled for Thursday.
+
+[Brad Whitfield]: Karen, what's the schedule impact on this.
+
+[Karen Hayes]: Best case three weeks. We need the ESA, then if it's
+clean we restart but on a different route. If it's not clean we're
+talking permits and remediation. I want to be honest, that could be
+two months.
+
+[Brad Whitfield]: Okay. I need a CO write up for the re-route. And we
+need to start talking about whether we hold to the April substantial.
+
+[Karen Hayes]: I think we need to assume we slip. I don't want to
+commit to a new date until we know about the contamination.
+
+[Wei Zhang]: Just a heads up, while the gas line is on hold I'm going
+to push controls panel rough in. We can keep moving.
+
+[Brad Whitfield]: Good. Linda anything from your end.
+
+[Linda Park]: I want to revisit the DCS to MES tie in. We talked about
+it being out of scope but I think we need it now. Can we get a price.
+
+[Karen Hayes]: Wei can scope it, I'll have a CO by Friday.
+
+[Brad Whitfield]: Approved subject to price.
+
+[Karen Hayes]: Okay, Tom?
+
+[Tom Nichols]: Req 3 paid on time. Req 2 was held up because they
+disputed the mob, that's been resolved. Heads up on req 4 which will
+include the CO 002 reconciliation.
+
+[Brad Whitfield]: Any safety items?
+
+[Janelle Carter]: One. Standdown was clean, no exposure. Crew using the
+downtime for hot work refresher.
+
+[Brad Whitfield]: Good. Same time next week.
+
+
+--------------------------------------------------------------------------------
+MEETING 3 — Tuesday, March 24, 2026  (Hand-typed notes by Karen)
+--------------------------------------------------------------------------------
+
+WEEKLY MEETING NOTES                                   3/24/26
+Attending: K. Hayes, M. Ortiz, B. Whitfield, W. Zhang, J. Carter, T. Nichols (phone),
+           L. Park (left at 3:15)
+
+1. BOILER SET — completed yesterday morning. Lift went smoothly, 0700-1100.
+   Mateo handed photos to Brad.
+
+2. OUTSTANDING SCOPE
+   - Insulation: ~50% complete, Hawkeye crew shortage continues. Mateo
+     working with Hawkeye PM to add bodies for 2 weeks.
+   - Controls/DCS: 80%. Wei waiting on owner IT for MES tie-in credentials.
+     Brad will push internally.
+   - Blowdown tank: replacement 316SS arrived 3/22, install this week.
+   - Punch list: not yet started, walk planned for first week of May.
+
+3. SCHEDULE
+   - Substantial completion target: 4/30 (was, now 5/8 estimated)
+   - Mateo: this is conditional on no further surprises and Wei getting MES creds.
+   - Brad: would like to know by 4/15 if 5/8 is realistic.
+
+4. CHANGE ORDERS
+   - CO-007 (accelerated schedule OT) approved 3/9. Two-shift coverage active.
+   - CO-008 (additional control valves) approved 3/24 (today).
+   - CO-006 (blowdown tank wrong material) STILL PENDING. Karen escalating
+     to supplier. Owner does not want to absorb this.
+
+5. ACCOUNTING (Tom)
+   - Req 5 went out 3/4, paid 4/1, 28 days.
+   - Req 6 will be larger due to OT and CO-007 first reconciliation.
+
+6. SAFETY (Janelle)
+   - Two-shift coverage: no incidents to date. Continuing fatigue management
+     monitoring.
+
+7. ACTION ITEMS
+   - Brad: push owner IT for MES creds
+   - Karen: escalate CO-006 supplier dispute
+   - Mateo: coordinate insulation crew add
+   - Wei: submit CO-008 detail
+   - Tom: send Req 6 forecast to Brad
+
+
+--------------------------------------------------------------------------------
+MEETING 4 — Tuesday, May 19, 2026  (Otter export)
+--------------------------------------------------------------------------------
+
+00:00:08  Karen:  okay let's go. punch list status mateo
+00:00:14  Mateo:  we've closed about 70 percent. the original closeout list. on the
+                  17 items the owner added we've completed 4. 13 still open
+00:00:28  Brad:   why are we still talking about the 17. those weren't in the contract
+00:00:33  Mateo:  that's the CO-010 issue
+00:00:36  Karen:  brad we sent the CO-010 detail two weeks ago. we have to negotiate
+                  what's in scope before we can keep working on items that aren't
+00:00:48  Brad:   look, we need this thing closed out. some of those items affect our
+                  ability to start the dryer 3 expansion
+00:00:57  Karen:  i hear you. let me work with you offline on a compromise. but we
+                  cant absorb 60k of unbudgeted punch
+00:01:08  Brad:   understood. let's talk after this
+00:01:13  Karen:  blowdown tank CO-006 also still pending on supplier. our position is
+                  the supplier eats it. theirs is that the spec was ambiguous. lawyers
+                  involved now. dont expect resolution this month
+00:01:31  Tom:    req 7 came in 40k short on the punch list withhold
+00:01:36  Karen:  yes that ties to CO-010 negotiation
+00:01:42  Janelle: no incidents. punch walk safe. demob plan being drafted
+00:01:49  Karen:  okay anything else? no. talk next week
