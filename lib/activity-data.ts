@@ -738,12 +738,12 @@ The first time I asked, AI wrote the IFS conditions in a different order — it 
     },
     acceptedFileTypes: ['.xlsx'],
     instructions:
-      'Download the Cashman Project Portfolio workbook from the lesson, open it (or upload it to ChatGPT / Cashman AI Portal), and answer: which project type tends to go over budget, and what\'s driving it? Paste your AI prompt(s), the analysis approach AI recommended, your top finding, and a hypothesis about why. Optional: upload your own .xlsx with a pivot table or chart you built.',
+      'Download the Cashman Project Portfolio workbook from the lesson, open it (use Copilot in Excel directly, or upload it to the Cashman AI Portal or ChatGPT), and answer: which project type tends to go over budget, and what\'s driving it? Paste your AI prompt(s), the analysis approach AI recommended, your top finding, and a hypothesis about why. Optional: upload your own .xlsx with a pivot table or chart you built.',
     scenario:
-      '32-project dataset across Dredging, Pile Driving, IPC Lydon, and Preload Cryogenics. Each row has Contract Value, Final Cost, Cost Variance, Planned vs Actual Duration, # Change Orders, Change Order Total, Client Satisfaction (1-5), PM, Status. The honest top-line finding (after aggregation): IPC Lydon ~15.4% over with 3.2 satisfaction, Preload Cryogenics ~14.5% over but on much larger contracts, Dredging ~4.6% over, Pile Driving ~2.4% over. Change orders track tightly with overrun.',
+      '32-project HYPOTHETICAL dataset across Dredging, Pile Driving, IPC Lydon, and Preload Cryogenics. Each row has Contract Value, Final Cost, Cost Variance, Planned vs Actual Duration, # Change Orders, Change Order Total, PM, Status. The honest top-line finding (after aggregation): IPC Lydon ~15.4% over with ~5-6 change orders/project, Preload Cryogenics ~14.5% over on much larger contracts (with the biggest absolute change-order dollars), Dredging ~4.6% over, Pile Driving ~2.4% over. Change orders track tightly with overrun.',
     hints: [
       'Don\'t ask AI to "analyze the data." Ask: "What analyses *should* I run to answer X?" That\'s the difference between AI doing the work and AI being your analyst.',
-      'Tell AI exactly which fields you have. "Type, Contract Value, Final Cost, Duration, Change Orders, Satisfaction." That keeps suggestions grounded.',
+      'Tell AI exactly which fields you have. "Type, Contract Value, Final Cost, Duration, Change Orders, Change Order Total." That keeps suggestions grounded.',
       'Ask follow-ups for specifics: "Which Excel pivot table would best show this?" or "Walk me through the steps in Excel to build that chart."',
       'Apply your judgment: 50 projects across 4 types is ~12 each. That\'s not enough for regression. Variance comparison is more honest.',
       'Remember **correlation ≠ causation**. AI might suggest one moves with the other; you decide whether to claim one caused the other.',
@@ -798,12 +798,12 @@ The first time I asked, AI wrote the IFS conditions in a different order — it 
         'Includes the actual AI prompt used (not just a summary of the question)',
         'Describes a concrete analysis approach AI suggested — e.g., overrun % calculation, pivot table by type, bar chart, change-order cross-reference',
         'Identifies which project type is most over budget (IPC Lydon and/or Preload Cryogenics — both ~15%; either or both is a valid top answer)',
-        'Offers a plausible hypothesis about *why*, grounded in the data (change order count, scope growth, satisfaction scores, etc.)',
+        'Offers a plausible hypothesis about *why*, grounded in the data (change order count, change order dollars, schedule variance, scope growth, etc.)',
         'Acknowledges a limitation of the analysis — small per-type sample (n≈8), correlation ≠ causation, averages hiding outliers, or similar',
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a portfolio analysis the user produced with AI assistance on a 32-project dataset. Truth from the data: IPC Lydon overruns ~15.4% on average (avg satisfaction 3.2, ~5 change orders/project), Preload Cryogenics overruns ~14.5% on much larger contracts (satisfaction 3.1, big change orders), Dredging ~4.6% over (satisfaction 4.4), Pile Driving ~2.4% over (satisfaction 4.5). Either IPC Lydon or Preload Cryogenics is a defensible "worst" answer. Reject answers that confuse the types or invent numbers. Reward critical-thinking notes (small sample, change orders correlate but may not cause, etc.). Be friendly and direct.',
+        'You are evaluating a portfolio analysis the user produced with AI assistance on a 32-project HYPOTHETICAL dataset (Dredging, Pile Driving, IPC Lydon, Preload Cryogenics — 8 projects each). Truth from the data: IPC Lydon overruns ~15.4% on average with ~5-6 change orders per project, Preload Cryogenics overruns ~14.5% on much larger contracts (biggest absolute change-order dollars), Dredging ~4.6% over (~2 COs avg), Pile Driving ~2.4% over (~2 COs avg). Either IPC Lydon (worst by % overrun) or Preload Cryogenics (worst by absolute dollars) is a defensible "worst" answer. Reject answers that confuse the types or invent numbers. Reward critical-thinking notes (small sample, correlation ≠ causation, averages hiding outliers). Note the dataset has no client-satisfaction column; do not penalize the user for not using one. Be friendly and direct.',
     },
   },
   {
@@ -820,7 +820,7 @@ The first time I asked, AI wrote the IFS conditions in a different order — it 
     },
     acceptedFileTypes: ['.docx', '.xlsx', '.pptx', '.pdf'],
     instructions:
-      'Use AI (ChatGPT or Cashman AI Portal) on the IPC Lydon project bundle to produce a one-page Word summary, an Excel sequence-of-events timeline, and (bonus) a PowerPoint lessons-learned. Upload your primary deliverable below — the Word summary works best — and paste a short note describing the prompts you used, the top three cost drivers you identified, and the open disputes still on the table. Also share where you uploaded the full set of deliverables for other PMs to see.',
+      'Use AI (Cashman AI Portal, Microsoft Copilot in Word/Excel, or ChatGPT) on the IPC Lydon project bundle to produce a one-page Word summary, an Excel sequence-of-events timeline, and (bonus) a PowerPoint lessons-learned. Upload your primary deliverable below — the Word summary works best — and paste a short note describing the prompts you used, the top three cost drivers you identified, and the open disputes still on the table. Also share where you uploaded the full set of deliverables for other PMs to see.',
     scenario:
       'IPC-2025-184 boiler installation in Sunflower Plains, KS. Contract $8.4M → final ~$9.86M (≈+17%), ~3 weeks late, 1 OSHA-recordable burn during steam blow, 10 change orders. The three biggest cost drivers buried in the bundle: (1) abandoned chemical tank discovered during excavation (~$420K change order + 12-day delay), (2) wrong-material blowdown tank shipped by vendor causing rework (~$210K), (3) owner-added 17-item punch list still in dispute at closeout (~$285K exposure). Two superintendents wrote logs in different styles (Dale Brennan terse, Mateo Ortiz structured); meetings are in three transcript formats; safety notes have gaps. Numbers in the user\'s timeline should reconcile to cost-tracking.xlsx.',
     hints: [

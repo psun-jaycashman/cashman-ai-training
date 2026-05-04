@@ -2,18 +2,17 @@
 Generate the Cashman project portfolio used in Module 4, Lesson 2
 (Data Analysis with AI).
 
-A 32-row dataset covering four hypothetical work types Cashman / its
-subsidiaries actually do:
-    - Dredging (Cashman marine)
-    - Pile Driving (Cashman marine)
-    - IPC Lydon (industrial power / mechanical contracting)
-    - Preload Cryogenics (LNG / cryogenic tank construction)
+A 32-row HYPOTHETICAL dataset covering four work types:
+    - Dredging
+    - Pile Driving
+    - IPC Lydon
+    - Preload Cryogenics
 
 Per project: name, type, region, contract value, final cost, planned
 duration (months), actual duration (months), # change orders, change order
-$, client satisfaction (1-5), PM, status. Distribution is intentionally
-realistic — some projects under budget, some way over, with a pattern the
-LLM can find when asked "which type goes over budget and why."
+$, PM, status. Distribution is intentionally realistic — some projects
+under budget, some way over, with a pattern the LLM can find when asked
+"which type goes over budget and why." All figures are made up.
 
 Run:
     python3 scripts/generate-project-portfolio.py
@@ -35,7 +34,12 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 # --------------------------------------------------------------------------- #
 # Tuple shape: (Project Name, Type, Region, Contract $, Final Cost $,
 #               Planned Months, Actual Months, # Change Orders, CO Total $,
-#               Satisfaction 1-5, PM, Status)
+#               PM, Status)
+#
+# The 10th column in every tuple below is a leftover satisfaction score
+# (1-5) that is no longer surfaced in the workbook. Kept in source so the
+# tuples stay easy to diff against the prior version; the build loop just
+# ignores it.
 #
 # Patterns intentionally baked in:
 #   - Dredging projects: usually on budget, occasional over from weather
@@ -98,7 +102,6 @@ HEADERS = [
     "Schedule Variance (months)",
     "# Change Orders",
     "Change Order Total",
-    "Client Satisfaction (1-5)",
     "Project Manager",
     "Status",
 ]
@@ -137,23 +140,24 @@ def build(output_path: Path) -> None:
     widths = {
         "A": 38, "B": 18, "C": 18, "D": 16, "E": 16, "F": 14,
         "G": 12, "H": 12, "I": 12, "J": 10, "K": 16, "L": 14,
-        "M": 14, "N": 14,
+        "M": 14,
     }
     for col, w in widths.items():
         ws.column_dimensions[col].width = w
 
     # Header banner
-    ws["A1"] = "Cashman Companies — Project Portfolio (last 5 years)"
+    ws["A1"] = "Cashman Companies — Hypothetical Project Portfolio (training data)"
     ws["A1"].font = TITLE_FONT
-    ws.merge_cells("A1:N1")
+    ws.merge_cells("A1:M1")
 
     ws["A2"] = (
-        "32 completed (or in-progress) projects across Dredging, Pile Driving, "
-        "IPC Lydon, and Preload Cryogenics. Use this dataset to ask AI which "
-        "project type tends to go over budget and why."
+        "32 hypothetical projects across Dredging, Pile Driving, IPC Lydon, "
+        "and Preload Cryogenics. All names, regions, and figures are made "
+        "up for AI-training use only. Ask AI which project type tends to go "
+        "over budget and why."
     )
     ws["A2"].font = SUBTITLE_FONT
-    ws.merge_cells("A2:N2")
+    ws.merge_cells("A2:M2")
     ws.row_dimensions[2].height = 28
     ws["A2"].alignment = LEFT
 
@@ -175,13 +179,13 @@ def build(output_path: Path) -> None:
     for offset, p in enumerate(PROJECTS):
         r = DATA_START + offset
         (name, type_, region, contract, final, planned, actual,
-         co_count, co_total, sat, pm, status) = p
+         co_count, co_total, _sat, pm, status) = p
         cost_variance = final - contract
         sched_variance = actual - planned
 
         values = [
             name, type_, region, contract, final, cost_variance,
-            planned, actual, sched_variance, co_count, co_total, sat, pm, status,
+            planned, actual, sched_variance, co_count, co_total, pm, status,
         ]
         for c, v in enumerate(values, start=1):
             cell = ws.cell(row=r, column=c, value=v)
@@ -192,7 +196,7 @@ def build(output_path: Path) -> None:
             if c in (4, 5, 6, 11):  # currency columns
                 cell.number_format = CURRENCY
                 cell.alignment = RIGHT
-            elif c in (7, 8, 9, 10, 12):
+            elif c in (7, 8, 9, 10):
                 cell.alignment = CENTER
             else:
                 cell.alignment = LEFT
@@ -207,21 +211,20 @@ def build(output_path: Path) -> None:
     ws.cell(row=NOTES_ROW, column=1, value="Notes").font = Font(
         name="Calibri", size=11, bold=True, color=HEADLINE
     )
-    ws.merge_cells(start_row=NOTES_ROW, start_column=1, end_row=NOTES_ROW, end_column=14)
+    ws.merge_cells(start_row=NOTES_ROW, start_column=1, end_row=NOTES_ROW, end_column=13)
 
     notes = [
+        "• All project names, regions, and figures in this workbook are HYPOTHETICAL and exist for AI-training purposes only.",
         "• Cost Variance = Final Cost − Contract Value (positive = over budget)",
         "• Schedule Variance = Actual Duration − Planned Duration (positive = late)",
-        "• Client Satisfaction is on a 1 (worst) to 5 (best) scale, captured at project closeout",
         "• Status \"In Progress\" rows have a Final Cost that's the latest forecast, not actual",
-        "• All figures are hypothetical and for training only",
     ]
     for offset, note in enumerate(notes):
         r = NOTES_ROW + 1 + offset
         ws.cell(row=r, column=1, value=note).font = Font(
             name="Calibri", size=10, color=BODY
         )
-        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=14)
+        ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=13)
         ws.row_dimensions[r].height = 16
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -241,12 +244,11 @@ def main() -> None:
     for t, rows in sorted(by_type.items()):
         contract = sum(r[3] for r in rows)
         final = sum(r[4] for r in rows)
-        co = sum(r[8] for r in rows)
-        avg_sat = sum(r[9] for r in rows) / len(rows)
+        co = sum(r[7] for r in rows)
         over_pct = (final - contract) / contract * 100
         print(
             f"  {t:24s} n={len(rows)}  contract=${contract:>13,}  "
-            f"final=${final:>13,}  delta={over_pct:+.1f}%  COs={co:>2}  avg_sat={avg_sat:.1f}"
+            f"final=${final:>13,}  delta={over_pct:+.1f}%  COs={co:>2}"
         )
 
 

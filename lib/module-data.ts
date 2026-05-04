@@ -549,33 +549,35 @@ A pro habit on spreadsheets at this stake: build a separate "verification" cell 
 
 AI can help you analyze data even if you're not a data analyst. You describe what you want to understand, AI suggests the analysis approach, you run it (or have AI run it), and you decide what the answer means.
 
-In this lesson you'll do that on a *real-shaped* portfolio dataset — 32 hypothetical projects across the four work types Cashman and its subsidiaries actually do.
+In this lesson you'll do that on a *real-shaped* portfolio dataset — 32 **hypothetical** projects across the four work types Cashman and its subsidiaries do.
+
+> ⚠️ **All project names, regions, and figures in the workbook are made up for training only.** Don't cite them as real Cashman performance.
 
 ### Download the Dataset
 
 [**📥 Download the Cashman Project Portfolio (Excel, ~12 KB)**](/downloads/cashman-project-portfolio.xlsx)
 
-The workbook contains 32 projects across:
-- **Dredging** (Cashman marine)
-- **Pile Driving** (Cashman marine)
-- **IPC Lydon** (industrial process and mechanical contracting)
-- **Preload Cryogenics** (LNG and cryogenic tank construction)
+The workbook contains 32 hypothetical projects across:
+- **Dredging**
+- **Pile Driving**
+- **IPC Lydon**
+- **Preload Cryogenics**
 
-Each row has: project name, type, region, **Contract Value**, **Final Cost**, **Cost Variance**, **Planned vs Actual Duration**, **# Change Orders**, **Change Order Total**, **Client Satisfaction (1–5)**, PM, status.
+Each row has: project name, type, region, **Contract Value**, **Final Cost**, **Cost Variance**, **Planned vs Actual Duration**, **# Change Orders**, **Change Order Total**, PM, status.
 
 ### The Question
 
 **Which project type tends to go over budget, and what's driving it?**
 
-The answer isn't obvious from eyeballing the rows — you need to aggregate by type, look at variance patterns, and cross-reference with change orders and satisfaction scores.
+The answer isn't obvious from eyeballing the rows — you need to aggregate by type, look at variance patterns, and cross-reference with change orders.
 
 ### The Task
 
-1. **Open the workbook in Excel** (or upload it to ChatGPT / Cashman AI Portal).
+1. **Open the workbook in Excel** (use Copilot in Excel directly, or upload it to the Cashman AI Portal or ChatGPT).
 2. **Ask AI to suggest an analysis approach.** A good prompt is specific:
-   > "I have a portfolio of 32 construction projects across four work types. Each row has contract value, final cost, planned vs actual duration, number of change orders, and client satisfaction. I want to understand which project type tends to go over budget and why. What aggregations and visualizations should I run?"
+   > "I have a portfolio of 32 hypothetical construction projects across four work types. Each row has contract value, final cost, planned vs actual duration, and number of change orders. I want to understand which project type tends to go over budget and why. What aggregations and visualizations should I run?"
 3. **Run at least one of AI's suggestions.** Examples:
-   - A pivot table grouped by Project Type showing average % cost overrun, average # change orders, and average satisfaction.
+   - A pivot table grouped by Project Type showing average % cost overrun and average # change orders.
    - A bar chart of Cost Variance by type.
    - A scatter plot of Change Order Total vs Cost Variance to see if change orders explain the overrun.
 4. **Form a hypothesis about *why*.** Don't just report "IPC Lydon is over budget by X%." Suggest a plausible reason rooted in the data (e.g., "IPC Lydon has 5+ change orders on average vs 2 for dredging — scope growth is the driver").
@@ -654,9 +656,10 @@ Inside the zip:
 
 You don't have to read all 7 files cover-to-cover. Pick your tool:
 
-- **ChatGPT (paid plan):** upload the entire zip and prompt: *"You're helping me close out a Cashman project. Read all of these files and pull a chronological list of every event with a cost or schedule impact. Cite the source file for each row."*
-- **Cashman AI Portal:** paste the contents of one file at a time and ask focused questions per file (cheaper on tokens, easier to verify).
-- **Hybrid:** use AI to draft the timeline, then **open the source files yourself** and confirm the dollar amounts. Your judgment is the audit trail — AI is the typist.
+- **Cashman AI Portal:** paste the contents of one file at a time and ask focused questions per file. Best choice for company data — everything stays on Cashman infrastructure.
+- **Microsoft Copilot:** open the Word and Excel source files in Office and ask Copilot per file ("summarize the change orders in this workbook", "pull every dated entry from this log into a table"). Strong on the in-Office files; weaker at reading across the whole bundle at once.
+- **ChatGPT (paid plan):** upload the entire zip and prompt: *"You're helping me close out a Cashman project. Read all of these files and pull a chronological list of every event with a cost or schedule impact. Cite the source file for each row."* Fastest cross-file synthesis, but remember the bulletin-board rule — this dataset is hypothetical, but real project files would not belong here.
+- **Hybrid (recommended):** use AI to draft the timeline, then **open the source files yourself** and confirm the dollar amounts. Your judgment is the audit trail — AI is the typist.
 
 ### What Your Senior PM Will Look For
 
