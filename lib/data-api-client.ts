@@ -29,6 +29,7 @@ export const DOCUMENTS = {
   ACTIVITY_RESPONSES: 'ai-training-activity-responses',
   TRAINING_VIDEOS: 'ai-training-videos',
   TRAINING_VIDEO_PROGRESS: 'ai-training-video-progress',
+  SUBMISSION_FILES: 'ai-training-submission-files',
 } as const;
 
 // ==========================================================================
@@ -145,6 +146,33 @@ export const trainingVideoSchema: AppDataSchema = {
   graphRelationships: [],
 };
 
+export const submissionFileSchema: AppDataSchema = {
+  fields: {
+    id: { type: 'string', required: true, hidden: true },
+    moduleId: { type: 'string', required: true, label: 'Module ID', order: 1 },
+    lessonId: { type: 'string', required: true, label: 'Lesson ID', order: 2 },
+    exerciseId: { type: 'string', required: true, label: 'Exercise ID', order: 3 },
+    lessonTitle: { type: 'string', label: 'Lesson Title', order: 4 },
+    fileName: { type: 'string', required: true, label: 'File Name', order: 5 },
+    fileId: { type: 'string', required: true, label: 'File ID', order: 6 },
+    mimeType: { type: 'string', label: 'MIME Type', order: 7 },
+    sizeBytes: { type: 'number', label: 'Size (bytes)', order: 8 },
+    responseExcerpt: { type: 'string', label: 'Response Excerpt', order: 9 },
+    uploaderUserId: { type: 'string', required: true, label: 'Uploader User ID', order: 10 },
+    uploaderEmail: { type: 'string', label: 'Uploader Email', order: 11 },
+    uploadedAt: { type: 'string', label: 'Uploaded At', readonly: true, order: 12 },
+  },
+  displayName: 'Submission Files',
+  itemLabel: 'Submission',
+  sourceApp: 'cashman-ai-training',
+  // Shared so every authenticated app user can browse peer submissions.
+  // Bind app role to the document AND the file library in data-api admin.
+  visibility: 'authenticated',
+  allowSharing: false,
+  graphNode: '',
+  graphRelationships: [],
+};
+
 export const videoProgressSchema: AppDataSchema = {
   fields: {
     id: { type: 'string', required: true, hidden: true },
@@ -177,6 +205,7 @@ export async function ensureDataDocuments(token: string): Promise<{
   activityResponses: string;
   trainingVideos: string;
   trainingVideoProgress: string;
+  submissionFiles: string;
 }> {
   const ids = await ensureDocuments(
     token,
@@ -211,6 +240,11 @@ export async function ensureDataDocuments(token: string): Promise<{
         schema: videoProgressSchema,
         visibility: 'personal',
       },
+      submissionFiles: {
+        name: DOCUMENTS.SUBMISSION_FILES,
+        schema: submissionFileSchema,
+        visibility: 'authenticated',
+      },
     },
     'cashman-ai-training'
   );
@@ -221,6 +255,7 @@ export async function ensureDataDocuments(token: string): Promise<{
     activityResponses: string;
     trainingVideos: string;
     trainingVideoProgress: string;
+    submissionFiles: string;
   };
 }
 

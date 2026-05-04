@@ -418,6 +418,16 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                   </button>
                 )}
               </label>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-1">
+                Heads-up: uploaded files are posted to the{' '}
+                <a
+                  href={`${basePath}/submissions`}
+                  className="text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  Submissions
+                </a>{' '}
+                tab so other users can browse and download them. Don't upload anything you wouldn't share with the team.
+              </p>
             </div>
           )}
 

@@ -22,16 +22,10 @@ import type {
   Survey,
 } from './types';
 
-// Optional shared library URL where users upload Module 4 deliverables.
-// Set NEXT_PUBLIC_STUDENT_SUBMISSIONS_LIBRARY_URL in env to surface the link
-// in lesson copy. Empty string hides the section.
-const SUBMISSIONS_LIBRARY_URL =
-  process.env.NEXT_PUBLIC_STUDENT_SUBMISSIONS_LIBRARY_URL ?? '';
-
-const submissionsLink = (label: string) =>
-  SUBMISSIONS_LIBRARY_URL
-    ? `[${label}](${SUBMISSIONS_LIBRARY_URL})`
-    : `**${label}** *(ask your trainer for the shared library link)*`;
+// In-app destination for peer file submissions. The Submissions tab is
+// always present; uploaded files are auto-pushed to a shared data-api
+// library by the evaluator route when STUDENT_SUBMISSIONS_LIBRARY_ID is set.
+const submissionsLink = (label: string) => `[${label}](/submissions)`;
 
 // ==========================================================================
 // Module 1: Your AI Toolkit
@@ -600,9 +594,9 @@ Whatever AI tells you, sanity-check it against the raw data:
 
 ### Share Your Analysis
 
-When you're done, drop your finished workbook (with your pivot table, chart, or notes added) into the shared submissions library so other PMs can compare approaches. Same dataset, different angles — you'll learn as much from peers' analyses as from your own.
+When you submit the exercise below, attach your finished workbook (with your pivot table, chart, or notes added). Your file is automatically posted to the Submissions tab so other PMs can compare approaches. Same dataset, different angles — you'll learn as much from peers' analyses as from your own.
 
-📤 ${submissionsLink('Open the shared submissions library')}
+📥 ${submissionsLink('Browse peer submissions')}
 `,
   },
   {
@@ -670,9 +664,9 @@ You don't have to read all 7 files cover-to-cover. Pick your tool:
 
 ### Share Your Work
 
-When you finish, upload your Word summary, Excel timeline, and (optional) PowerPoint to the shared submissions library so other Cashman PMs can see how peers approached the same dataset. Different angles surface different lessons — that's the whole point.
+Attach your primary deliverable to the exercise submission below — the Word summary works best — and your file is automatically posted to the Submissions tab so other Cashman PMs can see how peers approached the same dataset. Different angles surface different lessons — that's the whole point.
 
-📤 ${submissionsLink('Open the shared submissions library')}
+📥 ${submissionsLink('Browse peer submissions')}
 
 > **Key Takeaway:** AI is the fastest junior PM you've ever had — it can read a stack of mismatched files in minutes. But the audit-quality work product is yours: you cite the source, you tie the numbers, you decide which lessons are worth flagging.
 `,

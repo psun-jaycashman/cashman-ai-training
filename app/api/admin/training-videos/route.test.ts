@@ -24,7 +24,7 @@ beforeEach(() => {
   vi.mocked(requireAdmin).mockResolvedValue(adminAuth);
   vi.mocked(ensureDataDocuments).mockResolvedValue({
     progress: 'p', quizScores: 'q', badges: 'b', activityResponses: 'a',
-    trainingVideos: 'tv', trainingVideoProgress: 'tvp',
+    trainingVideos: 'tv', trainingVideoProgress: 'tvp', submissionFiles: 'sf',
   });
 });
 

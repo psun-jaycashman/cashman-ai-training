@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getUserEmailFromToken } from "@jazzmind/busibox-app/lib/authz";
 import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
 import { getExercise } from "@/lib/activity-data";
+import { ensureDataDocuments } from "@/lib/data-api-client";
+import {
+  insertSubmission,
+  uploadSubmissionToLibrary,
+} from "@/lib/submission-data-api";
+import { getLesson } from "@/lib/module-data";
 import { summarizeWorkbook } from "@/lib/xlsx-summary";
 
 export const runtime = "nodejs";
@@ -9,6 +16,8 @@ const AGENT_API_URL =
   process.env.AGENT_API_URL || process.env.NEXT_PUBLIC_AGENT_API_URL || "http://localhost:8000";
 
 const XLSX_MAX_BYTES = 5 * 1024 * 1024; // 5 MB plenty for a SoV-shaped workbook
+const SUBMISSION_MAX_BYTES = 25 * 1024 * 1024; // hard cap on any upload we keep
+const SUBMISSION_UPLOAD_TIMEOUT_MS = 60 * 1000;
 
 // Which busibox agent + tier handles the rubric evaluation. Both default to
 // the cloud-LLM-backed "simple" record-extractor; set these to whatever
@@ -78,6 +87,8 @@ export async function POST(request: NextRequest) {
     const contentType = request.headers.get("content-type") ?? "";
     let exerciseId: string;
     let userResponse: string;
+    let pastedTextForRecord = "";
+    let uploadedFile: File | null = null;
 
     if (contentType.startsWith("multipart/form-data")) {
       let formData: FormData;
@@ -88,39 +99,60 @@ export async function POST(request: NextRequest) {
       }
       exerciseId = String(formData.get("exerciseId") ?? "");
       const pastedText = String(formData.get("userResponse") ?? "").trim();
+      pastedTextForRecord = pastedText;
       const fileEntry = formData.get("file");
       if (!exerciseId) {
         return NextResponse.json({ error: "exerciseId is required" }, { status: 400 });
       }
 
       if (fileEntry instanceof File) {
-        if (fileEntry.size > XLSX_MAX_BYTES) {
+        if (fileEntry.size > SUBMISSION_MAX_BYTES) {
           return NextResponse.json(
-            { error: `File too large (max ${XLSX_MAX_BYTES / 1024 / 1024} MB)` },
+            { error: `File too large (max ${SUBMISSION_MAX_BYTES / 1024 / 1024} MB)` },
             { status: 413 }
           );
         }
+        uploadedFile = fileEntry;
         const lower = fileEntry.name.toLowerCase();
-        if (!lower.endsWith(".xlsx")) {
-          return NextResponse.json(
-            { error: "Only .xlsx files are supported for evaluation" },
-            { status: 415 }
-          );
+        if (lower.endsWith(".xlsx")) {
+          // Parse Excel into a text dump so the evaluator can grade
+          // formulas + values, not just the file name.
+          if (fileEntry.size > XLSX_MAX_BYTES) {
+            return NextResponse.json(
+              { error: `Excel file too large to evaluate (max ${XLSX_MAX_BYTES / 1024 / 1024} MB)` },
+              { status: 413 }
+            );
+          }
+          let summary: string;
+          try {
+            const buf = Buffer.from(await fileEntry.arrayBuffer());
+            summary = await summarizeWorkbook(buf);
+          } catch (err) {
+            console.error("[EVALUATE] failed to parse uploaded workbook", err);
+            return NextResponse.json(
+              { error: "Could not read the uploaded workbook. Make sure it opens in Excel." },
+              { status: 422 }
+            );
+          }
+          userResponse = pastedText
+            ? `${pastedText}\n\n---\n\n## Uploaded workbook contents\n${summary}`
+            : `## Uploaded workbook contents\n${summary}`;
+        } else {
+          // Non-xlsx (Word, PowerPoint, PDF) — we keep the file for the
+          // shared library but the evaluator only sees the user's typed
+          // response. The user is told to summarize their work in the
+          // text box for these exercise types.
+          if (!pastedText) {
+            return NextResponse.json(
+              {
+                error:
+                  "Add a short note in the text box describing your submission (the evaluator can't read Word/PowerPoint/PDF directly).",
+              },
+              { status: 400 }
+            );
+          }
+          userResponse = `${pastedText}\n\n---\n\n_(uploaded ${fileEntry.name} for the shared submissions library; not parsed into this evaluation)_`;
         }
-        let summary: string;
-        try {
-          const buf = Buffer.from(await fileEntry.arrayBuffer());
-          summary = await summarizeWorkbook(buf);
-        } catch (err) {
-          console.error("[EVALUATE] failed to parse uploaded workbook", err);
-          return NextResponse.json(
-            { error: "Could not read the uploaded workbook. Make sure it opens in Excel." },
-            { status: 422 }
-          );
-        }
-        userResponse = pastedText
-          ? `${pastedText}\n\n---\n\n## Uploaded workbook contents\n${summary}`
-          : `## Uploaded workbook contents\n${summary}`;
       } else if (pastedText) {
         userResponse = pastedText;
       } else {
@@ -133,6 +165,7 @@ export async function POST(request: NextRequest) {
       const body = await request.json();
       exerciseId = body.exerciseId;
       userResponse = body.userResponse;
+      pastedTextForRecord = userResponse ?? "";
       if (!exerciseId || !userResponse) {
         return NextResponse.json(
           { error: "exerciseId and userResponse are required" },
@@ -217,7 +250,64 @@ Evaluate the submission against each criterion. If the submission included an up
       );
     }
 
-    return NextResponse.json({ evaluation: result.output });
+    // Best-effort: push the user's file into the shared submissions
+    // library so other PMs can browse it on /submissions. Failure here
+    // never fails the evaluation; we just log and continue.
+    let submissionRecord: { id: string; fileId: string } | null = null;
+    let submissionError: string | null = null;
+    const submissionLibraryId = process.env.STUDENT_SUBMISSIONS_LIBRARY_ID;
+    if (submissionLibraryId && uploadedFile) {
+      try {
+        const dataAuth = await requireAuthWithTokenExchange(request, "data-api");
+        if (dataAuth instanceof NextResponse) {
+          submissionError = "data-api token exchange returned an error response";
+        } else {
+          const uploaderEmail = getUserEmailFromToken(dataAuth.apiToken)
+            ?? (dataAuth.ssoToken ? getUserEmailFromToken(dataAuth.ssoToken) : null)
+            ?? undefined;
+          const lesson = getLesson(exercise.moduleId, exercise.lessonId);
+          const uploaded = await uploadSubmissionToLibrary(
+            uploadedFile,
+            submissionLibraryId,
+            {
+              accessToken: dataAuth.apiToken,
+              userId: dataAuth.userId,
+              timeout: SUBMISSION_UPLOAD_TIMEOUT_MS,
+            },
+          );
+          const ids = await ensureDataDocuments(dataAuth.apiToken);
+          // Trim the user's text to a short excerpt so the listing UI
+          // stays readable. Full text already lives in activity-responses.
+          const excerpt = pastedTextForRecord.length > 360
+            ? pastedTextForRecord.slice(0, 360).trimEnd() + "…"
+            : pastedTextForRecord;
+          const inserted = await insertSubmission(dataAuth.apiToken, ids.submissionFiles, {
+            moduleId: exercise.moduleId,
+            lessonId: exercise.lessonId,
+            exerciseId: exercise.id,
+            lessonTitle: lesson?.title,
+            fileName: uploadedFile.name,
+            fileId: uploaded.fileId,
+            mimeType: uploaded.mimeType,
+            sizeBytes: uploaded.sizeBytes,
+            responseExcerpt: excerpt || undefined,
+            uploaderUserId: dataAuth.userId,
+            uploaderEmail,
+          });
+          submissionRecord = { id: inserted.id, fileId: inserted.fileId };
+        }
+      } catch (err) {
+        console.error("[EVALUATE] shared-library upload failed (non-fatal)", err);
+        submissionError = err instanceof Error ? err.message : String(err);
+      }
+    }
+
+    return NextResponse.json({
+      evaluation: result.output,
+      submission: submissionRecord,
+      submissionError: submissionError ?? undefined,
+      submissionLibraryConfigured: !!submissionLibraryId,
+    });
   } catch (error) {
     console.error("[EVALUATE] Failed to evaluate submission:", error);
     return NextResponse.json(
