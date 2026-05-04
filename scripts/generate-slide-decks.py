@@ -87,6 +87,7 @@ def _add_text(
     size_pt=18,
     color=BODY,
     bold=False,
+    italic=False,
     align=PP_ALIGN.LEFT,
     anchor=MSO_ANCHOR.TOP,
     line_spacing=1.15,
@@ -110,6 +111,7 @@ def _add_text(
         run.font.name = font
         run.font.size = Pt(size_pt)
         run.font.bold = bold
+        run.font.italic = italic
         run.font.color.rgb = color
     return box
 
@@ -289,6 +291,120 @@ def add_concept_slide(
     return slide
 
 
+def add_image_slide(
+    prs: Presentation,
+    eyebrow: str,
+    headline: str,
+    image_path: Path,
+    caption: str = "",
+):
+    """Image-led slide. Eyebrow + short headline at top, real screenshot
+    centered in the content area, optional caption underneath. The image
+    is letterboxed into a fixed box so different screenshot aspect ratios
+    still look intentional."""
+    blank_layout = prs.slide_layouts[6]
+    slide = prs.slides.add_slide(blank_layout)
+    _set_background(slide)
+
+    # Eyebrow
+    _add_text(
+        slide,
+        CONTENT_LEFT,
+        Inches(0.7),
+        CONTENT_W,
+        Inches(0.4),
+        eyebrow.upper(),
+        font=BODY_FONT,
+        size_pt=12,
+        color=GREEN,
+        bold=True,
+    )
+
+    # Headline
+    _add_text(
+        slide,
+        CONTENT_LEFT,
+        Inches(1.15),
+        CONTENT_W,
+        Inches(1.1),
+        headline,
+        font=HEADLINE_FONT,
+        size_pt=30,
+        color=HEADLINE,
+        bold=True,
+        line_spacing=1.05,
+    )
+
+    # Image area (left of avatar zone). Fit-inside scale, top-anchored.
+    box_left = CONTENT_LEFT
+    box_top = Inches(2.45)
+    box_w_in = 10.13
+    box_h_in = 5.4
+
+    from PIL import Image as PILImage  # local import; keeps top-of-file lean
+    with PILImage.open(image_path) as im:
+        img_w, img_h = im.size
+    img_aspect = img_w / img_h
+    box_aspect = box_w_in / box_h_in
+    if img_aspect >= box_aspect:
+        # image is wider than the box → fit to width
+        draw_w_in = box_w_in
+        draw_h_in = box_w_in / img_aspect
+    else:
+        draw_h_in = box_h_in
+        draw_w_in = box_h_in * img_aspect
+    # center horizontally, top-align vertically inside the box
+    offset_x_in = (box_w_in - draw_w_in) / 2.0
+
+    # Light card background behind the image so screenshots with dark
+    # chrome (e.g. Cashman Portal) don't float against the cream slide.
+    pad = Inches(0.12)
+    _add_rect(
+        slide,
+        box_left + Inches(offset_x_in) - pad,
+        box_top - pad,
+        Inches(draw_w_in) + pad * 2,
+        Inches(draw_h_in) + pad * 2,
+        WHITE,
+    )
+    # Hairline green underline beneath the card for accent.
+    _add_rect(
+        slide,
+        box_left + Inches(offset_x_in) - pad,
+        box_top + Inches(draw_h_in) + pad,
+        Inches(draw_w_in) + pad * 2,
+        Inches(0.04),
+        GREEN,
+    )
+
+    slide.shapes.add_picture(
+        str(image_path),
+        box_left + Inches(offset_x_in),
+        box_top,
+        Inches(draw_w_in),
+        Inches(draw_h_in),
+    )
+
+    # Caption below the card
+    if caption:
+        _add_text(
+            slide,
+            CONTENT_LEFT,
+            box_top + Inches(draw_h_in) + Inches(0.45),
+            CONTENT_W,
+            Inches(0.7),
+            caption,
+            font=BODY_FONT,
+            size_pt=14,
+            color=MUTED,
+            italic=True,
+            line_spacing=1.3,
+        )
+
+    _add_avatar_placeholder(slide)
+    return slide
+
+
 def add_callout_slide(
     prs: Presentation,
     eyebrow: str,
@@ -372,12 +488,14 @@ def add_callout_slide(
 
 @dataclass
 class Slide:
-    kind: str  # "title" | "concept" | "callout"
+    kind: str  # "title" | "concept" | "callout" | "image"
     eyebrow: str = ""
     headline: str = ""
     subhead: str = ""
     body: list[str] = field(default_factory=list)
     callout: str = ""
+    image: str = ""  # path relative to docs/video-scripts/slides/assets/
+    caption: str = ""
 
 
 @dataclass
@@ -782,7 +900,7 @@ DECKS: list[Deck] = [
                 kind="title",
                 eyebrow="Lesson 2",
                 headline="Data Analysis with AI",
-                subhead="Your on-call analyst.",
+                subhead="32 hypothetical projects. One question. Your on-call analyst.",
             ),
             Slide(
                 kind="concept",
@@ -795,10 +913,22 @@ DECKS: list[Deck] = [
                 ],
             ),
             Slide(
+                kind="image",
+                eyebrow="Copilot in Excel — live",
+                headline="Cost overrun drivers, in seconds.",
+                image="module-4/copilot-excel-cost-overrun-drivers.png",
+                caption=(
+                    "Copilot in Excel built the Summary by Project Type, the "
+                    "Cost Overrun Drivers table, and the risk profile column "
+                    "from one prompt. Read it — but always verify the "
+                    "numbers tie back to the source rows."
+                ),
+            ),
+            Slide(
                 kind="callout",
                 eyebrow="The judgment call",
                 headline="AI suggests. You decide.",
-                callout="50 projects across 4 categories isn't enough for regression.\nApply your domain expertise to AI's suggestions.",
+                callout="32 projects across 4 categories isn't enough for regression.\nApply your domain expertise to AI's suggestions.",
             ),
         ],
     ),
@@ -810,18 +940,49 @@ DECKS: list[Deck] = [
             Slide(
                 kind="title",
                 eyebrow="Lesson 3",
-                headline="Data Cleanup",
-                subhead="Three formats in. One clean table out.",
+                headline="Closing Out a Messy Project",
+                subhead="Seven files. Three deliverables. One afternoon.",
             ),
             Slide(
                 kind="concept",
-                eyebrow="New terms",
-                headline="Normalization · Schema",
+                eyebrow="The IPC Lydon bundle",
+                headline="What you have. What you owe.",
                 body=[
-                    "Normalization — force inconsistent data into one shape.",
-                    "Schema — the column blueprint you want AI to fill.",
-                    "Always spot-check the edge cases.",
+                    "•  Inputs — Word logs, Excel cost + payment, txt transcripts, emails.",
+                    "•  Outputs — 1-page Word summary · Excel sequence-of-events · (bonus) PowerPoint.",
+                    "•  Always cite the source file for every number.",
                 ],
+            ),
+            Slide(
+                kind="image",
+                eyebrow="ChatGPT — the whole bundle at once",
+                headline="Drop the zip. Ask one focused question.",
+                image="module-4/chatgpt-ipc-lydon-zip-prompt.png",
+                caption=(
+                    "Attach every file from the bundle in a single message, "
+                    "then ask for a chronological event list with source-file "
+                    "citations. Fastest cross-file synthesis — but the data "
+                    "leaves your network, so use it on hypothetical or public "
+                    "data only."
+                ),
+            ),
+            Slide(
+                kind="image",
+                eyebrow="Cashman AI Portal — internal data",
+                headline="Same approach. On-prem.",
+                image="module-4/cashman-portal-summarize.png",
+                caption=(
+                    "For real Cashman files, attach to the Portal instead. "
+                    "Files stay on company infrastructure. Best paired with "
+                    "Microsoft Copilot inside Word/Excel for per-file "
+                    "follow-ups."
+                ),
+            ),
+            Slide(
+                kind="callout",
+                eyebrow="The audit trail",
+                headline="AI is the typist. You are the auditor.",
+                callout="Every dollar in your timeline must tie to cost-tracking.xlsx.\nDates chronological. No invented quotes.",
             ),
         ],
     ),
@@ -1170,7 +1331,7 @@ DECKS: list[Deck] = [
 # --------------------------------------------------------------------------- #
 
 
-def build_deck(deck: Deck, output_root: Path) -> Path:
+def build_deck(deck: Deck, output_root: Path, assets_root: Path) -> Path:
     prs = Presentation()
     prs.slide_width = SLIDE_W
     prs.slide_height = SLIDE_H
@@ -1182,6 +1343,11 @@ def build_deck(deck: Deck, output_root: Path) -> Path:
             add_concept_slide(prs, s.eyebrow, s.headline, s.body)
         elif s.kind == "callout":
             add_callout_slide(prs, s.eyebrow, s.headline, s.callout)
+        elif s.kind == "image":
+            img_path = assets_root / s.image
+            if not img_path.exists():
+                raise FileNotFoundError(f"Image asset not found: {img_path}")
+            add_image_slide(prs, s.eyebrow, s.headline, img_path, s.caption)
         else:
             raise ValueError(f"Unknown slide kind: {s.kind}")
 
@@ -1195,11 +1361,12 @@ def build_deck(deck: Deck, output_root: Path) -> Path:
 def main() -> None:
     repo_root = Path(__file__).resolve().parent.parent
     output_root = repo_root / "docs" / "video-scripts" / "slides" / "pptx"
+    assets_root = repo_root / "docs" / "video-scripts" / "slides" / "assets"
     output_root.mkdir(parents=True, exist_ok=True)
 
     print(f"Generating {len(DECKS)} decks → {output_root}")
     for deck in DECKS:
-        path = build_deck(deck, output_root)
+        path = build_deck(deck, output_root, assets_root)
         rel = path.relative_to(repo_root)
         print(f"  ✓ {rel}  ({len(deck.slides)} slides)")
     print("Done.")
