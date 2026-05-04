@@ -9,12 +9,10 @@ import {
   Circle,
   Clock,
   User,
-  PlayCircle,
   BookOpen,
 } from 'lucide-react';
 import ProgressRing from '@/components/modules/ProgressRing';
-import VideoPlayer from '@/components/VideoPlayer';
-import type { Module, UserProgress, TrainingVideoWithPlayback } from '@/lib/types';
+import type { Module, UserProgress } from '@/lib/types';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -24,16 +22,14 @@ export default function ModuleViewPage() {
 
   const [module_, setModule] = useState<Module | null>(null);
   const [progress, setProgress] = useState<UserProgress[]>([]);
-  const [moduleVideo, setModuleVideo] = useState<TrainingVideoWithPlayback | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [moduleRes, progressRes, videosRes] = await Promise.all([
+        const [moduleRes, progressRes] = await Promise.all([
           fetch(`${basePath}/api/modules/${moduleId}`, { credentials: 'include' }),
           fetch(`${basePath}/api/progress?moduleId=${moduleId}`, { credentials: 'include' }),
-          fetch(`${basePath}/api/training-videos?moduleId=${moduleId}`, { credentials: 'include' }),
         ]);
 
         if (moduleRes.ok) {
@@ -43,12 +39,6 @@ export default function ModuleViewPage() {
         if (progressRes.ok) {
           const data = await progressRes.json();
           setProgress(data.progress || data || []);
-        }
-        if (videosRes.ok) {
-          const data = await videosRes.json();
-          const videos: TrainingVideoWithPlayback[] = data.videos || [];
-          const moduleLevel = videos.find((v) => !v.lessonId);
-          if (moduleLevel) setModuleVideo(moduleLevel);
         }
       } catch (err) {
         console.error('Failed to fetch module:', err);
@@ -105,67 +95,44 @@ export default function ModuleViewPage() {
 
       {/* Module Header */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Video Placeholder */}
-          <div className="flex-shrink-0 w-full md:w-96">
-            <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20" />
-              <PlayCircle className="w-16 h-16 text-white/80" />
-              <span className="absolute bottom-3 left-3 text-xs text-white/60 bg-black/40 px-2 py-1 rounded">
-                Module Introduction
-              </span>
-            </div>
-          </div>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
+          {module_.title}
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
+          {module_.description}
+        </p>
+        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-6">
+          <span className="flex items-center gap-1.5">
+            <User className="w-4 h-4" /> {module_.instructor}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Clock className="w-4 h-4" /> {module_.estimatedMinutes} min
+          </span>
+          <span className="flex items-center gap-1.5">
+            <BookOpen className="w-4 h-4" /> {lessons.length} lessons
+          </span>
+        </div>
 
-          {/* Module Info */}
-          <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
-              {module_.title}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {module_.description}
+        <div className="flex items-center gap-4">
+          <ProgressRing percentage={progressPercent} size={60} strokeWidth={5} />
+          <div>
+            <p className="text-sm font-medium text-gray-900 dark:text-white">
+              {completedCount}/{lessons.length} completed
             </p>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-6">
-              <span className="flex items-center gap-1.5">
-                <User className="w-4 h-4" /> {module_.instructor}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4" /> {module_.estimatedMinutes} min
-              </span>
-              <span className="flex items-center gap-1.5">
-                <BookOpen className="w-4 h-4" /> {lessons.length} lessons
-              </span>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <ProgressRing percentage={progressPercent} size={60} strokeWidth={5} />
-              <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {completedCount}/{lessons.length} completed
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {progressPercent === 100 ? 'Module complete!' : `${Math.round(progressPercent)}% done`}
-                </p>
-              </div>
-              {nextLesson && progressPercent < 100 && (
-                <Link
-                  href={`/modules/${moduleId}/${nextLesson.id}`}
-                  className="ml-auto inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
-                >
-                  {completedCount === 0 ? 'Start Learning' : 'Continue'}
-                </Link>
-              )}
-            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {progressPercent === 100 ? 'Module complete!' : `${Math.round(progressPercent)}% done`}
+            </p>
           </div>
+          {nextLesson && progressPercent < 100 && (
+            <Link
+              href={`/modules/${moduleId}/${nextLesson.id}`}
+              className="ml-auto inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {completedCount === 0 ? 'Start Learning' : 'Continue'}
+            </Link>
+          )}
         </div>
       </div>
-
-      {/* Module Video */}
-      {moduleVideo && (
-        <div className="mb-8">
-          <VideoPlayer video={moduleVideo} />
-        </div>
-      )}
 
       {/* Lesson List */}
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Lessons</h2>
