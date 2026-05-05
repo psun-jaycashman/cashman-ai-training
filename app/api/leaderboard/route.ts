@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
-import { ensureDataDocuments, getAllBadges } from "@/lib/data-api-client";
+import {
+  ensureDataDocuments,
+  getAllBadges,
+  listTrainingUsers,
+} from "@/lib/data-api-client";
+import { displayNameFromEmail } from "@/lib/display-name";
 import { queryRecords } from "@jazzmind/busibox-app";
 import type { UserProgress, LeaderboardEntry } from "@/lib/types";
 
@@ -20,32 +25,41 @@ export async function GET(request: NextRequest) {
 
     const documentIds = await ensureDataDocuments(auth.apiToken);
 
-    // Fetch progress and badges (both cross-user readable when
-    // recordVisibility is 'inherit' on a 'shared'/'authenticated' doc).
-    const [progressResult, allBadges] = await Promise.all([
+    // Fetch progress, badges, and the user roster (cross-user readable
+    // when recordVisibility is 'inherit' on the underlying docs).
+    const [progressResult, allBadges, allUsers] = await Promise.all([
       queryRecords<UserProgress>(auth.apiToken, documentIds.progress, {
         orderBy: [{ field: "startedAt", direction: "desc" }],
       }),
       getAllBadges(auth.apiToken, documentIds.badges),
+      listTrainingUsers(auth.apiToken, documentIds.trainingUsers),
     ]);
 
-    // Group by visitor
+    // Roster — every user who has ever loaded the app shows up here.
     const visitorStats = new Map<
       string,
-      { lessonsCompleted: number; badgeCount: number }
+      { lessonsCompleted: number; badgeCount: number; displayName: string | null }
     >();
-
     function getStats(visitorId: string) {
       if (!visitorStats.has(visitorId)) {
         visitorStats.set(visitorId, {
           lessonsCompleted: 0,
           badgeCount: 0,
+          displayName: null,
         });
       }
       return visitorStats.get(visitorId)!;
     }
 
-    // Count unique completed lessons per visitor
+    // Seed with the user roster so users with 0 lessons + 0 badges still
+    // appear on the leaderboard.
+    for (const u of allUsers) {
+      const slot = getStats(u.visitorId);
+      slot.displayName =
+        u.displayName ?? displayNameFromEmail(u.email) ?? null;
+    }
+
+    // Count unique completed lessons per visitor.
     const completedLessonsMap = new Map<string, Set<string>>();
     for (const p of progressResult.records) {
       if (!p.completed) continue;
@@ -54,12 +68,11 @@ export async function GET(request: NextRequest) {
       }
       completedLessonsMap.get(p.visitorId)!.add(`${p.moduleId}:${p.lessonId}`);
     }
-
     for (const [visitorId, lessons] of completedLessonsMap) {
       getStats(visitorId).lessonsCompleted = lessons.size;
     }
 
-    // Count badges per visitor
+    // Count badges per visitor.
     const badgeCountMap = new Map<string, number>();
     for (const b of allBadges) {
       badgeCountMap.set(b.visitorId, (badgeCountMap.get(b.visitorId) ?? 0) + 1);
@@ -68,15 +81,17 @@ export async function GET(request: NextRequest) {
       getStats(visitorId).badgeCount = count;
     }
 
-    // Calculate total points and build leaderboard
+    // Build entries.
     const entries: LeaderboardEntry[] = [];
     for (const [visitorId, stats] of visitorStats) {
       const totalPoints =
         stats.lessonsCompleted * 10 + stats.badgeCount * 25;
-
       entries.push({
         visitorId,
-        displayName: visitorId, // Display name not available from progress data
+        // Stored display name wins; fall back to visitorId so the row is
+        // never empty. The page also patches its own row with the live
+        // session email if the roster lookup hasn't caught up yet.
+        displayName: stats.displayName ?? visitorId,
         totalPoints,
         modulesCompleted: 0,
         badgesEarned: stats.badgeCount,
@@ -84,22 +99,20 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Sort by points descending
-    entries.sort((a, b) => b.totalPoints - a.totalPoints);
-
-    // Assign ranks
+    // Sort by points desc, name asc as tiebreak so 0-point users have a
+    // stable order instead of jumping each refresh.
+    entries.sort((a, b) => {
+      if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+      return a.displayName.localeCompare(b.displayName);
+    });
     entries.forEach((entry, index) => {
       entry.rank = index + 1;
     });
 
-    // Find current user's entry
     const currentUser = entries.find((e) => e.visitorId === auth.userId);
 
-    // Return top 10 + current user
-    const top10 = entries.slice(0, 10);
-
     return NextResponse.json({
-      leaderboard: top10,
+      leaderboard: entries,
       currentUser: currentUser ?? {
         visitorId: auth.userId,
         displayName: auth.userId,

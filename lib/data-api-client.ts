@@ -30,6 +30,7 @@ export const DOCUMENTS = {
   TRAINING_VIDEOS: 'ai-training-videos',
   TRAINING_VIDEO_PROGRESS: 'ai-training-video-progress',
   SUBMISSION_FILES: 'ai-training-submission-files',
+  TRAINING_USERS: 'ai-training-users',
 } as const;
 
 // ==========================================================================
@@ -146,6 +147,26 @@ export const trainingVideoSchema: AppDataSchema = {
   graphRelationships: [],
 };
 
+export const trainingUserSchema: AppDataSchema = {
+  fields: {
+    id: { type: 'string', required: true, hidden: true },
+    visitorId: { type: 'string', required: true, label: 'User ID', order: 1 },
+    email: { type: 'string', label: 'Email', order: 2 },
+    displayName: { type: 'string', label: 'Display Name', order: 3 },
+    firstSeenAt: { type: 'string', label: 'First Seen', readonly: true, order: 4 },
+    lastSeenAt: { type: 'string', label: 'Last Seen', readonly: true, order: 5 },
+  },
+  displayName: 'Training Users',
+  itemLabel: 'User Profile',
+  sourceApp: 'cashman-ai-training',
+  // Cross-user readable so the leaderboard can resolve every visitor's
+  // display name without leaking other documents.
+  visibility: 'authenticated',
+  allowSharing: false,
+  graphNode: '',
+  graphRelationships: [],
+};
+
 export const submissionFileSchema: AppDataSchema = {
   fields: {
     id: { type: 'string', required: true, hidden: true },
@@ -206,6 +227,7 @@ export async function ensureDataDocuments(token: string): Promise<{
   trainingVideos: string;
   trainingVideoProgress: string;
   submissionFiles: string;
+  trainingUsers: string;
 }> {
   const ids = await ensureDocuments(
     token,
@@ -245,6 +267,11 @@ export async function ensureDataDocuments(token: string): Promise<{
         schema: submissionFileSchema,
         visibility: 'authenticated',
       },
+      trainingUsers: {
+        name: DOCUMENTS.TRAINING_USERS,
+        schema: trainingUserSchema,
+        visibility: 'authenticated',
+      },
     },
     'cashman-ai-training'
   );
@@ -256,7 +283,72 @@ export async function ensureDataDocuments(token: string): Promise<{
     trainingVideos: string;
     trainingVideoProgress: string;
     submissionFiles: string;
+    trainingUsers: string;
   };
+}
+
+// ==========================================================================
+// Training Users (display-name + roster source for the leaderboard)
+// ==========================================================================
+
+export interface TrainingUser {
+  id: string;
+  visitorId: string;
+  email?: string;
+  displayName?: string;
+  firstSeenAt: string;
+  lastSeenAt: string;
+}
+
+export async function listTrainingUsers(
+  token: string,
+  documentId: string,
+): Promise<TrainingUser[]> {
+  const result = await queryRecords<TrainingUser>(token, documentId, {
+    orderBy: [{ field: 'lastSeenAt', direction: 'desc' }],
+  });
+  return result.records;
+}
+
+export async function upsertTrainingUser(
+  token: string,
+  documentId: string,
+  input: { visitorId: string; email?: string; displayName?: string },
+): Promise<TrainingUser> {
+  const now = getNow();
+  const existing = await queryRecords<TrainingUser>(token, documentId, {
+    where: { field: 'visitorId', op: 'eq', value: input.visitorId },
+    limit: 1,
+  });
+
+  if (existing.records.length > 0) {
+    const record = existing.records[0];
+    // Refresh email/displayName if we have new values, always bump lastSeenAt.
+    const updates: Partial<TrainingUser> = { lastSeenAt: now };
+    if (input.email && input.email !== record.email) updates.email = input.email;
+    if (input.displayName && input.displayName !== record.displayName) {
+      updates.displayName = input.displayName;
+    }
+    await updateRecords(
+      token,
+      documentId,
+      updates,
+      { field: 'id', op: 'eq', value: record.id },
+    );
+    return { ...record, ...updates };
+  }
+
+  const profile: TrainingUser = {
+    id: generateId(),
+    visitorId: input.visitorId,
+    email: input.email,
+    displayName: input.displayName,
+    firstSeenAt: now,
+    lastSeenAt: now,
+  };
+  // 'inherit' so peers can see each other on the leaderboard.
+  await insertRecords(token, documentId, [profile], { recordVisibility: 'inherit' });
+  return profile;
 }
 
 // ==========================================================================

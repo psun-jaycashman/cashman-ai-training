@@ -20,7 +20,7 @@ beforeEach(() => {
   vi.mocked(requireAuthWithTokenExchange).mockResolvedValue(auth);
   vi.mocked(ensureDataDocuments).mockResolvedValue({
     progress: 'p', quizScores: 'q', badges: 'b', activityResponses: 'a',
-    trainingVideos: 'tv', trainingVideoProgress: 'tvp', submissionFiles: 'sf',
+    trainingVideos: 'tv', trainingVideoProgress: 'tvp', submissionFiles: 'sf', trainingUsers: 'tu',
   });
 });
 

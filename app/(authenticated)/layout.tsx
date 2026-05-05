@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Header, Footer } from '@jazzmind/busibox-app';
@@ -13,6 +13,8 @@ const portalUrl = portalBaseUrl
   ? (portalBaseUrl.endsWith('/portal') ? portalBaseUrl : `${portalBaseUrl}/portal`)
   : '/portal';
 
+const apiBasePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
 const baseNavItems = [
   { href: '/', label: 'Dashboard' },
   { href: '/modules', label: 'Modules' },
@@ -24,6 +26,17 @@ const baseNavItems = [
 export default function AuthenticatedLayout({ children }: { children: ReactNode }) {
   const { user, isAuthenticated, logout } = useSession();
   const pathname = usePathname();
+
+  // Stamp the user into the leaderboard roster so peers can see them by
+  // name — fire-and-forget, idempotent. Failure is silent; the leaderboard
+  // falls back to visitorId for users without a profile row yet.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetch(`${apiBasePath}/api/users/me`, {
+      method: 'POST',
+      credentials: 'include',
+    }).catch(() => { /* non-fatal */ });
+  }, [isAuthenticated]);
 
   const isAdmin = isAdminRole(user?.roles);
   const navItems = isAdmin
