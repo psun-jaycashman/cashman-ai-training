@@ -319,6 +319,8 @@ For example, imagine an email that looks normal but contains white text on a whi
 
 When you paste that email into an AI tool, the AI might follow those hidden instructions. **Always review AI output** -- don't blindly trust what comes back, especially when processing external content.
 
+> 🎥 **Watch (5 min):** [Prompt Injection Explained](https://www.youtube.com/watch?v=jrHRe9lSqqA) — a clear walkthrough of what prompt injection is, how attacks work, and what to look for. Worth the time before doing the exercise below.
+
 > **Key Takeaway:** AI helps you find the right tone for difficult communications. But always review the output, especially when the input came from someone else -- it could contain hidden instructions.
 `,
   },
@@ -945,7 +947,7 @@ You've now learned about all the AI tools available to you. The last step is put
 
 Throughout this training, you've encountered security risks woven into practical tasks:
 
-- **Module 2:** Prompt injection in emails -- hidden instructions that manipulate AI output
+- **Module 2:** Prompt injection in emails -- hidden instructions that manipulate AI output. ([5-min refresher video](https://www.youtube.com/watch?v=jrHRe9lSqqA))
 - **Module 3:** Hallucinations -- AI inventing plausible-sounding facts
 - **Module 4:** Wrong formulas -- AI producing calculations that look right but are subtly wrong
 - **Module 5:** Deepfakes -- AI-generated images and audio used to deceive
@@ -1174,7 +1176,7 @@ export const QUIZZES: Quiz[] = [
           'This is a normal AI feature',
         ],
         correctAnswer: 1,
-        explanation: 'This is a prompt injection attack. The email contained hidden instructions (possibly in white text) that the AI followed as if they were your instructions. Always review AI output, especially when processing external content.',
+        explanation: 'This is a prompt injection attack. The email contained hidden instructions (possibly in white text) that the AI followed as if they were your instructions. Always review AI output, especially when processing external content. Refresher: https://www.youtube.com/watch?v=jrHRe9lSqqA',
       },
       {
         id: 'fa-q3',
