@@ -855,199 +855,87 @@ Notice that the Cashman AI Portal searches **your company documents** on **your 
   },
   {
     id: 'mod-6-les-2',
-    title: 'Analyzing Uploaded Documents',
-    estimatedMinutes: 5,
+    title: 'Deep Research End-to-End',
+    estimatedMinutes: 8,
     order: 2,
     activityType: 'exercise',
     activityId: 'ex-mod6-les2',
     content: `
-## Analyzing Uploaded Documents
+## Deep Research End-to-End
 
-Beyond searching existing documents, you can upload specific files and have AI analyze them -- extracting key information, answering questions, and identifying important details you might miss.
+Some questions need more than a chat reply. They need a **researched, cited, well-organized briefing** — and you need to get it out of your head and into a deck for the next meeting. Here's the three-tool pipeline that does that in under an hour.
+
+### Step 1 — Run a Deep Research query
+
+Pick one:
+
+- **ChatGPT Deep Research** (in ChatGPT Plus / Team / Enterprise) — kick off a research run; it browses the web for 5–15 minutes and returns a long, cited report.
+- **Claude Deep Research** (claude.ai with research mode) — same idea, different style. Claude tends to be more cautious about sourcing; ChatGPT tends to be broader.
+
+**What makes a good Deep Research prompt:**
+
+- **State the decision the report will support.** "I need to recommend three autonomous-survey-vessel vendors for a Cashman pilot in 2026" is a thousand times better than "tell me about autonomous survey vessels."
+- **Give context on the audience.** "The reader is a marine project executive — skip the basics, go deep on procurement risk, support, and operational fit."
+- **Constrain sources where it matters.** "Prioritize peer-reviewed studies, OEM spec sheets, and recent USACE / NOAA reports. Avoid blog posts."
+- **Specify the output format.** "Deliver a markdown report with: executive summary (5 bullets), three recommended vendors, scoring matrix, risks, and a citations list."
+
+**Topics that work well for Cashman:** equipment vendor surveys, regulation updates (USACE, OSHA, EPA), market scans for new tooling, lessons-learned across an industry segment, public records on a competitor's recent project.
+
+**The bulletin-board rule still applies.** Anything in the prompt goes to the cloud. Don't put internal pricing, client names, or sensitive scope into a Deep Research request.
+
+### Step 2 — Notebook LM for synthesis and audio
+
+Now you have a 20-page report. Reading it is a chore. **Google Notebook LM** turns it into something you can actually use.
+
+1. Open [Notebook LM](https://notebooklm.google.com) (Google account).
+2. Create a new notebook. **Add the Deep Research output as a source** — paste the markdown, or upload as a PDF. Add any *other* PDFs that fit (your own meeting notes, a relevant spec, a vendor's data sheet).
+3. Click **Studio panel** and pick what you want:
+   - **Briefing doc** — a tight executive summary
+   - **FAQ** — every likely question + answer, perfect for a Q&A appendix
+   - **Study guide** — broken into themes
+   - **Audio Overview** — Notebook LM literally generates a 10-minute podcast of two hosts discussing the source material. Listen to it on your drive home; it'll surface things you missed reading.
+
+The audio overview alone is worth the trip. It's also a great way to share findings with a peer who won't read the report.
+
+### Step 3 — Have AI draft the slide deck
+
+You have the research. You have the synthesis. Now make the deck for the meeting.
+
+Two paths:
+
+**Path A — Markdown outline → PowerPoint by hand**
+
+Paste the Deep Research report (or the Notebook LM briefing doc) into Claude or ChatGPT. Prompt:
+
+> "Turn this into a 10-slide deck for a Cashman project executive. Each slide: a headline (≤ 8 words), 3 supporting bullets, a speaker-note paragraph. Output as markdown with one \`# Slide N — Headline\` per slide. Match the order: context, three vendor profiles, scoring matrix, risks, recommendation, ask."
+
+Copy the markdown into PowerPoint slide-by-slide, or use a markdown-to-pptx tool.
+
+**Path B — Copilot in PowerPoint**
+
+In PowerPoint, open the Copilot pane and tell it: "Build a 10-slide deck from this content" and paste in the briefing. It generates the full deck in place. Then iterate ("change slide 4 to a comparison table", "add a slide on procurement timeline"). Faster than Path A but less precise.
+
+Either way, the slides are a starting point — you still review the headlines, fix the data, and add the recommendation that AI shouldn't be making for you.
 
 ### The Task
 
-Find a non-sensitive document you can use for this exercise (a public spec, a sample safety plan, or even a long article). Your job:
+Pick a real research question relevant to your work (vendor scan, regulation update, market intelligence — something you'd actually use, not a toy topic). Run the full pipeline:
 
-1. **Upload it to the Cashman AI Portal** (or paste a section into AI)
-2. **Ask AI three questions about the document:**
-   - "What are the key requirements in this document?"
-   - "Are there any deadlines or time-sensitive items?"
-   - "What are the potential risks or issues mentioned?"
-3. **Paste the AI's answers** into the exercise below
+1. **Deep Research** — paste the prompt you used and the tool you chose (ChatGPT or Claude).
+2. **Notebook LM** — note which Studio output you generated (briefing / FAQ / study guide / audio overview) and one insight it surfaced that the raw report didn't.
+3. **Slide outline** — paste your final 10-slide outline (from Claude/GPT or Copilot in PowerPoint).
+4. **Reflect briefly** — about how long the whole pipeline took, and one thing you'd verify before sharing the deck externally.
 
-### Best Practices for Document Analysis
-
-- **Be specific in your questions** -- "What environmental permits are required?" beats "Tell me about this document"
-- **Ask follow-up questions** -- "You mentioned a 30-day notice requirement. Where exactly in the document is this?"
-- **Verify critical details** -- AI might miss important nuances or misinterpret ambiguous language
-
-### The Context Window
-
-AI has a limit on how much text it can process at once (the **context window**). For very long documents:
-
-- AI may miss details in the middle sections (it tends to focus on the beginning and end)
-- Break very long documents into sections and analyze each separately
-- Always ask "Is there anything else in this document I should know about?" as a final check
-
-> **Key Takeaway:** Upload documents to the Cashman AI Portal for analysis. Be specific in your questions. For long documents, analyze sections separately.
+> **Key Takeaway:** Deep Research → Notebook LM → AI slides is the modern research workflow. Each tool does one job well: Deep Research finds and cites, Notebook LM synthesizes and condenses, the slide-AI packages it for an audience. Stop trying to do all three in one chat window.
 `,
   },
   {
     id: 'mod-6-les-3',
-    title: 'Extracting Structured Data',
-    estimatedMinutes: 5,
-    order: 3,
-    activityType: 'exercise',
-    activityId: 'ex-mod6-les3',
-    content: `
-## Extracting Structured Data from Documents
-
-One of AI's most powerful capabilities is turning unstructured text into organized, structured data -- tables, lists, and formatted output you can use directly.
-
-### The Task
-
-Below is an unstructured paragraph from a project specification. Your job:
-
-1. **Paste it into the Cashman AI Portal**
-2. **Ask AI to extract** all requirements into a structured table with columns: Requirement, Category, Deadline, and Priority
-3. **Paste the table** into the exercise below
-
-### The Specification Paragraph
-
-> The contractor shall submit a site-specific safety plan within 14 calendar days of notice to proceed. All crane operators must hold current NCCCO certification and provide copies prior to mobilization. Environmental monitoring shall include daily turbidity measurements at three stations (upstream, downstream, and at the work area) with results reported to the COR within 24 hours. The contractor shall maintain a spill prevention plan on-site at all times. All welding on structural steel shall be performed by AWS D1.5 certified welders. Material submittals for sheet piling shall be submitted at least 60 days prior to the scheduled driving date. The contractor shall provide a 10-day look-ahead schedule updated weekly. Night work is prohibited without prior written approval from the contracting officer. All temporary cofferdams shall be designed by a licensed Professional Engineer.
-
-### What Good Extraction Looks Like
-
-Your table should capture every discrete requirement, categorize them logically (Safety, Environmental, Qualifications, Submittals, Schedule), and flag deadlines where mentioned.
-
-> **Key Takeaway:** AI can transform dense specification text into organized tables in seconds. This is invaluable for tracking requirements and ensuring nothing gets missed.
-`,
-  },
-];
-
-// ==========================================================================
-// Module 8: Custom Apps and Power User Tools
-// ==========================================================================
-
-const mod8Lessons: Lesson[] = [
-  {
-    id: 'mod-8-les-1',
-    title: 'Deep Research and Analysis Tools',
-    estimatedMinutes: 7,
-    order: 1,
-    activityType: 'exercise',
-    activityId: 'ex-mod8-les1',
-    content: `
-## Deep Research and Analysis Tools
-
-Regular AI chat is great for quick questions, but some work problems need **sustained, multi-step reasoning** — reading hundreds of pages, weighing tradeoffs, synthesizing across sources. Two tools step up for that: **ChatGPT Deep Research** and **Claude Cowork**.
-
-### ChatGPT Deep Research
-
-Deep Research is ChatGPT's "send it off and come back in 10 minutes" mode. Instead of answering immediately from the model's memory, it browses the open web, reads through dozens of sources, and produces a long, cited report.
-
-**Best for:**
-- "Survey the market for autonomous survey vessels under 30 ft and tell me which 3 vendors are realistic for a Cashman pilot."
-- "Find every recent OSHA citation involving steam-blow operations and pull the contributing factors."
-- "Summarize the last five years of NOAA dredging window guidance for the Northeast Atlantic, with citations."
-- "Compare three equipment rental vendors for a 6-month Dipper dredge job. Pull rate cards, terms, and recent reviews."
-
-**What you give up:** Deep Research can't see your Cashman documents — it's web-only. So it's perfect for **outside-in research** (vendors, regulations, public projects, market data) but not for "analyze our internal contract."
-
-**The bulletin-board rule still applies:** anything you put in the prompt goes out to the cloud. Don't paste internal pricing, client names, or sensitive scope.
-
-### Claude Cowork
-
-Cowork is the on-premise option for the same kind of deep work, but it can hold a long, structured conversation against documents you upload directly. It's better than Deep Research when:
-
-- You need to **iterate** — push back on the analysis, ask for revisions, drill into a specific section.
-- You're working on **internal data** — contracts, RFPs, project files that shouldn't go to the public web.
-- The work is **synthesis, not research** — pulling threads across files you already have, not finding new sources.
-
-**Cowork excels at:**
-- Evaluating a 100-page subcontract for risk clauses across schedule, payment, and indemnity.
-- Comparing three project delivery methods for a specific scope, given the cost, risk, and schedule constraints you provide.
-- Identifying gaps and inconsistencies in a draft proposal before it goes out the door.
-
-### Picking Between Them
-
-| Question | Tool |
-|---|---|
-| Is the answer mostly outside Cashman? (vendors, regs, market) | **Deep Research** |
-| Is the answer mostly inside Cashman? (our contracts, our docs) | **Cowork** |
-| Do I want a one-shot report I can read? | **Deep Research** |
-| Do I want to argue with the model and refine? | **Cowork** |
-
-You'll use both. Most real questions have an outside-in piece and an inside-out piece — start with Deep Research to map the landscape, then bring the findings into Cowork to apply them to your project.
-
-### The Task
-
-Think of a complex work question that would benefit from deep analysis. Examples:
-
-- "What are the pros and cons of using cofferdams vs. sheet pile for this waterfront project?"
-- "Survey the market for AI-assisted dispatch tools for marine construction and tell me what to actually pilot."
-- "Analyze the risk factors in this contract's liquidated damages clause."
-
-Your job:
-1. **Pick Deep Research or Cowork** based on the table above. State which and why.
-2. **Write a detailed prompt** for the task — be specific about format, sources, and the decision the report needs to support.
-3. **Run it** in Deep Research, Cowork, or (fallback) the Cashman AI Portal chat and paste the response.
-4. **Note what was helpful, what surprised you, and what you'd need to verify** before acting on it.
-
-> **Key Takeaway:** Deep Research is your outside-in analyst — web-only, one-shot, cited reports. Cowork is your inside-out partner — internal data, iterative, conversational. Match the tool to where the truth lives.
-`,
-  },
-  {
-    id: 'mod-8-les-2',
-    title: 'Claude Code for Technical Users',
-    estimatedMinutes: 4,
-    order: 2,
-    activityType: 'exercise',
-    activityId: 'ex-mod8-les2',
-    content: `
-## Claude Code for Technical Users
-
-For people comfortable with technical tools, Claude Code can automate repetitive tasks, write scripts, and build small utilities.
-
-### What Claude Code Can Do
-
-- **Automate file processing** -- rename, organize, or transform batches of files
-- **Write data scripts** -- parse CSV files, generate reports, clean up databases
-- **Create simple tools** -- build a quick calculator, a data converter, or a formatting utility
-- **Debug and troubleshoot** -- explain error messages, suggest fixes, trace problems
-
-### Who Should Use It
-
-Claude Code is for people who are:
-- Comfortable with command-line tools
-- Familiar with basic scripting (Python, Excel VBA, or similar)
-- Interested in automating repetitive tasks
-
-If that's not you, that's fine -- the other tools (Cashman AI Portal, Copilot, Claude Cowork) cover the vast majority of use cases.
-
-### The Task
-
-If you're a technical user:
-1. **Think of a repetitive task** you do that could be automated
-2. **Describe it to Claude Code** and ask it to write a script or solution
-3. **Paste the description and solution** into the exercise below
-
-If you're not a technical user:
-1. **Describe a task** that takes you a lot of time because it involves repetitive steps
-2. **Ask the Cashman AI Portal:** "Could this task be automated? How?"
-3. **Paste the response** into the exercise below
-
-> **Key Takeaway:** Claude Code automates technical tasks for power users. Even non-technical users can identify automation opportunities.
-`,
-  },
-  {
-    id: 'mod-8-les-3',
     title: 'Building Your AI Workflow',
     estimatedMinutes: 5,
     order: 3,
     activityType: 'survey',
-    activityId: 'survey-mod8-les3',
+    activityId: 'survey-mod6-les3',
     content: `
 ## Building Your Personal AI Workflow
 
@@ -1071,6 +959,7 @@ The survey below asks you to reflect on what you've learned and how you plan to 
 `,
   },
 ];
+
 
 // ==========================================================================
 // Bonus Module: AI Lunch and Learn
@@ -1184,25 +1073,14 @@ export const MODULES: Module[] = [
   },
   {
     id: 'mod-6',
-    title: 'Document Processing and Search',
-    description: 'Search company documents with AI, analyze uploaded files, and extract structured data from specs.',
+    title: 'Document Processing and Research',
+    description: 'Search company documents with AI, run end-to-end deep research (ChatGPT/Claude Deep Research → Notebook LM summary → AI-built slides), and reflect on the AI workflow you\'ll bring back to your job.',
     instructor: 'Wes',
-    estimatedMinutes: 15,
+    estimatedMinutes: 18,
     order: 6,
     icon: 'Search',
     videoUrl: '',
     lessons: mod6Lessons,
-  },
-  {
-    id: 'mod-8',
-    title: 'Power User Tools',
-    description: 'ChatGPT Deep Research and Claude Cowork for deep analysis, Claude Code for automation, and building your personal AI workflow.',
-    instructor: 'Peter',
-    estimatedMinutes: 14,
-    order: 7,
-    icon: 'Rocket',
-    videoUrl: '',
-    lessons: mod8Lessons,
   },
   {
     id: 'mod-bonus-lunch-learn',
@@ -1268,8 +1146,8 @@ export const QUIZZES: Quiz[] = [
   // Final assessment
   {
     id: 'quiz-final',
-    moduleId: 'mod-8',
-    lessonId: 'mod-8-les-3',
+    moduleId: 'mod-6',
+    lessonId: 'mod-6-les-3',
     title: 'Cashman AI Training - Final Assessment',
     questions: [
       {

@@ -1131,315 +1131,77 @@ When a differing site condition is encountered, the field team should:
     id: 'ex-mod6-les2',
     moduleId: 'mod-6',
     lessonId: 'mod-6-les-2',
-    title: 'Analyze a Document',
+    title: 'Run the Deep Research → Notebook LM → Slides Pipeline',
     variant: 'paste-back',
     instructions:
-      'Upload a non-sensitive document to the Cashman AI Portal (or paste a section into AI). Ask three questions: key requirements, deadlines, and potential risks. Paste the AI\'s answers below.',
+      'Pick a real research question relevant to your work and run the full three-tool pipeline. Below, paste: (1) the Deep Research prompt + tool you used, (2) one insight Notebook LM surfaced that the raw report didn\'t, (3) your final 10-slide outline (markdown or bulleted), and (4) one thing you would verify before sharing the deck.',
     scenario:
-      'The user should analyze a document and demonstrate the ability to ask targeted questions. Any document type is acceptable as long as the questions are substantive.',
+      'The user runs an end-to-end research pipeline. Step 1: ChatGPT or Claude Deep Research produces a long cited report. Step 2: Google Notebook LM ingests the report (and optionally other PDFs) and generates a briefing / FAQ / study guide / audio overview. Step 3: Claude or ChatGPT (or Copilot in PowerPoint) drafts a 10-slide deck from the synthesis. Good submissions show all three steps with their actual prompts and outputs.',
     hints: [
-      'Use the **Requirements · Deadlines · Risks** pattern. It works on virtually any document.',
-      'Be specific in your questions — "What environmental permits are required and when must they be obtained?" beats "summarize this."',
-      'For long documents, watch for the **lost-in-the-middle** effect. Always end with: "Is there anything else I should know?"',
-      'Ask follow-ups when AI is vague. "You mentioned a 30-day notice — where exactly in the document is that?"',
-      'Any sensitive document goes to the Cashman AI Portal, not a public AI tool. That\'s non-negotiable.',
+      'Pick a research question that maps to a real decision — vendor scan, regulation update, market intelligence. Toy questions get toy reports.',
+      'In the Deep Research prompt, name the *audience* and the *decision* the report supports. That focuses every step downstream.',
+      'When loading Notebook LM, add 1-2 *additional* sources beyond the Deep Research output — your own meeting notes, a vendor data sheet, a relevant spec. Cross-source synthesis is where Notebook LM shines.',
+      'Try the Audio Overview at least once. It\'s a 10-minute podcast on the source material; you\'ll hear connections the written summary misses.',
+      'For the slides, prompt with a structure: "Slide 1 context, slides 2-4 vendor profiles, slide 5 scoring matrix, slide 6 risks, slide 7 recommendation." Vague prompts get filler slides.',
+      'Before sharing externally, spot-check at least 2 cited claims against the original sources. Deep Research occasionally fabricates a citation that *looks* real.',
     ],
     goodExamples: [
       {
-        title: 'Example — Three substantive questions and answers',
-        body: `**Document:** [Public sample marine construction safety plan]
+        title: 'Example — Vendor-scan pipeline with explicit verification',
+        body: `**Step 1 — Deep Research prompt (ChatGPT Deep Research):**
 
----
+> "I need to recommend three vendors of autonomous shallow-water survey vessels (ASVs) under 30 ft for a Cashman pilot in 2026. The audience is a marine project executive — skip the basics. Cover: market leaders, realistic price ranges, support footprint in the Northeast US, training requirements, integration with our existing survey workflow (Hypack, QPS), and recent client references. Prioritize OEM spec sheets and peer-reviewed studies. Avoid blog posts and marketing fluff. Output: markdown with executive summary (5 bullets), three recommended vendors with profiles, a scoring matrix, risks, and a citations list."
 
-**Q1: What are the key requirements in this document?**
+Result: 18-page report, 34 sources cited, ~12 minutes runtime.
 
-The document establishes the following requirements for the contractor:
-- Submit a site-specific safety plan within 14 calendar days of notice to proceed.
-- Designate a qualified Site Safety and Health Officer (SSHO) on-site at all times.
-- Conduct daily safety briefings before work begins each shift.
-- Maintain a fall protection program for all over-water work — 100% tie-off above 6 feet.
-- Provide rescue boat and trained crew during all over-water operations.
-- All crane operators must hold current NCCCO certification.
-- Conduct quarterly internal safety audits and provide written results to the Owner.
+**Step 2 — Notebook LM:**
 
----
+Loaded the Deep Research markdown + two of our internal vendor evaluation reports from past projects (PDFs). Generated:
 
-**Q2: Are there any deadlines or time-sensitive items?**
+- **Briefing doc** — 3-page exec summary I'll use as the appendix in the deck.
+- **Audio Overview** — 11-minute podcast. *Insight that wasn't in the raw report:* one of the recommended vendors (Sea Machines) has had two recent leadership departures that aren't in the OEM material — Notebook LM cross-referenced industry news. This changes the recommendation.
 
-| Item | Timing |
-|---|---|
-| Submit site-specific safety plan | 14 days after NTP |
-| Submit operator certifications | Prior to mobilization |
-| Quarterly safety audit reports | Within 5 business days of audit |
-| Incident notification to Owner | Within 1 hour of any recordable |
-| Monthly safety statistics | First Friday of each month |
+**Step 3 — Slide outline (Claude → markdown → PowerPoint):**
 
----
+> Prompted Claude: "Turn this Notebook LM briefing into a 10-slide deck for a Cashman project executive. 8-word headlines, 3 bullets each, speaker notes."
 
-**Q3: What are the potential risks or issues mentioned?**
+\`\`\`
+# Slide 1 — ASV pilot: why now
+- Hydrographic surveys are 35% of dredge prep cost
+- Manned surveys: 1 day per acre. ASV: 4 hours.
+- Two competitors piloted in 2025 — neither at our scale
 
-- **Compliance risk** — Multiple submittal deadlines (within 14 days, before mobilization, within 1 hour of incident). Missing any of these creates a contract breach.
-- **Operational risk** — Rescue boat is required to be staffed during all over-water work. If the boat or crew is unavailable, ALL over-water work must stop.
-- **Personnel risk** — NCCCO certification can lapse without notice; recommend tracking certification expiration dates centrally.
-- **Reporting risk** — The 1-hour incident notification is aggressive. Establish a clear chain of command for after-hours incidents.
-- **Audit risk** — Quarterly internal audits with results reported to the Owner means findings are visible. Recommend pre-audit walks to surface and fix issues before formal audits.
+# Slide 2 — The three contenders
+- Sea Machines (largest install base; recent leadership churn)
+- L3Harris (premium price, strongest gov references)
+- iXblue DriX (best autonomy stack, smallest US footprint)
 
-**Final check — anything else I should know?**
+[... slides 3-9 ...]
 
-- Yes: §7.4 specifies that subcontractors are required to comply with the same safety plan, but the prime contractor remains accountable for violations. Worth flagging in subcontract language.`,
-        note: 'Each answer is structured (lists, tables) and substantive. The "final check" question caught something genuinely useful (subcontractor flow-down liability) that AI hadn\'t volunteered. That\'s the lost-in-the-middle defense in action.',
+# Slide 10 — The ask
+- $480K capex for one DriX unit + 2 weeks training
+- Pilot scope: New Bedford channel maint, Q2 2026
+- Decision needed by Feb 15 to lock 2026 surveys
+\`\`\`
+
+**Time spent:** ~50 minutes total — 12 min for Deep Research, 5 min in Notebook LM (audio runs in background), 25 min iterating slides, 10 min verifying citations.
+
+**One thing I'd verify before sharing:**
+
+The Sea Machines pricing in the report ($340K base unit). Deep Research cited a 2024 industry article. I'd confirm directly with the OEM before putting that number on a slide an exec might quote at a vendor.`,
+        note: 'Hits all four parts of the rubric. The Notebook LM audio-overview catch (leadership departures) is a real "earned" insight — it changed the recommendation. The verification step on the price is exactly the kind of catch that prevents a bad pull-quote in an exec meeting.',
       },
     ],
     evaluationRubric: {
       criteria: [
-        'Shows responses to at least two of the three requested question types (requirements, deadlines, risks)',
-        'The AI responses are substantive and reference specific content',
-        'The answers demonstrate real document analysis, not generic responses',
-      ],
-      passingScore: 2,
-      systemPrompt:
-        'You are evaluating a document analysis exercise. The user uploaded or pasted a document into AI and asked about requirements, deadlines, and risks. Evaluate whether the responses demonstrate genuine document analysis.',
-    },
-  },
-  {
-    id: 'ex-mod6-les3',
-    moduleId: 'mod-6',
-    lessonId: 'mod-6-les-3',
-    title: 'Extract Structured Data from a Spec',
-    variant: 'paste-back',
-    instructions:
-      'Paste the specification paragraph from the lesson into the Cashman AI Portal. Ask AI to extract all requirements into a table with columns: Requirement, Category, Deadline, Priority. Paste the table below.',
-    scenario:
-      'The spec paragraph contains multiple requirements: safety plan (14 days), NCCCO certification, turbidity monitoring (daily, 24-hr reporting), spill prevention plan, AWS D1.5 welders, material submittals (60 days prior), 10-day look-ahead (weekly), night work prohibition, PE-designed cofferdams.',
-    hints: [
-      'Use the **Source · Fields · Structure** pattern in your prompt. Tell AI exactly the columns you want.',
-      'Count the requirements yourself in the source. If the source has 9 and AI extracts 7, ask "Did you miss any?"',
-      'Categorize for *your* downstream work (Safety, Environmental, Submittals, Schedule, Qualifications). Use the labels your team already uses.',
-      'Capture every deadline AI finds — and add "as needed" or "at all times" for ongoing requirements (no fixed date but always required).',
-      'Set priority based on consequence of missing it. A 1-hour incident notification is High; a weekly look-ahead is Medium.',
-    ],
-    goodExamples: [
-      {
-        title: 'Example — Comprehensive requirements table',
-        body: `**Extracted requirements:**
-
-| # | Requirement | Category | Deadline | Priority |
-|---|---|---|---|---|
-| 1 | Submit site-specific safety plan | Submittal — Safety | Within 14 days of NTP | High |
-| 2 | Crane operators hold current NCCCO certification | Qualifications | Prior to mobilization | High |
-| 3 | Daily turbidity measurements at 3 stations (upstream, downstream, work area) | Environmental | Daily, ongoing | High |
-| 4 | Turbidity results reported to COR | Reporting — Environmental | Within 24 hrs of measurement | High |
-| 5 | Maintain spill prevention plan on-site | Environmental | At all times | High |
-| 6 | Structural steel welding by AWS D1.5 certified welders | Qualifications | Prior to welding | Medium |
-| 7 | Sheet pile material submittals | Submittal — Procurement | At least 60 days prior to driving date | High |
-| 8 | 10-day look-ahead schedule | Reporting — Schedule | Updated weekly | Medium |
-| 9 | Night work requires written approval from Contracting Officer | Schedule / Operations | Before any night shift | Medium |
-| 10 | Temporary cofferdams designed by licensed Professional Engineer | Engineering | Prior to construction | High |
-
-**Verification (count check):**
-Source paragraph contains 9 distinct requirements. The table above has 10 rows because I split the turbidity requirement (item 3) and its 24-hour reporting requirement (item 4) into separate rows — they're different obligations with different deadlines.
-
-**Categories used:** Submittal, Qualifications, Environmental, Reporting, Schedule, Engineering. These align with how our team already tracks compliance.
-
-**Items I\'d normally add to a tracking system:**
-- For each row: a responsible party, an internal due date (typically earlier than the contractual one), and a status field.`,
-        note: 'Captures all 9 requirements (10 rows because of a smart split), uses team-aligned categories, makes the priority defensible, and ends with a note about how to operationalize the table — which is the actual value of doing this exercise.',
-      },
-    ],
-    evaluationRubric: {
-      criteria: [
-        'Extracts at least 6 of the 9 distinct requirements from the spec paragraph',
-        'Presents data in a table format (or clearly structured list)',
-        'Categories are logical (Safety, Environmental, Qualifications, Submittals, Schedule, etc.)',
-        'Deadlines are captured where mentioned (14 days, 24 hours, 60 days, weekly)',
+        'Includes the actual Deep Research prompt and names the tool used (ChatGPT or Claude)',
+        'Names a specific Notebook LM Studio output (briefing / FAQ / study guide / audio overview) and an insight surfaced by the synthesis step',
+        'Shows the slide outline as actual headlines + bullets (not a high-level summary of "I built slides")',
+        'Identifies at least one specific verification needed before external sharing',
       ],
       passingScore: 3,
       systemPrompt:
-        'You are evaluating a data extraction exercise. The user was given a dense specification paragraph with 9 requirements and asked to extract them into a structured table. Evaluate completeness, accuracy, and organization.',
-    },
-  },
-
-  // ---- Module 8: Power User Tools ----
-  {
-    id: 'ex-mod8-les1',
-    moduleId: 'mod-8',
-    lessonId: 'mod-8-les-1',
-    title: 'Deep Analysis Task',
-    variant: 'paste-back',
-    instructions:
-      'Write a detailed prompt for a complex analysis task relevant to your work. Run it in Claude Cowork or the Cashman AI Portal. Paste the prompt, the response, and your notes on what was helpful and what you\'d need to verify.',
-    scenario:
-      'The user should tackle a genuinely complex analysis question -- not a simple lookup but something requiring multi-step reasoning, comparison, or evaluation.',
-    hints: [
-      'Pick a question that genuinely requires *thinking*, not just lookup. "Compare three project delivery methods for X" beats "What\'s a CMAR contract?"',
-      'Use the **Frame · Provide · Structure · Iterate** workflow. Frame the question, drop in the source material, ask for structured analysis, refine.',
-      'Tell AI exactly what a good answer looks like — "for each option, give me a risk rating, a cost impact, and a schedule impact."',
-      'For company data, use the Cashman AI Portal — Cowork is for analysis where the *thinking* is the value, not for sensitive data.',
-      'After you get the answer, identify at least one specific thing you\'d need to verify before acting. AI looks polished even when it\'s wrong.',
-    ],
-    goodExamples: [
-      {
-        title: 'Example — Complex risk analysis with explicit verification needs',
-        body: `**Prompt I used:**
-
-"You are a senior contracts analyst. Analyze the attached liquidated damages clause from a USACE marine construction contract. For each of the following scenarios, walk through how the clause would apply, identify any ambiguities, and assess the contractor\'s exposure:
-
-1. A 2-week schedule slip caused by an undisclosed differing site condition.
-2. A 4-week schedule slip caused entirely by abnormal weather (Cat 1 hurricane shutdown).
-3. A 3-week schedule slip with mixed causes — 1 week weather, 1 week supplier delay, 1 week unattributed.
-
-For each scenario, provide:
-- How the clause text applies (quote relevant language)
-- Whether you believe the contractor has a defensible position to seek excusable delay treatment
-- The likely range of LD exposure if no relief is granted
-- Specific clauses or precedents you\'d cite to support a request for relief
-- One thing I\'d need to verify with our legal team before relying on your analysis
-
-Tone: cautious. If the clause language is ambiguous, say so explicitly."
-
-**Response from Cowork:**
-
-[2,400-word structured analysis covering all three scenarios with quoted clause language, position assessment, exposure ranges, supporting precedents, and explicit verification needs.]
-
-**What was helpful:**
-- The structured walk-through forced AI to engage with each scenario individually rather than producing a generic "it depends" answer.
-- The "one thing to verify with legal" prompt produced a specific list of verification items: confirming the precise differing site condition language, the abnormal-weather threshold definition, and the FAR clause numbering.
-- The cautious tone instruction kept AI from overstating contractor positions.
-
-**What I\'d need to verify before relying on this:**
-1. **Clause language quotations** — AI quoted four passages from the contract. Two I verified word-for-word against the contract; one had a slight paraphrase; one I couldn\'t find at all. The unfound quote is a hallucination — I\'d strike that argument from anything I cite externally.
-2. **Cited FAR numbers** — AI referenced FAR 52.249-10 and a "FAR 52.236-2." The first is real; the second I\'d confirm with legal before relying on it.
-3. **Precedent cases** — AI mentioned two case names. Without independent confirmation in a legal database, I\'d treat both as potentially fabricated.
-4. **Exposure dollar ranges** — these are based on AI\'s interpretation of the LD rate. Need to confirm the rate against the contract schedule.
-
-**Verdict:** Useful as a *first pass* to structure the legal team\'s review. Not safe to send to a client or PM as-is.`,
-        note: 'Genuinely complex analysis. The verification section is the gold — AI quoted a passage that wasn\'t in the source. That\'s the kind of catch that prevents an embarrassing or career-damaging mistake. The "first pass, not final" framing at the end is exactly the right level of trust to extend to AI legal analysis.',
-      },
-    ],
-    evaluationRubric: {
-      criteria: [
-        'The prompt describes a genuinely complex analysis task (not a simple question)',
-        'Includes the AI\'s response',
-        'Notes what was helpful about the response',
-        'Identifies at least one thing that would need verification',
-      ],
-      passingScore: 3,
-      systemPrompt:
-        'You are evaluating a complex analysis exercise. The user was asked to run a deep analysis task using AI and reflect on the results. Evaluate whether the task was genuinely complex, whether the user engaged critically with the output, and whether they identified verification needs.',
-    },
-  },
-  {
-    id: 'ex-mod8-les2',
-    moduleId: 'mod-8',
-    lessonId: 'mod-8-les-2',
-    title: 'Automation Opportunity',
-    variant: 'paste-back',
-    instructions:
-      'Describe a repetitive task from your work. If you\'re technical, ask Claude Code to write a script. If not, ask AI whether the task could be automated and how. Paste the description and AI\'s response below.',
-    scenario:
-      'The user identifies a repetitive workflow and explores automation potential -- either with a concrete script or a conceptual automation plan.',
-    hints: [
-      'Pick a task you actually do every week or every project. The more repetitive, the bigger the ROI.',
-      'Describe the task in detail — current steps, time per occurrence, frequency, edge cases. Vague descriptions get vague automation plans.',
-      'Apply the **Automation ROI** test: frequency × duration × reliability needed. A 30-second monthly task isn\'t worth automating; a 30-minute weekly task usually is.',
-      'If you\'re not technical, that\'s fine — frame it as "could this be automated, and what would it take?" That\'s actionable for IT.',
-      'Always include logging/monitoring in the automation plan. Automation runs unattended; logs are how you catch problems.',
-    ],
-    goodExamples: [
-      {
-        title: 'Example 1 — Non-technical user describes the opportunity',
-        body: `**The repetitive task I do:**
-
-Every Monday morning I gather data for our weekly project status report. The current process:
-
-1. Open 8 separate project spreadsheets in OneDrive (~15 min — slow file opens).
-2. From each, copy four numbers: % complete, $ spent, # open RFIs, # safety incidents this week.
-3. Paste them into a master tracking spreadsheet (~10 min, including reformatting).
-4. Build a summary chart in PowerPoint (~15 min).
-5. Email the result to leadership.
-
-Total time: ~45 minutes per week. I do this 50 weeks a year — that\'s about 37 hours annually.
-
-**My question to AI:**
-"Could this task be automated? If so, walk me through what it would take and who I\'d need to involve."
-
-**AI\'s response:**
-
-Yes, this is a great automation candidate. Three viable approaches, in order of effort:
-
-**Option 1 — Power Query in Excel (low effort)**
-- Use Power Query to pull each project spreadsheet automatically into the master tracker.
-- One-time setup with IT (~2 hours).
-- Refresh becomes a single click each Monday.
-- Estimated savings: 25 minutes/week, retains the manual steps for chart-building and email.
-
-**Option 2 — Power Automate flow (medium effort)**
-- Schedule a Power Automate flow that runs every Monday at 7am.
-- Flow opens each spreadsheet, extracts the 4 metrics, writes them to the master tracker.
-- Auto-generates the summary chart with the latest data.
-- Sends a draft email to leadership for your review (always keep a human in the loop on the send).
-- Setup: 4–8 hours with IT support.
-- Estimated savings: 35 minutes/week — leaves you only the final review and send.
-
-**Option 3 — Centralize source-of-truth (high effort)**
-- Move project tracking out of separate spreadsheets and into a centralized system (Power BI, the Cashman AI Portal, or a project database).
-- Eliminates the "open 8 files" problem at its root.
-- Largest upfront cost, biggest long-term payoff.
-
-**Recommendation:**
-Start with Option 1. If it works, you\'re saving ~21 hours/year for 2 hours of setup. If you outgrow it (more projects, more metrics), upgrade to Option 2.
-
-**Who to involve:**
-- IT for any Power Automate work (account setup, permissions on shared folders).
-- Your manager, briefly, to confirm the leadership recipient list and any tweaks to the format.
-
-**One caution:**
-Add a manual review step before the email goes to leadership. Automated reports that contain wrong numbers go out fast and are hard to recall. Always keep a human review gate on outbound communication.`,
-        note: 'Non-technical user, but the description is specific enough (8 spreadsheets, 4 fields, ~45 min, 50 weeks) that AI can give a real, tiered automation plan with realistic time estimates and a sensible "where to start" recommendation. The closing caution about a human review gate on outbound automation is essential — that\'s the kind of judgment AI sometimes leaves out.',
-      },
-      {
-        title: 'Example 2 — Technical user, concrete script',
-        body: `**The task I want to automate:**
-
-Every two weeks, I rename and re-organize ~50 daily field report PDFs that come in from various superintendents. The current chaos: filenames look like "DailyReport.pdf," "DR jan15.PDF," "Field Report 1-15-26.pdf," etc. I rename them to a consistent format (\`YYYY-MM-DD_<project>_<superintendent>.pdf\`) and move them into project-specific subfolders.
-
-**My request to Claude Code:**
-"Write a Python script that scans a folder for PDFs, opens each one, extracts the date and superintendent name from page 1 of the PDF (consistent template across all reports), renames the file to \`YYYY-MM-DD_<project>_<superintendent>.pdf\`, and moves it to a project-specific subfolder. The project name is on the cover page in the format 'Project: <name>'. Include logging so I can see what got renamed and what didn\'t. Skip files that don\'t match the expected template and write them to a 'review' subfolder."
-
-**Script Claude Code generated:**
-
-[Full Python script using pdfplumber to extract text from page 1, regex to pull date / project / superintendent fields, pathlib for safe file moves, structured logging to a CSV that records source filename, target filename, status, and any error message.]
-
-**Edge cases I made sure the script handles:**
-- PDFs that don\'t match the template → moved to 'review' subfolder, logged with reason.
-- Filename collisions (two files with the same target name) → second file gets a \`_2\` suffix and a warning is logged.
-- Read-only or locked PDFs → caught and logged, file is skipped (not moved or renamed).
-
-**Logging output (CSV):**
-| source | target | status | notes |
-|---|---|---|---|
-| DailyReport.pdf | 2026-01-15_GalvWharf_JTalbot.pdf | OK | |
-| DR jan15.PDF | (review subfolder) | SKIP | template not matched |
-| ... | ... | ... | ... |
-
-**What I verified:**
-- Ran the script against a copy of the folder first (NEVER the original).
-- Spot-checked 5 random renamed files to confirm the date and superintendent matched the PDF cover page.
-- Confirmed the 'review' subfolder caught the 3 oddballs (which were old templates pre-2025).
-
-Time savings: roughly 20 minutes every two weeks.`,
-        note: 'Technical example. Notice the discipline: ran against a copy first, spot-checked the output, structured logging built in. Automation that runs unattended needs logs — without them you can\'t catch silent failures. The "ran against a copy first" line is non-negotiable for any file-mutating script.',
-      },
-    ],
-    evaluationRubric: {
-      criteria: [
-        'Describes a specific, real repetitive task from their work',
-        'Includes AI\'s response about automation potential or a script',
-        'The automation suggestion is practical and relevant to the described task',
-      ],
-      passingScore: 2,
-      systemPrompt:
-        'You are evaluating an automation exploration exercise. The user described a repetitive work task and asked AI about automating it. Evaluate whether the task description is specific and whether the automation suggestion is practical.',
+        'You are evaluating an end-to-end Deep Research → Notebook LM → Slides pipeline. The user picked a real research question and ran all three tools. Reward submissions that show concrete output at each step (verbatim prompt, named Notebook LM output with one insight, an actual slide outline) and that call out at least one verification step. Penalize submissions that skip a step or describe the tools generically without showing what was produced.',
     },
   },
 ];
@@ -1553,9 +1315,9 @@ export const GAMES: Game[] = [
 
 export const SURVEYS: Survey[] = [
   {
-    id: 'survey-mod8-les3',
-    moduleId: 'mod-8',
-    lessonId: 'mod-8-les-3',
+    id: 'survey-mod6-les3',
+    moduleId: 'mod-6',
+    lessonId: 'mod-6-les-3',
     title: 'Course Completion & Your AI Plan',
     questions: [
       {

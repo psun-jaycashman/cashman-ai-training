@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Shield,
   ClipboardList,
+  Download,
 } from 'lucide-react';
 import type { AdminUserProgress } from '@/lib/types';
 import { isAdminRole } from '@/lib/admin-roles';
@@ -378,6 +379,15 @@ export default function AdminPage() {
           <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">
             {surveyResponses.length} {surveyResponses.length === 1 ? 'response' : 'responses'}
           </span>
+          {surveyResponses.length > 0 && (
+            <a
+              href={`${basePath}/api/admin/surveys/export`}
+              className="ml-3 inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Export to Excel
+            </a>
+          )}
         </div>
         {surveyResponses.length === 0 ? (
           <div className="text-center py-12 text-gray-500 dark:text-gray-400 text-sm">

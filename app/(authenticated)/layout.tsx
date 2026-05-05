@@ -28,15 +28,22 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
   const pathname = usePathname();
 
   // Stamp the user into the leaderboard roster so peers can see them by
-  // name — fire-and-forget, idempotent. Failure is silent; the leaderboard
-  // falls back to visitorId for users without a profile row yet.
+  // name — fire-and-forget, idempotent. We pass the email/displayName from
+  // useSession() because the data-api token doesn't always carry an email
+  // claim, so token-only extraction on the server can leave the row blank.
+  // Failure is silent; the UI falls back to visitorId for unknown users.
   useEffect(() => {
     if (!isAuthenticated) return;
     fetch(`${apiBasePath}/api/users/me`, {
       method: 'POST',
       credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: user?.email ?? undefined,
+        displayName: user?.displayName ?? undefined,
+      }),
     }).catch(() => { /* non-fatal */ });
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user?.email, user?.displayName]);
 
   const isAdmin = isAdminRole(user?.roles);
   const navItems = isAdmin

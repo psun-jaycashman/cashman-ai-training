@@ -119,10 +119,8 @@ export async function POST(request: NextRequest) {
       await tryAward("search-pro");
     }
 
-    // power-user: all Module 8 lessons completed
-    if (isModuleComplete("mod-8")) {
-      await tryAward("power-user");
-    }
+    // (power-user badge: Module 8 was merged into Module 6, so the badge
+    // no longer has a separate trigger — search-pro covers the same scope.)
 
     // perfect-score: any quiz with 100%
     const hasPerfect = quizScores.some((s) => s.score === s.maxScore && s.maxScore > 0);

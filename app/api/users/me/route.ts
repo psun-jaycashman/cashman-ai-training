@@ -10,20 +10,41 @@ export const runtime = 'nodejs';
  * POST /api/users/me
  *
  * Idempotent. Stamps the calling user into the ai-training-users
- * document so the leaderboard can show every active user (with a real
- * display name) instead of only those who have completed a lesson.
+ * document so the leaderboard / admin view can show every active user
+ * with a real display name instead of only those who have completed a
+ * lesson.
  *
- * Called once on mount from the (authenticated) layout — no body needed,
- * everything we record is derived from the session token.
+ * Called from the (authenticated) layout on mount. Accepts optional
+ * `{ email, displayName }` in the body — the data-api token does not
+ * always carry an email claim, so we use the client-supplied values
+ * (which come from useSession()) as a fallback. The visitorId is
+ * always taken from the verified token, never from the body.
  */
 export async function POST(request: NextRequest) {
   const auth = await requireAuthWithTokenExchange(request, 'data-api');
   if (auth instanceof NextResponse) return auth;
 
-  const email = getUserEmailFromToken(auth.apiToken)
+  let bodyEmail: string | undefined;
+  let bodyDisplayName: string | undefined;
+  try {
+    const body = await request.json().catch(() => ({}));
+    if (typeof body?.email === 'string' && body.email.trim()) {
+      bodyEmail = body.email.trim();
+    }
+    if (typeof body?.displayName === 'string' && body.displayName.trim()) {
+      bodyDisplayName = body.displayName.trim();
+    }
+  } catch {
+    // Body is optional; ignore malformed JSON.
+  }
+
+  const tokenEmail = getUserEmailFromToken(auth.apiToken)
     ?? (auth.ssoToken ? getUserEmailFromToken(auth.ssoToken) : null)
-    ?? undefined;
-  const displayName = displayNameFromEmail(email) ?? undefined;
+    ?? null;
+
+  const email = tokenEmail ?? bodyEmail;
+  const displayName =
+    bodyDisplayName ?? displayNameFromEmail(email) ?? undefined;
 
   const ids = await ensureDataDocuments(auth.apiToken);
   const profile = await upsertTrainingUser(auth.apiToken, ids.trainingUsers, {
