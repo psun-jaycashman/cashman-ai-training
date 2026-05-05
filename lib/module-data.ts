@@ -933,40 +933,69 @@ Your table should capture every discrete requirement, categorize them logically 
 const mod8Lessons: Lesson[] = [
   {
     id: 'mod-8-les-1',
-    title: 'Claude Cowork for Research and Analysis',
-    estimatedMinutes: 5,
+    title: 'Deep Research and Analysis Tools',
+    estimatedMinutes: 7,
     order: 1,
     activityType: 'exercise',
     activityId: 'ex-mod8-les1',
     content: `
-## Claude Cowork for Research and Analysis
+## Deep Research and Analysis Tools
 
-Claude Cowork is a power user tool for tasks that require sustained, deep reasoning -- complex research, multi-step analysis, and detailed problem-solving.
+Regular AI chat is great for quick questions, but some work problems need **sustained, multi-step reasoning** — reading hundreds of pages, weighing tradeoffs, synthesizing across sources. Two tools step up for that: **ChatGPT Deep Research** and **Claude Cowork**.
 
-### What Makes It Different
+### ChatGPT Deep Research
 
-While regular AI chat is great for quick questions, Claude Cowork excels at:
+Deep Research is ChatGPT's "send it off and come back in 10 minutes" mode. Instead of answering immediately from the model's memory, it browses the open web, reads through dozens of sources, and produces a long, cited report.
 
-- **Long, complex analysis** -- evaluating a 100-page contract for risk clauses
-- **Multi-step reasoning** -- "Compare three different project delivery methods for this scope and recommend one based on risk, cost, and schedule factors"
-- **Research synthesis** -- gathering information from multiple sources and producing a coherent analysis
-- **Critical thinking** -- identifying gaps, inconsistencies, and potential issues in plans or proposals
+**Best for:**
+- "Survey the market for autonomous survey vessels under 30 ft and tell me which 3 vendors are realistic for a Cashman pilot."
+- "Find every recent OSHA citation involving steam-blow operations and pull the contributing factors."
+- "Summarize the last five years of NOAA dredging window guidance for the Northeast Atlantic, with citations."
+- "Compare three equipment rental vendors for a 6-month Dipper dredge job. Pull rate cards, terms, and recent reviews."
+
+**What you give up:** Deep Research can't see your Cashman documents — it's web-only. So it's perfect for **outside-in research** (vendors, regulations, public projects, market data) but not for "analyze our internal contract."
+
+**The bulletin-board rule still applies:** anything you put in the prompt goes out to the cloud. Don't paste internal pricing, client names, or sensitive scope.
+
+### Claude Cowork
+
+Cowork is the on-premise option for the same kind of deep work, but it can hold a long, structured conversation against documents you upload directly. It's better than Deep Research when:
+
+- You need to **iterate** — push back on the analysis, ask for revisions, drill into a specific section.
+- You're working on **internal data** — contracts, RFPs, project files that shouldn't go to the public web.
+- The work is **synthesis, not research** — pulling threads across files you already have, not finding new sources.
+
+**Cowork excels at:**
+- Evaluating a 100-page subcontract for risk clauses across schedule, payment, and indemnity.
+- Comparing three project delivery methods for a specific scope, given the cost, risk, and schedule constraints you provide.
+- Identifying gaps and inconsistencies in a draft proposal before it goes out the door.
+
+### Picking Between Them
+
+| Question | Tool |
+|---|---|
+| Is the answer mostly outside Cashman? (vendors, regs, market) | **Deep Research** |
+| Is the answer mostly inside Cashman? (our contracts, our docs) | **Cowork** |
+| Do I want a one-shot report I can read? | **Deep Research** |
+| Do I want to argue with the model and refine? | **Cowork** |
+
+You'll use both. Most real questions have an outside-in piece and an inside-out piece — start with Deep Research to map the landscape, then bring the findings into Cowork to apply them to your project.
 
 ### The Task
 
 Think of a complex work question that would benefit from deep analysis. Examples:
 
 - "What are the pros and cons of using cofferdams vs. sheet pile for this waterfront project?"
-- "Analyze the risk factors in this contract's liquidated damages clause"
-- "Compare three equipment rental options for a 6-month dredging project"
+- "Survey the market for AI-assisted dispatch tools for marine construction and tell me what to actually pilot."
+- "Analyze the risk factors in this contract's liquidated damages clause."
 
 Your job:
-1. **Write a detailed prompt** for a complex analysis task relevant to your work
-2. **If you have access to Claude Cowork**, run it and paste the response
-3. **If not**, use the Cashman AI Portal chat and paste the response
-4. **Note what was helpful and what you'd need to verify** in the exercise below
+1. **Pick Deep Research or Cowork** based on the table above. State which and why.
+2. **Write a detailed prompt** for the task — be specific about format, sources, and the decision the report needs to support.
+3. **Run it** in Deep Research, Cowork, or (fallback) the Cashman AI Portal chat and paste the response.
+4. **Note what was helpful, what surprised you, and what you'd need to verify** before acting on it.
 
-> **Key Takeaway:** Claude Cowork is for complex, multi-step analysis that needs sustained reasoning. Use it for the hard problems that benefit from deep thinking.
+> **Key Takeaway:** Deep Research is your outside-in analyst — web-only, one-shot, cited reports. Cowork is your inside-out partner — internal data, iterative, conversational. Match the tool to where the truth lives.
 `,
   },
   {
@@ -1023,16 +1052,6 @@ If you're not a technical user:
 ## Building Your Personal AI Workflow
 
 You've now learned about all the AI tools available to you. The last step is putting it together into a personal workflow.
-
-### Your AI Decision Framework
-
-When you face a task, run through this checklist:
-
-1. **Does it involve company data?** -- Use the Cashman AI Portal
-2. **Is it an Office document task?** -- Use Copilot (Word, Excel, PowerPoint, Outlook)
-3. **Does it need deep analysis?** -- Use Claude Cowork
-4. **Does it need automation?** -- Use Claude Code (or ask IT)
-5. **Is it general knowledge/learning?** -- Any tool works
 
 ### Security Recap: What You've Learned
 
@@ -1167,7 +1186,7 @@ export const MODULES: Module[] = [
     id: 'mod-6',
     title: 'Document Processing and Search',
     description: 'Search company documents with AI, analyze uploaded files, and extract structured data from specs.',
-    instructor: 'Peter',
+    instructor: 'Wes',
     estimatedMinutes: 15,
     order: 6,
     icon: 'Search',
@@ -1177,8 +1196,8 @@ export const MODULES: Module[] = [
   {
     id: 'mod-8',
     title: 'Power User Tools',
-    description: 'Claude Cowork for deep analysis, Claude Code for automation, and building your personal AI workflow.',
-    instructor: 'Wes',
+    description: 'ChatGPT Deep Research and Claude Cowork for deep analysis, Claude Code for automation, and building your personal AI workflow.',
+    instructor: 'Peter',
     estimatedMinutes: 14,
     order: 7,
     icon: 'Rocket',
@@ -1189,7 +1208,7 @@ export const MODULES: Module[] = [
     id: 'mod-bonus-lunch-learn',
     title: 'AI Lunch and Learn',
     description: 'Bonus session: a recorded company-wide AI Lunch and Learn. Watch the recording, download the slide deck, and revisit anytime. Does not count toward course completion.',
-    instructor: 'Wes',
+    instructor: 'Peter',
     estimatedMinutes: 60,
     order: 99,
     icon: 'Sparkles',

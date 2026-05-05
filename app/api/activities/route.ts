@@ -4,6 +4,7 @@ import {
   ensureDataDocuments,
   saveActivityResponse,
   getAllActivityResponses,
+  mirrorSurveyResponse,
 } from "@/lib/data-api-client";
 
 /**
@@ -41,6 +42,23 @@ export async function POST(request: NextRequest) {
         response: response || {},
       }
     );
+
+    // Surveys are mirrored to a cross-user readable doc so admins can
+    // review answers. Failure of the mirror should not fail the save —
+    // the personal copy already succeeded.
+    if (activityType === "survey") {
+      try {
+        await mirrorSurveyResponse(auth.apiToken, documentIds.surveyResponses, {
+          visitorId: auth.userId,
+          moduleId,
+          lessonId,
+          activityId,
+          response: response || {},
+        });
+      } catch (err) {
+        console.error("[ACTIVITIES] survey mirror failed (non-fatal)", err);
+      }
+    }
 
     return NextResponse.json({ success: true, activityResponse: result });
   } catch (error) {

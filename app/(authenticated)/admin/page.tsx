@@ -12,6 +12,7 @@ import {
   ChevronUp,
   ChevronDown,
   Shield,
+  ClipboardList,
 } from 'lucide-react';
 import type { AdminUserProgress } from '@/lib/types';
 import { isAdminRole } from '@/lib/admin-roles';
@@ -41,6 +42,18 @@ export default function AdminPage() {
     overallCompletionRate: number;
     overallAvgQuizScore: number;
   } | null>(null);
+  const [surveyResponses, setSurveyResponses] = useState<Array<{
+    id: string;
+    uploaderName: string;
+    moduleId: string;
+    moduleTitle: string;
+    lessonId: string;
+    lessonTitle: string;
+    surveyTitle: string;
+    completedAt: string;
+    answers: Array<{ questionId: string; question: string; answer: string }>;
+  }>>([]);
+  const [expandedSurveyIds, setExpandedSurveyIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<SortKey>('lessonsCompleted');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
@@ -55,12 +68,19 @@ export default function AdminPage() {
 
     async function fetchData() {
       try {
-        const res = await fetch(`${basePath}/api/progress/admin`, { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
+        const [progressRes, surveyRes] = await Promise.all([
+          fetch(`${basePath}/api/progress/admin`, { credentials: 'include' }),
+          fetch(`${basePath}/api/admin/surveys`, { credentials: 'include' }),
+        ]);
+        if (progressRes.ok) {
+          const data = await progressRes.json();
           setUsers(data.users || data || []);
           if (data.moduleStats) setModuleStats(data.moduleStats);
           if (data.companyStats) setCompanyStats(data.companyStats);
+        }
+        if (surveyRes.ok) {
+          const data = await surveyRes.json();
+          setSurveyResponses(data.responses || []);
         }
       } catch (err) {
         console.error('Failed to fetch admin data:', err);
@@ -347,6 +367,84 @@ export default function AdminPage() {
           <div className="text-center py-12 text-gray-500 dark:text-gray-400">
             No user data available yet.
           </div>
+        )}
+      </div>
+
+      {/* Survey Responses */}
+      <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          <ClipboardList className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white">Survey Responses</h3>
+          <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">
+            {surveyResponses.length} {surveyResponses.length === 1 ? 'response' : 'responses'}
+          </span>
+        </div>
+        {surveyResponses.length === 0 ? (
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400 text-sm">
+            {loading ? 'Loading…' : 'No survey responses yet.'}
+          </div>
+        ) : (
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+            {surveyResponses.map((r) => {
+              const isOpen = expandedSurveyIds.has(r.id);
+              return (
+                <li key={r.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExpandedSurveyIds((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(r.id)) next.delete(r.id);
+                        else next.add(r.id);
+                        return next;
+                      });
+                    }}
+                    className="w-full px-6 py-4 flex items-center gap-4 text-left hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {r.uploaderName}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {r.moduleTitle} · {r.lessonTitle}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 hidden sm:inline">
+                      {new Date(r.completedAt).toLocaleDateString()}
+                    </span>
+                    {isOpen ? (
+                      <ChevronUp className="w-4 h-4 text-gray-400" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                    )}
+                  </button>
+                  {isOpen && (
+                    <div className="px-6 pb-5 space-y-3">
+                      {r.answers.length === 0 ? (
+                        <p className="text-xs italic text-gray-500 dark:text-gray-400">
+                          (no answers recorded)
+                        </p>
+                      ) : (
+                        r.answers.map((a) => (
+                          <div
+                            key={a.questionId}
+                            className="rounded-md border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-3"
+                          >
+                            <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                              {a.question}
+                            </p>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                              {a.answer}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
         )}
       </div>
       </div>

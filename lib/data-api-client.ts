@@ -31,6 +31,7 @@ export const DOCUMENTS = {
   TRAINING_VIDEO_PROGRESS: 'ai-training-video-progress',
   SUBMISSION_FILES: 'ai-training-submission-files',
   TRAINING_USERS: 'ai-training-users',
+  SURVEY_RESPONSES: 'ai-training-survey-responses',
 } as const;
 
 // ==========================================================================
@@ -147,6 +148,26 @@ export const trainingVideoSchema: AppDataSchema = {
   graphRelationships: [],
 };
 
+export const surveyResponseSchema: AppDataSchema = {
+  fields: {
+    id: { type: 'string', required: true, hidden: true },
+    visitorId: { type: 'string', required: true, label: 'Visitor ID', order: 1 },
+    moduleId: { type: 'string', required: true, label: 'Module ID', order: 2 },
+    lessonId: { type: 'string', required: true, label: 'Lesson ID', order: 3 },
+    activityId: { type: 'string', required: true, label: 'Activity ID', order: 4 },
+    response: { type: 'string', label: 'Response (JSON)', order: 5 },
+    completedAt: { type: 'string', label: 'Completed At', readonly: true, order: 6 },
+  },
+  displayName: 'Survey Responses',
+  itemLabel: 'Survey Response',
+  sourceApp: 'cashman-ai-training',
+  // Cross-user readable so admins can review survey results.
+  visibility: 'authenticated',
+  allowSharing: false,
+  graphNode: '',
+  graphRelationships: [],
+};
+
 export const trainingUserSchema: AppDataSchema = {
   fields: {
     id: { type: 'string', required: true, hidden: true },
@@ -228,6 +249,7 @@ export async function ensureDataDocuments(token: string): Promise<{
   trainingVideoProgress: string;
   submissionFiles: string;
   trainingUsers: string;
+  surveyResponses: string;
 }> {
   const ids = await ensureDocuments(
     token,
@@ -272,6 +294,11 @@ export async function ensureDataDocuments(token: string): Promise<{
         schema: trainingUserSchema,
         visibility: 'authenticated',
       },
+      surveyResponses: {
+        name: DOCUMENTS.SURVEY_RESPONSES,
+        schema: surveyResponseSchema,
+        visibility: 'authenticated',
+      },
     },
     'cashman-ai-training'
   );
@@ -284,6 +311,7 @@ export async function ensureDataDocuments(token: string): Promise<{
     trainingVideoProgress: string;
     submissionFiles: string;
     trainingUsers: string;
+    surveyResponses: string;
   };
 }
 
@@ -651,6 +679,84 @@ export async function getAllActivityResponses(
   documentId: string
 ): Promise<ActivityResponse[]> {
   const result = await queryRecords<ActivityResponse>(token, documentId, {
+    orderBy: [{ field: 'completedAt', direction: 'desc' }],
+  });
+  return result.records;
+}
+
+// ==========================================================================
+// Survey Responses (cross-user readable, for admin review)
+// ==========================================================================
+
+export interface SurveyResponseRecord {
+  id: string;
+  visitorId: string;
+  moduleId: string;
+  lessonId: string;
+  activityId: string;
+  response: string;
+  completedAt: string;
+}
+
+/**
+ * Mirror a survey response into the cross-user readable
+ * ai-training-survey-responses document. The personal copy in
+ * ai-training-activity-responses still gets written by saveActivityResponse;
+ * this is an additional record so admins can review answers.
+ */
+export async function mirrorSurveyResponse(
+  token: string,
+  documentId: string,
+  data: {
+    visitorId: string;
+    moduleId: string;
+    lessonId: string;
+    activityId: string;
+    response: Record<string, unknown>;
+  }
+): Promise<SurveyResponseRecord> {
+  const existing = await queryRecords<SurveyResponseRecord>(token, documentId, {
+    where: {
+      and: [
+        { field: 'visitorId', op: 'eq', value: data.visitorId },
+        { field: 'activityId', op: 'eq', value: data.activityId },
+      ],
+    },
+    limit: 1,
+  });
+  const now = getNow();
+  const responseJson = JSON.stringify(data.response);
+
+  if (existing.records.length > 0) {
+    const record = existing.records[0];
+    await updateRecords(
+      token,
+      documentId,
+      { response: responseJson, completedAt: now },
+      { field: 'id', op: 'eq', value: record.id }
+    );
+    return { ...record, response: responseJson, completedAt: now };
+  }
+
+  const entry: SurveyResponseRecord = {
+    id: generateId(),
+    visitorId: data.visitorId,
+    moduleId: data.moduleId,
+    lessonId: data.lessonId,
+    activityId: data.activityId,
+    response: responseJson,
+    completedAt: now,
+  };
+  // 'inherit' so admins (and any authenticated user) can read.
+  await insertRecords(token, documentId, [entry], { recordVisibility: 'inherit' });
+  return entry;
+}
+
+export async function listSurveyResponses(
+  token: string,
+  documentId: string
+): Promise<SurveyResponseRecord[]> {
+  const result = await queryRecords<SurveyResponseRecord>(token, documentId, {
     orderBy: [{ field: 'completedAt', direction: 'desc' }],
   });
   return result.records;

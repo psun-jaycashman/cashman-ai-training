@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
-import { ensureDataDocuments, getAllBadges } from "@/lib/data-api-client";
+import {
+  ensureDataDocuments,
+  getAllBadges,
+  listTrainingUsers,
+} from "@/lib/data-api-client";
+import { displayNameFromEmail } from "@/lib/display-name";
 import { queryRecords } from "@jazzmind/busibox-app";
 import { MODULES } from "@/lib/module-data";
 import { isAdminRole } from "@/lib/admin-roles";
@@ -26,8 +31,11 @@ export async function GET(request: NextRequest) {
 
     const documentIds = await ensureDataDocuments(auth.apiToken);
 
-    // Fetch all progress, quiz scores, and badges
-    const [progressResult, quizResult, allBadges] = await Promise.all([
+    // Fetch progress, quiz scores, badges, and the training-users roster.
+    // The roster is the source of truth for display names — every user
+    // who has loaded the (authenticated) layout has a row stamped via
+    // /api/users/me, so we can resolve UUIDs to real names here.
+    const [progressResult, quizResult, allBadges, allUsers] = await Promise.all([
       queryRecords<UserProgress>(auth.apiToken, documentIds.progress, {
         orderBy: [{ field: "startedAt", direction: "desc" }],
       }),
@@ -35,10 +43,21 @@ export async function GET(request: NextRequest) {
         orderBy: [{ field: "completedAt", direction: "desc" }],
       }),
       getAllBadges(auth.apiToken, documentIds.badges),
+      listTrainingUsers(auth.apiToken, documentIds.trainingUsers),
     ]);
 
     const allProgress = progressResult.records;
     const allQuizScores = quizResult.records;
+
+    // visitorId → { displayName, email } from the roster.
+    const userIdentity = new Map<string, { displayName: string | null; email: string }>();
+    for (const u of allUsers) {
+      userIdentity.set(u.visitorId, {
+        displayName:
+          u.displayName ?? displayNameFromEmail(u.email) ?? null,
+        email: u.email ?? "",
+      });
+    }
 
     // Total lessons / modules across required (non-bonus) modules only.
     // Bonus modules (e.g. Lunch and Learn) don't count toward an admin
@@ -50,7 +69,9 @@ export async function GET(request: NextRequest) {
     );
     const totalModules = requiredModules.length;
 
-    // Group data by visitor
+    // Group data by visitor. Seed with the roster so a user that has
+    // loaded the app but never completed anything still appears in the
+    // admin user table (instead of being invisible).
     const userMap = new Map<
       string,
       {
@@ -59,6 +80,9 @@ export async function GET(request: NextRequest) {
         badges: BadgeType[];
       }
     >();
+    for (const u of allUsers) {
+      userMap.set(u.visitorId, { progress: [], quizScores: [], badges: [] });
+    }
 
     for (const p of allProgress) {
       if (!userMap.has(p.visitorId)) {
@@ -106,10 +130,11 @@ export async function GET(request: NextRequest) {
       const quizDates = data.quizScores.map((q) => q.completedAt);
       const allDates = [...progressDates, ...quizDates].filter(Boolean).sort().reverse();
 
+      const identity = userIdentity.get(visitorId);
       users.push({
         visitorId,
-        displayName: visitorId, // Visitor ID as display name since we don't store names in progress
-        email: "", // Not stored in progress records
+        displayName: identity?.displayName ?? visitorId,
+        email: identity?.email ?? "",
         modulesCompleted,
         totalModules,
         lessonsCompleted: completedLessons.size,
