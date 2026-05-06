@@ -62,58 +62,10 @@ export default function LeaderboardPage() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Leaderboard</h1>
         </div>
         <p className="text-gray-600 dark:text-gray-400">
-          See how you stack up against your colleagues. Complete modules and earn badges to climb the ranks!
+          Complete modules, learn, and expand your capabilities!
         </p>
       </div>
 
-      {/* Top 3 Podium (if enough entries) */}
-      {entries.length >= 3 && (
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          {/* Second place */}
-          <div className="flex flex-col items-center justify-end">
-            <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-2xl font-bold text-gray-500 dark:text-gray-400 mb-2">
-              {entries[1].displayName.charAt(0).toUpperCase()}
-            </div>
-            <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-full">
-              {entries[1].displayName}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{entries[1].totalPoints.toLocaleString()} pts</p>
-            <div className="w-full h-20 bg-gray-200 dark:bg-gray-700 rounded-t-lg mt-2 flex items-center justify-center">
-              <span className="text-2xl font-bold text-gray-400">2</span>
-            </div>
-          </div>
-
-          {/* First place */}
-          <div className="flex flex-col items-center justify-end">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-3xl font-bold text-white mb-2 shadow-lg">
-              {entries[0].displayName.charAt(0).toUpperCase()}
-            </div>
-            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-full">
-              {entries[0].displayName}
-            </p>
-            <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">{entries[0].totalPoints.toLocaleString()} pts</p>
-            <div className="w-full h-28 bg-amber-100 dark:bg-amber-900/30 rounded-t-lg mt-2 flex items-center justify-center">
-              <Trophy className="w-8 h-8 text-amber-500" />
-            </div>
-          </div>
-
-          {/* Third place */}
-          <div className="flex flex-col items-center justify-end">
-            <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-2xl font-bold text-amber-700 dark:text-amber-400 mb-2">
-              {entries[2].displayName.charAt(0).toUpperCase()}
-            </div>
-            <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-full">
-              {entries[2].displayName}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{entries[2].totalPoints.toLocaleString()} pts</p>
-            <div className="w-full h-14 bg-amber-50 dark:bg-amber-900/20 rounded-t-lg mt-2 flex items-center justify-center">
-              <span className="text-2xl font-bold text-amber-600/60 dark:text-amber-400/60">3</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Full Leaderboard Table */}
       <LeaderboardTable entries={entries} currentUserId={user?.id} />
     </div>
   );

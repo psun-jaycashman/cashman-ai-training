@@ -56,7 +56,17 @@ export default function ProfilePage() {
         }
         if (badgesRes.ok) {
           const data = await badgesRes.json();
-          setBadges(data.badges || data || []);
+          // /api/badges returns { badges: <static definitions>, earned: <user's badges> }.
+          // The user's earned badges live under `data.earned`; `data.badges` is
+          // the catalog. Fall back gracefully if the shape ever changes.
+          const earned = Array.isArray(data?.earned)
+            ? data.earned
+            : Array.isArray(data?.badges) && data.badges[0]?.badgeType
+              ? data.badges
+              : Array.isArray(data)
+                ? data
+                : [];
+          setBadges(earned);
         }
       } catch (err) {
         console.error('Failed to fetch profile data:', err);
