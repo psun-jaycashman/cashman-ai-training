@@ -60,6 +60,8 @@ But like any intern, they can also make mistakes, confidently state things that 
 
 AI is not sentient -- it doesn't "think" or "feel." It recognizes patterns in data and generates responses based on statistical likelihood. It's a **powerful tool**, not a colleague with opinions.
 
+> 🎥 **Watch (8 min):** [Large Language Models explained briefly](https://www.youtube.com/watch?v=LPZh9BOjkQs) — a beautifully animated walkthrough of how LLMs actually work under the hood. Worth pausing here to watch before moving on.
+
 ### Why This Matters for Cashman
 
 At Cashman, we deal with complex projects -- marine construction, infrastructure, engineering. AI can help us work faster on documentation, research, analysis, and communication. But only if we learn to use it well.
@@ -715,6 +717,8 @@ While AI image generation is useful, it also means **anyone can create convincin
 
 **Trust but verify:** If someone sends you a photo that supports a claim (especially a financial one), consider whether it could be AI-generated. Look for telltale signs: oddly smooth textures, inconsistent shadows, extra fingers on people, or text that doesn't quite make sense.
 
+> 🎥 **Watch:** [How to Detect Deepfakes: The Science of Recognizing AI Generated Content](https://www.youtube.com/watch?v=GMoOCKkcd_w) (interesting discussion) — a tour of the practical telltales that hold up in 2026, plus where the older heuristics no longer work.
+
 > **Key Takeaway:** AI can generate useful presentation images. But the same technology means fake photos are now easy to create -- always verify images that support financial or legal claims.
 `,
   },
@@ -874,6 +878,8 @@ Pick one:
 - **ChatGPT Deep Research** (in ChatGPT Plus / Team / Enterprise) — kick off a research run; it browses the web for 5–15 minutes and returns a long, cited report.
 - **Claude Deep Research** (claude.ai with research mode) — same idea, different style. Claude tends to be more cautious about sourcing; ChatGPT tends to be broader.
 
+> 🎥 **Watch (short intro):** [Deep Research in 2 minutes](https://www.youtube.com/watch?v=zm6F0vo2E64) — a quick visual of what a Deep Research run looks like end-to-end, before you try one yourself.
+
 **What makes a good Deep Research prompt:**
 
 - **State the decision the report will support.** "I need to recommend three autonomous-survey-vessel vendors for a Cashman pilot in 2026" is a thousand times better than "tell me about autonomous survey vessels."
@@ -888,6 +894,8 @@ Pick one:
 ### Step 2 — Notebook LM for synthesis and audio
 
 Now you have a 20-page report. Reading it is a chore. **Google Notebook LM** turns it into something you can actually use.
+
+> 🎥 **Watch:** [Google NotebookLM walkthrough](https://www.youtube.com/watch?v=6dHmu1GALmA) — a hands-on tour of the Studio panel, Audio Overview, and how to load multiple sources. Recommended before you try the next step.
 
 1. Open [Notebook LM](https://notebooklm.google.com) (Google account).
 2. Create a new notebook. **Add the Deep Research output as a source** — paste the markdown, or upload as a PDF. Add any *other* PDFs that fit (your own meeting notes, a relevant spec, a vendor's data sheet).
