@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -17,8 +17,21 @@ import ExerciseComponent from '@/components/activities/ExerciseComponent';
 import GameComponent from '@/components/activities/GameComponent';
 import SurveyComponent from '@/components/activities/SurveyComponent';
 import VideoPlayer from '@/components/VideoPlayer';
+import YoutubeLinkEnhancer from '@/components/YoutubeLinkEnhancer';
+import { extractYoutubeId } from '@/lib/youtube';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
+// HTML-attribute-escape — used when injecting user-facing text into a
+// data-* attribute. The set of characters that can break attribute parsing
+// or enable XSS is small; escape the four that matter and leave the rest.
+function escapeAttr(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
 
 /**
  * Simple markdown-to-html converter for MVP.
@@ -52,12 +65,18 @@ function markdownToHtml(md: string): string {
     // Bold and italic
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Links — prefix basePath for absolute paths; add download for /downloads/
+    // Links — prefix basePath for absolute paths; add download for /downloads/.
+    // YouTube links get a data-yt-video-id marker so YoutubeLinkEnhancer
+    // can attach hover-preview + click-to-play-modal handlers after mount.
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match: string, text: string, href: string) => {
       const isDownload = href.startsWith('/downloads/');
       const finalHref = withBasePath(href);
       const downloadAttr = isDownload ? ' download' : '';
-      return `<a href="${finalHref}" class="text-indigo-600 dark:text-indigo-400 hover:underline" target="_blank" rel="noopener"${downloadAttr}>${text}</a>`;
+      const ytId = extractYoutubeId(href);
+      const ytAttrs = ytId
+        ? ` data-yt-video-id="${ytId}" data-yt-title="${escapeAttr(text)}"`
+        : '';
+      return `<a href="${finalHref}" class="text-indigo-600 dark:text-indigo-400 hover:underline" target="_blank" rel="noopener"${downloadAttr}${ytAttrs}>${text}</a>`;
     })
     // Unordered lists
     .replace(/^[*-] (.+)$/gm, '<li class="ml-4 list-disc text-gray-700 dark:text-gray-300">$1</li>')
@@ -86,6 +105,7 @@ export default function LessonViewPage() {
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const lessonContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -228,10 +248,12 @@ export default function LessonViewPage() {
       {/* Lesson Content */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-6">
         <div
+          ref={lessonContentRef}
           className="prose dark:prose-invert max-w-none"
           dangerouslySetInnerHTML={{ __html: markdownToHtml(lesson.content) }}
         />
       </div>
+      <YoutubeLinkEnhancer containerRef={lessonContentRef} contentKey={lesson.id} />
 
       {/* Mark Complete Button */}
       <div className="mb-6">
