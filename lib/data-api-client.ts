@@ -591,7 +591,11 @@ export async function awardBadge(
     metadata: JSON.stringify(badge.metadata),
   };
 
-  await insertRecords(token, documentId, [storedBadge]);
+  // 'inherit' so admins (and the leaderboard) can read every user's badges,
+  // matching the pattern used by progress / training-users / submissions.
+  // Without this, records default to creator-personal even on an
+  // 'authenticated' document, which silently breaks cross-user views.
+  await insertRecords(token, documentId, [storedBadge], { recordVisibility: 'inherit' });
   return badge;
 }
 

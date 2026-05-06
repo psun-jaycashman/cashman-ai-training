@@ -830,6 +830,8 @@ The Cashman AI Portal uses a technique called **RAG (Retrieval-Augmented Generat
 
 Think of it like an **open-book exam** -- AI looks up the answer in your documents rather than guessing from memory.
 
+> 🎥 **Watch:** [What is RAG? — Retrieval-Augmented Generation explained](https://www.youtube.com/watch?v=T-D1OfcDW1M) — a clear visual explanation of how RAG works under the hood. Worth watching before you try the exercise so the citations make sense.
+
 ### The Task
 
 If you have access to the Cashman AI Portal with documents loaded:
