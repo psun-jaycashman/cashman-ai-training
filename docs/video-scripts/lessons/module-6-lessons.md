@@ -1,8 +1,8 @@
 # Module 6 — Lesson Scripts
 
-**Module:** Document Processing and Search
-**Instructor:** Peter
-**Audience:** Cashman employees, brand new to AI
+**Module:** Document Processing and Research
+**Instructor:** Wes
+**Audience:** Cashman employees finishing the course
 
 Each lesson script is sized for a ~2–3 minute Descript voiceover. Professional
 terms appear in **bold** the first time they're used and are explained inline.
@@ -41,14 +41,14 @@ For the exercise, go to the Portal. Ask it a question about company procedures. 
 
 ### B-roll / Visuals
 
-- 0:00–0:15 — Peter on camera.
+- 0:00–0:15 — Wes on camera.
 - 0:15–0:35 — Frustrated person scrolling through endless PDFs and SharePoint folders.
 - 0:35–1:00 — Animated comparison: "Keyword Search" misses the "PFD" doc when you searched "life jacket." "Semantic Search" finds it. Caption appears.
 - 1:00–1:30 — Visual metaphor: each passage being converted into a colorful "fingerprint" floating in a 3D space. Caption: "Embeddings."
 - 1:30–2:00 — Open-book exam metaphor: a student opening a textbook to find the answer. Big text overlay: "RAG = Open-Book Exam."
 - 2:00–2:25 — Screen capture: a question answered in the Portal, with a citation link. Cursor clicks the citation, document opens to the right page.
 - 2:25–2:45 — Locked-down server icon vs. cloud icon with a red X. Caption: "Company docs stay on company infrastructure."
-- 2:45–3:00 — Peter hands off to the exercise.
+- 2:45–3:00 — Wes hands off to the exercise.
 
 ### On-screen text cues
 
@@ -59,112 +59,109 @@ For the exercise, go to the Portal. Ask it a question about company procedures. 
 
 ---
 
-## Lesson 2 — Analyzing Uploaded Documents
+## Lesson 2 — Deep Research End-to-End
 
-**Lesson runtime estimate:** ~3 min
-**Activity at end of lesson:** Exercise — paste in AI's answers to three questions about an uploaded document
+**Lesson runtime estimate:** ~3 min 30 sec
+**Activity at end of lesson:** Exercise — run the full Deep Research → Notebook LM → AI Slides pipeline and submit prompts, an insight, the slide outline, and one verification step
 
 ### Title card
 
-> **Lesson 2 — Analyzing a Document**
-> Three questions. Three minutes. Done.
+> **Lesson 2 — Deep Research End-to-End**
+> Three tools. One pipeline. Under an hour.
 
 ### Script
 
-Last lesson, we used AI to search *across* our documents. This lesson, we go the other direction -- we hand AI *one* document and ask it to analyze it for us.
+Last lesson was about searching what's *inside* Cashman. This lesson is about researching what's *outside* -- vendors, regulations, market intelligence, lessons learned across an industry segment -- and turning it into a deck for your next meeting.
 
-The use case is everywhere. A sixty-page spec. A new safety plan. A vendor proposal. A subcontract amendment. A change order package. You don't always have time to read the whole thing carefully. But you can't afford to miss what matters.
+I'm going to walk you through the modern research pipeline. Three tools, in sequence. Each does one job well.
 
-The technique is what I call the **three-question pattern**. Almost any document analysis comes down to three questions:
+**Step one. Run a deep research query.** Two options here, and they work the same way: **ChatGPT Deep Research** -- inside ChatGPT Plus, Team, or Enterprise -- and **Claude Deep Research** -- on claude.ai with research mode turned on. You give it a real question, it goes off and browses the web for five to fifteen minutes, and it comes back with a long, cited report.
 
-**One** -- *What are the key requirements?* What does this document obligate someone to do?
+The trick is the prompt. State the *decision* the report will support. *"I need to recommend three autonomous-survey-vessel vendors for a 2026 pilot."* That's a thousand times better than *"tell me about autonomous survey vessels."* Tell it the audience -- *"the reader is a marine project executive."* Constrain the sources -- *"prioritize OEM spec sheets, peer-reviewed studies, recent USACE reports. Avoid blog posts."* Specify the output format. The more specific the prompt, the more useful the report.
 
-**Two** -- *What are the deadlines or time-sensitive items?* What's going to bite us if we miss it?
+**Step two. Drop the report into Google Notebook LM.** This is the synthesis step. You upload the deep research output as a source, plus any of your own PDFs that fit -- meeting notes, vendor data sheets, your own past evaluations. Then you click **Studio panel** and pick what you want: a **Briefing doc**, an **FAQ**, a **Study guide**, or -- and this is the one that surprises everyone -- an **Audio Overview**. Notebook LM literally generates a ten-minute podcast of two hosts discussing your source material. Listen to it on your drive home. It surfaces things you missed.
 
-**Three** -- *What are the risks or potential issues?* Where could this go sideways?
+**Step three. Have AI draft the slide deck.** Take the briefing or the original report, paste it into Claude or ChatGPT, and prompt: *"Turn this into a ten-slide deck for a Cashman project executive. Each slide -- a headline of eight words or less, three supporting bullets, a speaker-note paragraph."* You'll get markdown back. Copy it into PowerPoint. Or use Copilot inside PowerPoint directly -- attach the briefing and tell it *"build a ten-slide deck."*
 
-Ask AI those three questions on any document and you'll have a working understanding in under five minutes.
+That's the pipeline. Deep Research finds and cites. Notebook LM synthesizes and condenses. The slide AI packages it for your audience.
 
-A few professional habits to pair with this.
+Two important habits.
 
-**Be specific.** "What environmental permits are required and when must they be obtained?" beats "tell me about this document." Specificity gets you signal. Vagueness gets you noise.
+**The bulletin-board rule still applies.** Anything you put into a public Deep Research prompt goes to the cloud. Don't include client names, internal pricing, or sensitive scope. For internal-only research, switch to **Claude Cowork** or the Cashman AI Portal -- those keep the data on company infrastructure.
 
-**Ask follow-ups.** AI's first answer is rarely the last word. *"You mentioned a 30-day notice requirement. Where exactly in the document does it say that?"* That's the move. You're keeping AI grounded in the actual source, and you're verifying as you go.
+**Verify before you ship.** Before that deck leaves your desk, spot-check at least the biggest two or three numbers. Click the citations. Deep Research occasionally fabricates a quote that *sounds* real -- and the way you catch it is by reading the original source.
 
-Now -- the technical reality you need to know about. AI has a limit on how much text it can read at one time. The term is the **context window**. Modern tools are huge -- some can hold an entire 200-page document -- but they have known weaknesses. There's a documented effect called **lost-in-the-middle**, where AI focuses heavily on the beginning and end of a long document and quietly skips details in the middle.
-
-The defense is simple. For very long documents, **break them into sections** and analyze each section separately. As a final check, always ask: *"Is there anything else in this document I should know about?"* That sometimes surfaces things AI missed on the first pass.
-
-Your task is below. Find a non-sensitive document -- a public spec, an article, even a sample safety plan. Upload it to the Portal or paste a section in. Ask the three questions. Paste the answers into the exercise.
+For the exercise, pick a real research question relevant to your work, run the full pipeline, and submit your prompt, the Notebook LM artifact you generated, your slide outline, and one thing you'd verify. That's the modern research workflow in your hands.
 
 ### B-roll / Visuals
 
-- 0:00–0:15 — Peter on camera.
-- 0:15–0:35 — Stack of thick documents thudding onto a desk. Caption: "Don't read it all. Question it."
-- 0:35–1:05 — Animated graphic: three big question marks, each with a label: "Requirements," "Deadlines," "Risks."
-- 1:05–1:30 — Screen capture: document uploaded to Portal, three questions asked, answers appearing.
-- 1:30–1:55 — Visual metaphor for the context window: a horizontal bar with a long document scrolling through it. The middle section gently fades. Caption: "Lost in the middle."
-- 1:55–2:20 — Visual: a long document being chopped into sections, each analyzed separately, results combined. Caption: "Section by section."
-- 2:20–2:45 — Peter hands off to the exercise.
+- 0:00–0:15 — Wes on camera.
+- 0:15–0:45 — Three-step pipeline graphic: Deep Research → Notebook LM → Slide AI. Each tool's logo animates in. Captions name the step.
+- 0:45–1:10 — Screen capture: ChatGPT Deep Research running. Progress bar. Final report scrolling past. Citation links highlighted.
+- 1:10–1:50 — Notebook LM Studio panel: the "Briefing," "FAQ," "Study Guide," "Audio Overview" buttons highlight in turn. The Audio Overview button gets the longest hold; an audio waveform visualization plays.
+- 1:50–2:25 — Claude / ChatGPT generating slide markdown; markdown appearing on the left, finished slides materializing on the right.
+- 2:25–2:50 — Bulletin-board reminder: a public chat window with a thought-bubble of internal pricing being struck through. Caption: "Public Deep Research = public data only."
+- 2:50–3:15 — Side-by-side: AI's cited quote and the original source. Cursor clicks the citation; the source opens. Caption: "Verify before you ship."
+- 3:15–3:30 — Wes hands off to the exercise.
 
 ### On-screen text cues
 
-- "Pattern: Requirements · Deadlines · Risks."
-- "Be specific. Ask follow-ups."
-- "New term: Context Window."
-- "Watch for the lost-in-the-middle effect."
+- "Pipeline: Deep Research → Notebook LM → AI Slides."
+- "Prompt = Decision + Audience + Sources + Format."
+- "New feature: Notebook LM Audio Overview."
+- "Public Deep Research = public data only."
+- "Verify the citations before you ship."
 
 ---
 
-## Lesson 3 — Extracting Structured Data
+## Lesson 3 — Building Your AI Workflow
 
 **Lesson runtime estimate:** ~2 min 30 sec
-**Activity at end of lesson:** Exercise — paste in a requirements table extracted from a spec paragraph
+**Activity at end of lesson:** Survey — reflect on what you've learned and how you'll use AI
 
 ### Title card
 
-> **Lesson 3 — Extracting Structured Data**
-> Wall of text in. Action-ready table out.
+> **Lesson 3 — Building Your AI Workflow**
+> Wrap up. Lock it in. Take the badge.
 
 ### Script
 
-Specifications are dense. A single paragraph in a USACE spec can hide eight or nine separate requirements -- a 14-day submittal deadline, a certification requirement, daily monitoring, weekly reporting, a special qualification for welders. Miss one and you've got a noncompliance.
+This is the last lesson of the course. Let's pull it together.
 
-This lesson's about turning that wall of text into a structured table you can actually act on.
+You now have a working AI **toolkit**, a set of habits, and a real understanding of the **risks**. The goal of this lesson is to make sure those risks stay top of mind, because that's the thing that separates someone who *uses* AI from someone who *uses AI safely* in a regulated, contract-driven business like ours.
 
-The technical capability is called **structured data extraction**. AI reads unstructured text -- a paragraph, a memo, an email -- and pulls out specific fields into a defined structure. A table. A list. Whatever schema you give it.
+Let me give you the consolidated security recap. Every module surfaced a piece of this. Here it is in one place.
 
-The prompt pattern is straightforward. Tell AI:
+**Prompt injection** -- hidden instructions buried in input data, like an email or a document, that AI follows as if you'd typed them. Defense: review AI output, especially when the input came from outside.
 
-**The source** -- *"Here's a paragraph from a project spec."*
+**Hallucinations** -- AI confidently inventing plausible-sounding facts: a citation that doesn't exist, a number that sounds right, a precedent that was never decided. Defense: source-grounding and verification.
 
-**The fields you want** -- *"Extract every distinct requirement."*
+**Wrong formulas** -- AI calculations that look correct but aren't. A SUMIFS that targets the wrong column. A percentage that's averaged when it should be weighted. Defense: test with known values before you stake real money on the answer.
 
-**The output structure** -- *"Put each requirement in a table with columns for Requirement, Category, Deadline, and Priority."*
+**Deepfakes** -- fake images, video, or audio that can support a false claim. Defense: verify through a separate channel for any consequential content. If somebody sends you a "site photo" that supports a financial claim, pick up the phone.
 
-That's it. AI hands you back a table. The kind you'd otherwise have spent forty-five minutes building by hand.
+**Data leakage** -- company data ending up in a public AI service through someone's prompt. Defense: company data goes to the Cashman AI Portal, period. The bulletin-board rule.
 
-A note on **categories**. When you ask AI to categorize requirements -- safety, environmental, qualifications, submittals, schedule -- it does pretty well, but it'll sometimes fudge the edges. A welding qualification could be categorized as "Qualifications" *or* "Quality." A turbidity monitoring requirement could land under "Environmental" *or* "Reporting." There's no single right answer. Just make sure the categories you end up with are useful for *your* downstream work. If your team tracks compliance by department, categorize by department.
+That's the cheat sheet. Print it. Tape it to your monitor. That's the muscle memory we want you walking out of this course with.
 
-There's also a quality habit worth building. Once AI extracts the requirements, **count them in the source paragraph yourself**. If you can find nine distinct requirements in the text and AI only extracted seven, you've got a gap. Ask AI: *"Did you miss anything? Re-read the source and confirm."* Sometimes that gets the missed items. Sometimes you have to point them out specifically.
+The final piece is a short survey. It asks how confident you are with each tool, which one you think will have the biggest impact on your daily work, and one specific task where you'll start using AI this week. Be honest -- this is how we shape the next round of training.
 
-This whole skill -- structured extraction -- is one of the highest-leverage things you can do with AI. Submittal trackers, requirement matrices, action item lists, RFI logs -- all of it benefits from the same pattern.
+After you finish the survey, there's a final assessment. Pass it, and you've earned your **Think (AI)mpossible** badge and the Cashman AI Training certificate.
 
-For the exercise, we've put a dense spec paragraph below. Ask AI to extract everything into a table with the columns I mentioned. Verify the count. Paste your table. That's a wrap on Module 6.
+You did the work. You earned this. Welcome to the new toolkit.
 
 ### B-roll / Visuals
 
-- 0:00–0:15 — Peter on camera.
-- 0:15–0:30 — A dense paragraph of fine-print spec text fills the screen. Caption: "Find all the requirements."
-- 0:30–1:00 — Animated graphic: the paragraph being "scanned," requirements floating up and dropping into rows of a table.
-- 1:00–1:25 — Animated table forming with columns: Requirement · Category · Deadline · Priority.
-- 1:25–1:50 — Color-coded category tags being applied: Safety (red), Environmental (green), Qualifications (blue), Submittals (orange), Schedule (purple).
-- 1:50–2:15 — Counting overlay: "Source paragraph: 9 requirements found. AI extracted: 7. Gap: 2." Highlight on the missing two.
-- 2:15–2:30 — Peter wraps Module 6.
+- 0:00–0:15 — Wes on camera, wrap-up energy.
+- 0:15–0:55 — Five security risk cards animating in one at a time: Prompt Injection · Hallucinations · Wrong Formulas · Deepfakes · Data Leakage. Each pairs with a one-line defense.
+- 0:55–1:20 — A printed "AI Security Cheat Sheet" being taped to a monitor. Caption: "Print it. Tape it. Live it."
+- 1:20–1:50 — Highlight reel of clips from earlier modules — emails fixed, spreadsheets built, Notebook LM podcasts running, certificates earned. Reinforces "look how far you've come."
+- 1:50–2:15 — Animated **Think (AI)mpossible** badge appearing with a chime, then the Cashman AI Training certificate.
+- 2:15–2:30 — Wes signs off with a thank-you and a "you've got this" beat. Hand-off to the survey.
 
 ### On-screen text cues
 
-- "New skill: Structured Data Extraction."
-- "Prompt: Source · Fields · Structure."
-- "Categorize for *your* downstream work."
-- "Count the source. Audit the output."
+- "Five risks. Five defenses."
+- "Print it. Tape it. Live it."
+- "Survey → Final Assessment → Certificate."
+- "Earn the Think (AI)mpossible badge."

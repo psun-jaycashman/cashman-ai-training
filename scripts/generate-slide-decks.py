@@ -1095,29 +1095,35 @@ DECKS: list[Deck] = [
         ],
     ),
     # ===================================================================== #
-    # MODULE 6 — Document Processing and Search
+    # MODULE 6 — Document Processing and Research
+    # (merged the old Module 8 / Power User Tools into Module 6)
     # ===================================================================== #
     Deck(
         module=6,
         slug="module-6-intro",
-        title="Module 6 Intro — Document Processing and Search",
+        title="Module 6 Intro — Document Processing and Research",
         slides=[
             Slide(
                 kind="title",
                 eyebrow="Module 6",
-                headline="Document Processing & Search",
-                subhead="Stop hunting through SharePoint. Just ask the question.",
+                headline="Document Processing & Research",
+                subhead="Find what's inside. Research what's outside. Build the deck.",
             ),
             Slide(
                 kind="concept",
-                eyebrow="The big idea",
-                headline="RAG — like an open-book exam",
+                eyebrow="Three lessons",
+                headline="Search · Deep Research · Workflow",
                 body=[
-                    "AI looks up the answer in our documents instead of guessing.",
-                    "1.  Search company documents",
-                    "2.  Analyze a single document",
-                    "3.  Extract structured data from specs",
+                    "1.  Search company documents (the Portal + RAG)",
+                    "2.  Deep Research → Notebook LM → AI Slides",
+                    "3.  Build your AI workflow + take the survey",
                 ],
+            ),
+            Slide(
+                kind="callout",
+                eyebrow="One badge away",
+                headline="Think (AI)mpossible.",
+                callout="Finish Module 6, take the survey, pass the final assessment.\nYou earn the badge and the certificate.",
             ),
         ],
     ),
@@ -1152,174 +1158,72 @@ DECKS: list[Deck] = [
     ),
     Deck(
         module=6,
-        slug="lesson-6-2-analyze-document",
-        title="Lesson 6.2 — Analyzing a Document",
+        slug="lesson-6-2-deep-research",
+        title="Lesson 6.2 — Deep Research End-to-End",
         slides=[
             Slide(
                 kind="title",
                 eyebrow="Lesson 2",
-                headline="Analyzing a Document",
-                subhead="Three questions. Three minutes. Done.",
+                headline="Deep Research End-to-End",
+                subhead="Three tools. One pipeline. Under an hour.",
             ),
             Slide(
                 kind="concept",
-                eyebrow="The three-question pattern",
-                headline="Requirements · Deadlines · Risks",
+                eyebrow="The pipeline",
+                headline="Research → Synthesize → Slides",
                 body=[
-                    "1.  What are the key requirements?",
-                    "2.  What are the deadlines?",
-                    "3.  What are the risks?",
+                    "1.  ChatGPT or Claude Deep Research → cited report",
+                    "2.  Google Notebook LM → briefing + audio overview",
+                    "3.  Claude / GPT / Copilot → 10-slide deck",
+                ],
+            ),
+            Slide(
+                kind="concept",
+                eyebrow="Prompt formula",
+                headline="Decision · Audience · Sources · Format",
+                body=[
+                    "•  Decision the report supports",
+                    "•  Audience reading it",
+                    "•  Source constraints (peer-reviewed, OEM, USACE)",
+                    "•  Output format (markdown, sections, citations)",
                 ],
             ),
             Slide(
                 kind="callout",
-                eyebrow="New term",
-                headline="Lost in the middle",
-                callout="AI focuses on the start and end of long documents.\nFor very long files, analyze section by section.",
+                eyebrow="Two non-negotiables",
+                headline="Public data only · Verify before you ship.",
+                callout="No client names, no internal pricing in public Deep Research.\nSpot-check the biggest 2-3 numbers and click the citations.",
             ),
         ],
     ),
     Deck(
         module=6,
-        slug="lesson-6-3-extract-data",
-        title="Lesson 6.3 — Extracting Structured Data",
+        slug="lesson-6-3-ai-workflow",
+        title="Lesson 6.3 — Building Your AI Workflow",
         slides=[
             Slide(
                 kind="title",
                 eyebrow="Lesson 3",
-                headline="Extracting Structured Data",
-                subhead="Wall of text in. Action-ready table out.",
+                headline="Building Your AI Workflow",
+                subhead="Wrap up. Lock it in. Take the badge.",
             ),
             Slide(
                 kind="concept",
-                eyebrow="Prompt pattern",
-                headline="Source · Fields · Structure",
+                eyebrow="Security recap",
+                headline="Five risks. Five defenses.",
                 body=[
-                    "•  Source     — \"here's a paragraph from a project spec\"",
-                    "•  Fields     — \"extract every distinct requirement\"",
-                    "•  Structure  — \"Requirement, Category, Deadline, Priority\"",
-                ],
-            ),
-            Slide(
-                kind="callout",
-                eyebrow="Audit habit",
-                headline="Count the source.",
-                callout="If the source has 9 requirements and AI extracted 7,\nyou've got a gap. Ask: \"Did you miss anything?\"",
-            ),
-        ],
-    ),
-    # ===================================================================== #
-    # MODULE 7 — Power User Tools
-    # ===================================================================== #
-    Deck(
-        module=8,
-        slug="module-8-intro",
-        title="Module 7 Intro — Power User Tools",
-        slides=[
-            Slide(
-                kind="title",
-                eyebrow="Module 7",
-                headline="Power User Tools",
-                subhead="Bigger problems. Better tools. Your personal AI playbook.",
-            ),
-            Slide(
-                kind="concept",
-                eyebrow="Two new tools",
-                headline="Claude Cowork · Claude Code",
-                body=[
-                    "•  Cowork — for deep, multi-step analysis",
-                    "•  Code   — for automation and scripting",
-                    "Then we put it all together into your personal workflow.",
-                ],
-            ),
-        ],
-    ),
-    Deck(
-        module=8,
-        slug="lesson-8-1-cowork",
-        title="Lesson 7.1 — Claude Cowork for Research and Analysis",
-        slides=[
-            Slide(
-                kind="title",
-                eyebrow="Lesson 1",
-                headline="Claude Cowork",
-                subhead="The tool for the hard problems.",
-            ),
-            Slide(
-                kind="concept",
-                eyebrow="Why it works",
-                headline="Long context · Chain-of-thought",
-                body=[
-                    "Long context — holds whole contracts and research files.",
-                    "Chain-of-thought — works through problems step by step.",
-                    "Workflow: Frame → Provide → Structure → Iterate.",
-                ],
-            ),
-            Slide(
-                kind="callout",
-                eyebrow="Reminder",
-                headline="Use the Portal for company data.",
-                callout="Cowork is great for analysis where the thinking is the value.\nFor sensitive Cashman data, the Portal is still the right tool.",
-            ),
-        ],
-    ),
-    Deck(
-        module=8,
-        slug="lesson-8-2-code",
-        title="Lesson 7.2 — Claude Code for Technical Users",
-        slides=[
-            Slide(
-                kind="title",
-                eyebrow="Lesson 2",
-                headline="Claude Code",
-                subhead="Automation for the technically-inclined.",
-            ),
-            Slide(
-                kind="concept",
-                eyebrow="What it's good for",
-                headline="Automate the repetitive",
-                body=[
-                    "•  Batch file processing",
-                    "•  Data scripts (parse, clean, report)",
-                    "•  Quick utilities and debugging",
-                ],
-            ),
-            Slide(
-                kind="callout",
-                eyebrow="Even if you're not technical",
-                headline="Spot the opportunity.",
-                callout="Same multi-step task, over and over? Flag it.\nMost of these can be automated in an afternoon.",
-            ),
-        ],
-    ),
-    Deck(
-        module=8,
-        slug="lesson-8-3-workflow",
-        title="Lesson 7.3 — Building Your AI Workflow",
-        slides=[
-            Slide(
-                kind="title",
-                eyebrow="Lesson 3",
-                headline="Your Personal AI Workflow",
-                subhead="Tool for tool. Risk for risk. Habit for habit.",
-            ),
-            Slide(
-                kind="concept",
-                eyebrow="Decision tree",
-                headline="Five questions. Always know the tool.",
-                body=[
-                    "1.  Company data?  →  Cashman AI Portal",
-                    "2.  Office work?    →  Microsoft Copilot",
-                    "3.  Deep analysis?  →  Claude Cowork",
-                    "4.  Automation?     →  Claude Code",
-                    "5.  General?        →  Any tool (incl. ChatGPT, non-sensitive only)",
+                    "•  Prompt Injection  — review AI output on outside input",
+                    "•  Hallucinations    — source-grounding + verification",
+                    "•  Wrong Formulas    — test with known values",
+                    "•  Deepfakes         — verify through a separate channel",
+                    "•  Data Leakage      — company data → Portal. Period.",
                 ],
             ),
             Slide(
                 kind="callout",
                 eyebrow="The cheat sheet",
-                headline="Six risks. Six defenses.",
-                callout="Hallucination · Prompt Injection · Wrong Formulas · Deepfakes · Data Leakage · Agent Over-Trust.\nVerify. Verify. Verify.",
+                headline="Print it. Tape it. Live it.",
+                callout="Survey → Final Assessment → Think (AI)mpossible.\nYou did the work. You earned this.",
             ),
         ],
     ),

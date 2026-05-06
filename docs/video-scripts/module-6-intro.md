@@ -1,57 +1,56 @@
-# Module 6 Intro — Document Processing and Search
+# Module 6 Intro — Document Processing and Research
 
-- **Instructor:** Peter
+- **Instructor:** Wes
 - **Target runtime:** ~80 seconds
-- **Audience:** Cashman employees, brand new to AI
-- **Goal:** Make "AI search" feel intuitive, introduce RAG as an "open-book exam" metaphor, and reinforce why company documents stay on the Cashman AI Portal.
+- **Audience:** Cashman employees finishing the course
+- **Goal:** Frame Module 6 as the "level-up" module — internal document search plus end-to-end deep research — and motivate the final assessment that follows the survey lesson.
 
 ---
 
 ## On-screen title card
 
-> **Module 6 — Document Processing and Search**
-> Stop hunting through SharePoint. Just ask the question.
+> **Module 6 — Document Processing and Research**
+> Find what's inside. Research what's outside. Build the deck.
 
 ---
 
 ## Script
 
-Hey, I'm Peter. Welcome to Module 6.
+Hey -- Wes here. Welcome to Module 6, the last required module before your final assessment.
 
-Be honest -- how often have you needed *one specific page* out of a 200-page spec, and spent twenty minutes scrolling through PDFs trying to find it? Or asked three different people what our policy is on something, and gotten three different answers?
-
-That's the problem this module solves.
-
-AI changes search in a really fundamental way. Old search matches keywords -- if the document says "PFD" and you typed "life jacket," you get nothing. AI search **understands the meaning** of your question and finds the answer, even when the words don't match.
+Up to this point, you've used AI for emails, reports, spreadsheets, and media. This module is about the heavy lifting -- the kind of work that used to take a junior team a week.
 
 We're going to cover three things.
 
-First, **searching company documents.** I'll show you how to ask a real question -- like, "what's our process for handling a differing site condition?" -- and get back a real answer with citations from our actual files.
+First, **searching company documents.** Stop hunting through SharePoint. Ask a real question -- like, *"what's our process for handling a differing site condition?"* -- and get back a real answer with citations from our actual files. There's a term you'll meet here called **RAG** -- Retrieval-Augmented Generation -- and the easy mental model is *open-book exam.* AI looks up the answer in our documents instead of guessing from memory.
 
-Second, **analyzing a document you upload.** Drop in a spec, a contract, a safety plan. Ask AI to pull out the deadlines, the requirements, or the risks.
+Second, **deep research end-to-end.** This is the modern research workflow. **ChatGPT or Claude Deep Research** browses the web for you and produces a long, cited report. Then **Google Notebook LM** turns that report into a briefing, a study guide, even a podcast you can listen to on the drive home. Then **Claude or ChatGPT** drafts the slide deck for your meeting. Three tools. One pipeline. Under an hour.
 
-Third, **extracting structured data.** This one's a quiet superpower. AI can read a wall of dense legal text and turn it into a clean checklist or a table you can actually act on.
+Third, **building your personal AI workflow.** A short security recap of everything you've learned -- prompt injection, hallucinations, wrong formulas, deepfakes, data leakage -- and a survey to reflect on how you plan to use AI in your work.
 
-There's a term you'll hear in this module: **RAG**. It stands for Retrieval-Augmented Generation, and the easy way to think about it is -- it's an **open-book exam**. AI looks up the answer in *our* documents instead of guessing from memory. That's why the Cashman AI Portal is so much more accurate than a generic chatbot for company questions.
+After that, there's a final assessment. Pass it, and you've earned your **Think (AI)mpossible** badge and the Cashman AI Training certificate.
 
-And remember the rule: **company documents stay on company infrastructure.** Use the Portal. Let's go.
+One reminder before we start: **company documents stay on company infrastructure.** Use the Portal for anything internal. Public deep research goes to the cloud, so keep client names and pricing out of those prompts.
+
+Let's finish strong.
 
 ---
 
 ## B-roll / Visuals
 
-- 0:00–0:10 — Peter on camera.
-- 0:10–0:25 — Frustrated person scrolling through PDFs and SharePoint folders. Clock spinning.
-- 0:25–0:45 — Screen capture: a chat-style interface, a question typed in, an answer appearing with a "Source: Project_Spec_v3.pdf, page 47" link.
-- 0:45–1:05 — Three numbered cards: "1. Search company docs · 2. Analyze a single file · 3. Extract structured data."
-- 1:05–1:25 — Animated metaphor: a student opening a textbook to look up the answer. Text overlay: "RAG = Open-Book Exam."
-- 1:25–1:35 — A document with a red "DO NOT UPLOAD TO PUBLIC AI" stamp landing on it; cut to the Cashman AI Portal logo.
-- 1:35–1:45 — Peter back on camera, hand-off.
+- 0:00–0:10 — Wes on camera, upbeat wrap-up energy.
+- 0:10–0:25 — Frustrated person scrolling through PDFs and SharePoint folders. Cut to a chat-style interface answering the same question with a "Source: Project_Spec_v3.pdf, page 47" citation.
+- 0:25–0:50 — Three numbered cards animating in: "1. Search company docs · 2. Deep research pipeline · 3. Build your AI workflow."
+- 0:50–1:10 — Pipeline graphic: Deep Research → Notebook LM → AI slides, with brand glyphs (ChatGPT/Claude, Google, Copilot) animating along the arrows.
+- 1:10–1:25 — Quick rapid-fire montage of the security terms with their icons: Prompt Injection, Hallucinations, Wrong Formulas, Deepfakes, Data Leakage.
+- 1:25–1:35 — A locked-down server icon vs a cloud icon with a red X. Caption: "Company docs → Portal. Always."
+- 1:35–1:45 — Animation of the **Think (AI)mpossible** badge appearing with a chime, hand-off to the final assessment.
 
 ---
 
 ## On-screen text cues
 
-- "Old search matches words. AI search understands questions."
-- "New term: RAG — like an open-book exam for AI."
+- "New mental model: RAG = Open-Book Exam."
+- "Pipeline: Deep Research → Notebook LM → AI slides."
 - "Company documents → Cashman AI Portal. Always."
+- "One badge away: Think (AI)mpossible."

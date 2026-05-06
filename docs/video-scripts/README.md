@@ -39,9 +39,8 @@ for roughly **60–90 seconds** of voiceover and is written for someone who is
 | 3 | Reports and Documents | Bobby | [module-3-intro.md](module-3-intro.md) |
 | 4 | Spreadsheets and Data | Peter | [module-4-intro.md](module-4-intro.md) |
 | 5 | Images, Video, and Media | Bobby | [module-5-intro.md](module-5-intro.md) |
-| 6 | Document Processing and Search | Peter | [module-6-intro.md](module-6-intro.md) |
-| 7 | Power User Tools | Wes | [module-8-intro.md](module-8-intro.md) |
-| Bonus | AI Lunch and Learn | Wes | _(uses recorded video + provided PDF — no script)_ |
+| 6 | Document Processing and Research | Wes | [module-6-intro.md](module-6-intro.md) |
+| Bonus | AI Lunch and Learn | Peter | _(uses recorded video + provided PDF — no script)_ |
 
 ### Lesson videos (3 lessons per module, ~2–3 min each)
 
@@ -56,8 +55,7 @@ inline with one-sentence definitions so AI newcomers stay oriented.
 | 3 | [lessons/module-3-lessons.md](lessons/module-3-lessons.md) | Writing a Report from Scratch · Rewriting and Editing · Templates and Checklists |
 | 4 | [lessons/module-4-lessons.md](lessons/module-4-lessons.md) | AI-Powered Formulas · Data Analysis with AI · Data Cleanup |
 | 5 | [lessons/module-5-lessons.md](lessons/module-5-lessons.md) | Creating Images · Presentations with AI · Video, Audio, Transcription |
-| 6 | [lessons/module-6-lessons.md](lessons/module-6-lessons.md) | Searching Company Documents · Analyzing a Document · Extracting Structured Data |
-| 7 | [lessons/module-8-lessons.md](lessons/module-8-lessons.md) | Claude Cowork · Claude Code · Building Your AI Workflow |
+| 6 | [lessons/module-6-lessons.md](lessons/module-6-lessons.md) | Searching Company Documents · Deep Research End-to-End · Building Your AI Workflow |
 
 ### Slide decks (PowerPoint outlines, intro + 3 lessons per module)
 
@@ -75,4 +73,3 @@ visual cue, timing, and the line of script that triggers the cut. See
 | 4 | [slides/module-4-slides.md](slides/module-4-slides.md) | Intro + 3 lessons |
 | 5 | [slides/module-5-slides.md](slides/module-5-slides.md) | Intro + 3 lessons |
 | 6 | [slides/module-6-slides.md](slides/module-6-slides.md) | Intro + 3 lessons |
-| 7 | [slides/module-8-slides.md](slides/module-8-slides.md) | Intro + 3 lessons |

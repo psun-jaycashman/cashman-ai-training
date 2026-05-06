@@ -50,8 +50,7 @@ The generator produces three layouts:
 | 3 — Reports and Documents | [pptx/module-3/](pptx/module-3/) — intro, report-from-scratch, rewriting-editing, templates |
 | 4 — Spreadsheets and Data | [pptx/module-4/](pptx/module-4/) — intro, formulas, data-analysis, data-cleanup |
 | 5 — Images, Video, and Media | [pptx/module-5/](pptx/module-5/) — intro, images, presentations, video-audio |
-| 6 — Document Processing and Search | [pptx/module-6/](pptx/module-6/) — intro, search, analyze-document, extract-data |
-| 7 — Power User Tools | [pptx/module-8/](pptx/module-8/) — intro, cowork, code, workflow |
+| 6 — Document Processing and Research | [pptx/module-6/](pptx/module-6/) — intro, search, deep-research, ai-workflow |
 | Bonus — AI Lunch and Learn | _(uses provided PDF — not generated)_ |
 
 ## Regenerating the decks
@@ -65,7 +64,7 @@ python3 scripts/generate-slide-decks.py
 To edit content, change the `DECKS` list in
 [`scripts/generate-slide-decks.py`](../../../scripts/generate-slide-decks.py)
 and re-run. To restyle (colors, fonts, layout), edit the theme constants and
-slide-builder helpers at the top of the same file. All 28 files regenerate in
+slide-builder helpers at the top of the same file. All decks regenerate in
 under a second.
 
 ## Detailed outlines (for reference)
@@ -83,4 +82,3 @@ are now the source of truth** for what gets shown alongside the videos.
 | 4 | [module-4-slides.md](module-4-slides.md) |
 | 5 | [module-5-slides.md](module-5-slides.md) |
 | 6 | [module-6-slides.md](module-6-slides.md) |
-| 7 | [module-8-slides.md](module-8-slides.md) |
