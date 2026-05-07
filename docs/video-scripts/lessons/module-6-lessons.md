@@ -37,7 +37,7 @@ That citation piece is huge. A good RAG system tells you exactly where the answe
 
 And one more critical reminder, because it ties into everything: **company documents stay on company infrastructure**. The Cashman AI Portal does this RAG processing on our own servers. If you uploaded those same documents to a public AI tool, that data would leave the building. Don't do that.
 
-For the exercise, go to the Portal. Ask it a question about company procedures. Paste the question and the answer. If documents aren't loaded yet for your role, ask AI to explain how RAG works and paste that.
+For the exercise, go to the Portal. Ask it a question about company HR procedures. Paste the question and the answer. If documents aren't loaded yet for your role, ask AI to explain how RAG works and paste that.
 
 ### B-roll / Visuals
 

@@ -52,3 +52,6 @@ prisma/migrations/
 
 #videos
 
+# Images
+*.jpeg
+

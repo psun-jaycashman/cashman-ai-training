@@ -112,13 +112,13 @@ For your first hands-on task, you're going to log into the Cashman AI Portal and
 
 Before we let you loose with AI, we need to cover four rules. They're short, they're common sense, and they protect you, your projects, and the company.
 
-**Rule one: the Bulletin Board Test.** I just introduced this in the last lesson. If you wouldn't pin the information on a public bulletin board in the lobby, don't paste it into a public AI tool. That covers client contracts, bid pricing, financials, personnel info -- anything proprietary. For that stuff, use the Cashman AI Portal. For public information or general learning, any tool is fine.
+ the Bulletin Board Test.** I just introduced this in the last lesson. If you wouldn't pin the information on a public bulletin board in the lobby, don't paste it into a public AI tool. That covers client contracts, bid pricing, financials, personnel info -- anything proprietary. For that stuff, use the Cashman AI Portal. For public information or general learning, any tool is fine.
 
-**Rule two: always verify AI output.** This goes back to **hallucinations** -- AI confidently inventing facts. AI will state a wrong number with the exact same tone as a right number. So before any AI-generated content leaves your hands -- whether it's an email, a report, a formula, or a calculation -- you read it. You check the dates, the numbers, and the references. Treat AI like a draft, not a final.
+ always verify AI output.** This goes back to **hallucinations** -- AI confidently inventing facts. AI will state a wrong number with the exact same tone as a right number. So before any AI-generated content leaves your hands -- whether it's an email, a report, a formula, or a calculation -- you read it. You check the dates, the numbers, and the references. Treat AI like a draft, not a final.
 
-**Rule three: you are responsible.** This one's blunt, but it has to be said. AI is a tool, like a calculator or a power tool. The operator is responsible for the result. If you send a client a report with fabricated numbers because AI made them up, that's on you, not the AI. Your name is on the document. Own it.
+ you are responsible.** This one's blunt, but it has to be said. AI is a tool, like a calculator or a power tool. The operator is responsible for the result. If you send a client a report with fabricated numbers because AI made them up, that's on you, not the AI. Your name is on the document. Own it.
 
-**Rule four: AI augments. It doesn't replace.** AI is great at first drafts, lookups, summaries, and repetitive formatting. *You* are the one who handles final decisions, client relationships, quality judgment, and safety oversight. The combination is what's powerful. The combination is also what keeps work safe.
+AI augments. It doesn't replace.** AI is great at first drafts, lookups, summaries, and repetitive formatting. *You* are the one who handles final decisions, client relationships, quality judgment, and safety oversight. The combination is what's powerful. The combination is also what keeps work safe.
 
 Coming up next is a short interactive game called the **Bulletin Board Test**. We'll throw four real Cashman scenarios at you and ask: cloud AI, or Cashman AI Portal? Pick the right one. There's instant feedback after each choice. Have fun.
 
