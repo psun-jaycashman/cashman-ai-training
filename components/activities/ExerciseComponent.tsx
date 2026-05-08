@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   PenLine,
   CheckCircle2,
@@ -16,6 +16,13 @@ import {
   Upload,
   FileSpreadsheet,
   Send,
+  Bold,
+  Italic,
+  Underline,
+  Highlighter,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
 } from 'lucide-react';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -27,10 +34,16 @@ interface ExerciseComponentProps {
   isSubmitting?: boolean;
 }
 
+// HTML <font size> ranges 1..7; default 3 = ~13px in our composer.
+const EMAIL_FONT_SIZES = [1, 2, 3, 4, 5, 6, 7] as const;
+type FontSizeStep = (typeof EMAIL_FONT_SIZES)[number];
+
 export default function ExerciseComponent({ exercise, onComplete, isSubmitting = false }: ExerciseComponentProps) {
   const [response, setResponse] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
+  const [emailFontSize, setEmailFontSize] = useState<FontSizeStep>(3);
+  const emailBodyRef = useRef<HTMLDivElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showModelAnswer, setShowModelAnswer] = useState(false);
@@ -138,6 +151,25 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
     setEvalError(null);
     setShowExamples(false);
     setFile(null);
+  };
+
+  // execCommand is deprecated but still the simplest way to do
+  // selection-based rich-text formatting without a heavy editor dep.
+  // Each handler keeps focus inside the editable div so the selection
+  // (and therefore the formatting target) is preserved.
+  const runEmailCommand = (command: string, value?: string) => {
+    const el = emailBodyRef.current;
+    if (!el) return;
+    el.focus();
+    document.execCommand(command, false, value);
+    setEmailBody(el.innerText);
+  };
+
+  const adjustEmailFontSize = (delta: 1 | -1) => {
+    const next = Math.min(7, Math.max(1, emailFontSize + delta)) as FontSizeStep;
+    if (next === emailFontSize) return;
+    setEmailFontSize(next);
+    runEmailCommand('fontSize', String(next));
   };
 
   const submitLabel = emailMode
@@ -403,13 +435,99 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                     className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none"
                   />
                 </div>
-                <textarea
-                  value={emailBody}
-                  onChange={(e) => setEmailBody(e.target.value)}
-                  placeholder={exercise.emailCompose.bodyPlaceholder ?? 'Write your message…'}
-                  rows={12}
-                  className="block w-full px-4 py-3 bg-transparent text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none resize-y border-0"
-                />
+                <div className="flex items-center flex-wrap gap-1 px-3 py-1.5 bg-gray-50 dark:bg-gray-900/40 text-gray-600 dark:text-gray-300">
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('bold'); }}
+                    title="Bold"
+                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+                  >
+                    <Bold className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('italic'); }}
+                    title="Italic"
+                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+                  >
+                    <Italic className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('underline'); }}
+                    title="Underline"
+                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+                  >
+                    <Underline className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('hiliteColor', '#fde68a'); }}
+                    title="Highlight"
+                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+                  >
+                    <Highlighter className="w-4 h-4" />
+                  </button>
+                  <span className="mx-1 h-5 w-px bg-gray-300 dark:bg-gray-700" />
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); adjustEmailFontSize(-1); }}
+                    title="Decrease font size"
+                    disabled={emailFontSize <= 1}
+                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-xs font-semibold disabled:opacity-40"
+                  >
+                    A−
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); adjustEmailFontSize(1); }}
+                    title="Increase font size"
+                    disabled={emailFontSize >= 7}
+                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-sm font-semibold disabled:opacity-40"
+                  >
+                    A+
+                  </button>
+                  <span className="mx-1 h-5 w-px bg-gray-300 dark:bg-gray-700" />
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('justifyLeft'); }}
+                    title="Align left"
+                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+                  >
+                    <AlignLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('justifyCenter'); }}
+                    title="Align center"
+                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+                  >
+                    <AlignCenter className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('justifyRight'); }}
+                    title="Align right"
+                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+                  >
+                    <AlignRight className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="relative">
+                  <div
+                    ref={emailBodyRef}
+                    contentEditable
+                    suppressContentEditableWarning
+                    onInput={(e) => setEmailBody((e.target as HTMLDivElement).innerText)}
+                    className="min-h-[260px] px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none prose-sm max-w-none email-composer-body"
+                    style={{ whiteSpace: 'pre-wrap' }}
+                  />
+                  {emailBody.trim().length === 0 && (
+                    <div className="pointer-events-none absolute top-3 left-4 text-sm text-gray-400 dark:text-gray-500">
+                      {exercise.emailCompose.bodyPlaceholder ?? 'Write your message…'}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ) : (

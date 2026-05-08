@@ -231,6 +231,14 @@ Action items: Tom places the AZ-24 PO by end of day Thursday; Dave finalizes the
     lessonId: 'mod-2-les-3',
     title: 'Draft a Diplomatic Response',
     variant: 'paste-back',
+    emailCompose: {
+      from: 'Pat Reilly <pat.reilly@cashmanco.com>',
+      to: 'Robert J. Thompson <rthompson@portauthority.gov>',
+      cc: 'Sarah Chen <sarah.chen@cashmanco.com>',
+      subjectPlaceholder: 'Re: UNACCEPTABLE DELAYS — pick a tone-setting subject…',
+      bodyPlaceholder:
+        'Acknowledge the frustration, explain the differing site condition factually, and propose a path forward (recovery schedule by Monday)…',
+    },
     instructions:
       'Draft a professional, diplomatic response to the angry client email from the lesson. Use AI to help. Context: the delay is due to unexpected contaminated soil (differing site condition), you have documentation. Paste your response below.',
     scenario:
