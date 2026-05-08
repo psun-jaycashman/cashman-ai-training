@@ -40,13 +40,12 @@ Just describe what you're trying to do and I'll help. If you have specific compa
     ],
     evaluationRubric: {
       criteria: [
-        'The response appears to be a genuine AI-generated reply (not fabricated by the user)',
         'The response describes AI capabilities such as answering questions, drafting text, searching documents, or similar',
         'The response is at least 2-3 sentences long',
       ],
       passingScore: 2,
       systemPrompt:
-        'You are evaluating whether a user successfully logged into an AI portal and asked it what it can do. The user should paste the AI\'s response. Evaluate whether the pasted text looks like a genuine AI response describing capabilities. Be lenient -- any reasonable AI response counts.',
+        'You are evaluating whether a user successfully logged into an AI portal and asked it what it can do. The user should paste the AI\'s response. Evaluate whether the response describes AI capabilities and is reasonably substantive. Be lenient -- any reasonable response describing capabilities counts.',
     },
   },
 

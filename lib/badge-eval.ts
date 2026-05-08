@@ -20,11 +20,20 @@ import {
 import { MODULES, getModule } from '@/lib/module-data';
 import type { Badge, BadgeType } from '@/lib/types';
 
+export interface BadgeEvalFailure {
+  badgeType: BadgeType;
+  message: string;
+}
+
 export async function evaluateAndAwardBadges(
   token: string,
   documentIds: { progress: string; quizScores: string; badges: string },
   userId: string,
-): Promise<{ newBadges: Badge[]; earnedTypes: Set<BadgeType> }> {
+): Promise<{
+  newBadges: Badge[];
+  earnedTypes: Set<BadgeType>;
+  failures: BadgeEvalFailure[];
+}> {
   const [allProgress, existingBadges, quizScores] = await Promise.all([
     getUserProgress(token, documentIds.progress, userId),
     getUserBadges(token, documentIds.badges, userId),
@@ -36,6 +45,7 @@ export async function evaluateAndAwardBadges(
   );
   const earnedTypes = new Set<BadgeType>(existingBadges.map((b) => b.badgeType));
   const newBadges: Badge[] = [];
+  const failures: BadgeEvalFailure[] = [];
 
   const totalCompleted = completedSet.size;
 
@@ -63,8 +73,11 @@ export async function evaluateAndAwardBadges(
       earnedTypes.add(badgeType);
     } catch (err) {
       // Don't let one failed insert stop the rest of the evaluation; log
-      // and continue. The next call to evaluateAndAwardBadges will retry.
+      // the failure and continue. Surfaced to callers so the API can
+      // expose it for debugging instead of returning a misleading 0/N.
+      const message = err instanceof Error ? err.message : String(err);
       console.error('[BADGES] award failed for', badgeType, err);
+      failures.push({ badgeType, message });
     }
   }
 
@@ -101,5 +114,5 @@ export async function evaluateAndAwardBadges(
     }
   }
 
-  return { newBadges, earnedTypes };
+  return { newBadges, earnedTypes, failures };
 }

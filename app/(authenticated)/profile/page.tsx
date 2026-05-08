@@ -9,6 +9,8 @@ import {
   Award,
   Download,
   CheckCircle2,
+  RefreshCw,
+  AlertCircle,
 } from 'lucide-react';
 import ProgressRing from '@/components/modules/ProgressRing';
 import BadgeGrid from '@/components/gamification/BadgeGrid';
@@ -30,20 +32,60 @@ const ALL_BADGE_DEFINITIONS: BadgeDefinition[] = [
   { type: 'think-aimpossible', name: 'Think (AI)mpossible', description: 'Earned the AI Training Certificate', icon: 'Award', criteria: 'Complete 95% of lessons + pass final assessment (80%+)' },
 ];
 
+interface BadgeDiagnostics {
+  failures: Array<{ badgeType: string; message: string }>;
+  error: string | null;
+}
+
 export default function ProfilePage() {
   const { user } = useSession();
   const [modules, setModules] = useState<Module[]>([]);
   const [progress, setProgress] = useState<UserProgress[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [diagnostics, setDiagnostics] = useState<BadgeDiagnostics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function loadBadges() {
+    const badgesRes = await fetch(`${basePath}/api/badges`, { credentials: 'include' });
+    if (!badgesRes.ok) return;
+    const data = await badgesRes.json();
+    const earned = Array.isArray(data?.earned)
+      ? data.earned
+      : Array.isArray(data?.badges) && data.badges[0]?.badgeType
+        ? data.badges
+        : Array.isArray(data)
+          ? data
+          : [];
+    setBadges(earned);
+    if (data?.diagnostics) {
+      setDiagnostics({
+        failures: Array.isArray(data.diagnostics.failures) ? data.diagnostics.failures : [],
+        error: data.diagnostics.error ?? null,
+      });
+    }
+  }
+
+  async function refreshBadges() {
+    setRefreshing(true);
+    try {
+      // POST triggers an active retro-award and returns just the new ones;
+      // re-load via GET so the full earned list is consistent.
+      await fetch(`${basePath}/api/badges`, { method: 'POST', credentials: 'include' });
+      await loadBadges();
+    } catch (err) {
+      console.error('Failed to refresh badges:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [modulesRes, progressRes, badgesRes] = await Promise.all([
+        const [modulesRes, progressRes] = await Promise.all([
           fetch(`${basePath}/api/modules`, { credentials: 'include' }),
           fetch(`${basePath}/api/progress`, { credentials: 'include' }),
-          fetch(`${basePath}/api/badges`, { credentials: 'include' }),
         ]);
 
         if (modulesRes.ok) {
@@ -54,20 +96,7 @@ export default function ProfilePage() {
           const data = await progressRes.json();
           setProgress(data.progress || data || []);
         }
-        if (badgesRes.ok) {
-          const data = await badgesRes.json();
-          // /api/badges returns { badges: <static definitions>, earned: <user's badges> }.
-          // The user's earned badges live under `data.earned`; `data.badges` is
-          // the catalog. Fall back gracefully if the shape ever changes.
-          const earned = Array.isArray(data?.earned)
-            ? data.earned
-            : Array.isArray(data?.badges) && data.badges[0]?.badgeType
-              ? data.badges
-              : Array.isArray(data)
-                ? data
-                : [];
-          setBadges(earned);
-        }
+        await loadBadges();
       } catch (err) {
         console.error('Failed to fetch profile data:', err);
       } finally {
@@ -199,12 +228,41 @@ export default function ProfilePage() {
 
       {/* Badges */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <Award className="w-5 h-5 text-amber-500" />
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Badges ({earnedBadgeTypes.length}/{ALL_BADGE_DEFINITIONS.length})
-          </h2>
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <div className="flex items-center gap-2">
+            <Award className="w-5 h-5 text-amber-500" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Badges ({earnedBadgeTypes.length}/{ALL_BADGE_DEFINITIONS.length})
+            </h2>
+          </div>
+          <button
+            onClick={refreshBadges}
+            disabled={refreshing}
+            className="inline-flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
         </div>
+        {(diagnostics?.error ||
+          (diagnostics?.failures && diagnostics.failures.length > 0)) && (
+          <div className="mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-sm">
+            <div className="flex items-start gap-2 text-amber-800 dark:text-amber-300">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Badge award issues</p>
+                {diagnostics?.error && (
+                  <p className="text-xs mt-1 opacity-80">Error: {diagnostics.error}</p>
+                )}
+                {diagnostics?.failures?.map((f) => (
+                  <p key={f.badgeType} className="text-xs mt-1 opacity-80">
+                    {f.badgeType}: {f.message}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         <BadgeGrid earnedBadges={earnedBadgeTypes} allBadges={ALL_BADGE_DEFINITIONS} />
       </div>
 

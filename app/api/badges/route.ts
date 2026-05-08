@@ -5,7 +5,7 @@ import {
   getUserBadges,
 } from "@/lib/data-api-client";
 import { BADGE_DEFINITIONS } from "@/lib/module-data";
-import { evaluateAndAwardBadges } from "@/lib/badge-eval";
+import { evaluateAndAwardBadges, type BadgeEvalFailure } from "@/lib/badge-eval";
 
 /**
  * GET /api/badges
@@ -23,16 +23,28 @@ export async function GET(request: NextRequest) {
     const documentIds = await ensureDataDocuments(auth.apiToken);
     // Best-effort retro-award. If it errors (e.g. data-api hiccup), still
     // return whatever badges the user has so the page renders.
+    let evalFailures: BadgeEvalFailure[] = [];
+    let evalError: string | null = null;
     try {
-      await evaluateAndAwardBadges(auth.apiToken, documentIds, auth.userId);
+      const result = await evaluateAndAwardBadges(
+        auth.apiToken,
+        documentIds,
+        auth.userId,
+      );
+      evalFailures = result.failures;
     } catch (err) {
       console.error("[BADGES] retro-award failed; returning current state", err);
+      evalError = err instanceof Error ? err.message : String(err);
     }
     const earned = await getUserBadges(auth.apiToken, documentIds.badges, auth.userId);
 
     return NextResponse.json({
       badges: BADGE_DEFINITIONS,
       earned,
+      diagnostics: {
+        failures: evalFailures,
+        error: evalError,
+      },
     });
   } catch (error) {
     console.error("[BADGES] Failed to fetch badges:", error);
