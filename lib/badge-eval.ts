@@ -25,6 +25,18 @@ export interface BadgeEvalFailure {
   message: string;
 }
 
+export interface BadgeEvalStats {
+  userId: string;
+  progressCount: number;
+  completedCount: number;
+  quizScoreCount: number;
+  perfectQuizCount: number;
+  existingBadgeCount: number;
+  completedLessons: string[];
+  badgeDocumentId: string;
+  progressDocumentId: string;
+}
+
 export async function evaluateAndAwardBadges(
   token: string,
   documentIds: { progress: string; quizScores: string; badges: string },
@@ -33,6 +45,7 @@ export async function evaluateAndAwardBadges(
   newBadges: Badge[];
   earnedTypes: Set<BadgeType>;
   failures: BadgeEvalFailure[];
+  stats: BadgeEvalStats;
 }> {
   const [allProgress, existingBadges, quizScores] = await Promise.all([
     getUserProgress(token, documentIds.progress, userId),
@@ -114,5 +127,17 @@ export async function evaluateAndAwardBadges(
     }
   }
 
-  return { newBadges, earnedTypes, failures };
+  const stats: BadgeEvalStats = {
+    userId,
+    progressCount: allProgress.length,
+    completedCount: completedSet.size,
+    quizScoreCount: quizScores.length,
+    perfectQuizCount: quizScores.filter((s) => s.score === s.maxScore && s.maxScore > 0).length,
+    existingBadgeCount: existingBadges.length,
+    completedLessons: Array.from(completedSet),
+    badgeDocumentId: documentIds.badges,
+    progressDocumentId: documentIds.progress,
+  };
+
+  return { newBadges, earnedTypes, failures, stats };
 }

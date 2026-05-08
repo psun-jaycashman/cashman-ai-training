@@ -35,6 +35,17 @@ const ALL_BADGE_DEFINITIONS: BadgeDefinition[] = [
 interface BadgeDiagnostics {
   failures: Array<{ badgeType: string; message: string }>;
   error: string | null;
+  stats: {
+    userId: string;
+    progressCount: number;
+    completedCount: number;
+    quizScoreCount: number;
+    perfectQuizCount: number;
+    existingBadgeCount: number;
+    completedLessons: string[];
+    badgeDocumentId: string;
+    progressDocumentId: string;
+  } | null;
 }
 
 export default function ProfilePage() {
@@ -62,6 +73,7 @@ export default function ProfilePage() {
       setDiagnostics({
         failures: Array.isArray(data.diagnostics.failures) ? data.diagnostics.failures : [],
         error: data.diagnostics.error ?? null,
+        stats: data.diagnostics.stats ?? null,
       });
     }
   }
@@ -245,12 +257,17 @@ export default function ProfilePage() {
           </button>
         </div>
         {(diagnostics?.error ||
-          (diagnostics?.failures && diagnostics.failures.length > 0)) && (
+          (diagnostics?.failures && diagnostics.failures.length > 0) ||
+          (diagnostics?.stats && earnedBadgeTypes.length === 0)) && (
           <div className="mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-sm">
             <div className="flex items-start gap-2 text-amber-800 dark:text-amber-300">
               <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium">Badge award issues</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium">
+                  {earnedBadgeTypes.length === 0
+                    ? "Badges aren't unlocking yet — diagnostics:"
+                    : 'Badge award issues:'}
+                </p>
                 {diagnostics?.error && (
                   <p className="text-xs mt-1 opacity-80">Error: {diagnostics.error}</p>
                 )}
@@ -259,6 +276,15 @@ export default function ProfilePage() {
                     {f.badgeType}: {f.message}
                   </p>
                 ))}
+                {diagnostics?.stats && (
+                  <ul className="text-xs mt-2 space-y-0.5 opacity-80 font-mono">
+                    <li>visitorId: {diagnostics.stats.userId}</li>
+                    <li>progress records visible: {diagnostics.stats.progressCount}</li>
+                    <li>completed lessons: {diagnostics.stats.completedCount}</li>
+                    <li>quiz scores: {diagnostics.stats.quizScoreCount} (perfect: {diagnostics.stats.perfectQuizCount})</li>
+                    <li>existing badges: {diagnostics.stats.existingBadgeCount}</li>
+                  </ul>
+                )}
               </div>
             </div>
           </div>

@@ -175,6 +175,14 @@ export interface AnswerKeyDownload {
   description?: string;
 }
 
+export interface EmailComposeConfig {
+  from: string;
+  to: string;
+  cc?: string;
+  subjectPlaceholder?: string;
+  bodyPlaceholder?: string;
+}
+
 export interface Exercise {
   id: string;
   moduleId: string;
@@ -198,6 +206,13 @@ export interface Exercise {
   articleUrl?: string;
   reflectionPrompt?: string;
   evaluationRubric?: EvaluationRubric;
+  /**
+   * When set, the response area renders an Outlook-style email composer
+   * (subject + body fields plus prefilled From/To/Cc) and the submit
+   * button reads "Send". The submitted response is the formatted email
+   * (subject line + body) so the rubric still evaluates one block of text.
+   */
+  emailCompose?: EmailComposeConfig;
 }
 
 // ==========================================================================

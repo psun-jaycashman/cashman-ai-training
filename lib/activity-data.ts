@@ -56,6 +56,13 @@ Just describe what you're trying to do and I'll help. If you have specific compa
     lessonId: 'mod-2-les-1',
     title: 'Fix the Bad Email',
     variant: 'paste-back',
+    emailCompose: {
+      from: 'Jim Talbot <jim.talbot@cashmanco.com>',
+      to: 'Mike Anderson <manderson@client.com>',
+      cc: 'Sarah Chen <sarah.chen@cashmanco.com>',
+      subjectPlaceholder: 'Write a clear, specific subject line…',
+      bodyPlaceholder: 'Compose your professional rewrite of Jim\'s email here…',
+    },
     instructions:
       'Copy the bad email from the lesson above. Use Copilot in Outlook or the Cashman AI Portal to rewrite it professionally. Paste the improved version below.',
     scenario:

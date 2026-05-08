@@ -15,6 +15,7 @@ import {
   Download,
   Upload,
   FileSpreadsheet,
+  Send,
 } from 'lucide-react';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -28,6 +29,8 @@ interface ExerciseComponentProps {
 
 export default function ExerciseComponent({ exercise, onComplete, isSubmitting = false }: ExerciseComponentProps) {
   const [response, setResponse] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showModelAnswer, setShowModelAnswer] = useState(false);
@@ -45,6 +48,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
   const acceptedFileTypes = exercise.acceptedFileTypes ?? [];
   const acceptsFile = acceptedFileTypes.length > 0;
   const acceptAttr = acceptedFileTypes.join(',');
+  const emailMode = !!exercise.emailCompose;
   const feedbackPanelLabel =
     hasGoodExamples && hasHints
       ? 'View Hints & Examples'
@@ -54,17 +58,28 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
           ? 'View Good Examples'
           : 'View Answer Key';
 
-  const canSubmit = file !== null || response.trim().length > 0;
+  // In email mode, the assembled email (subject + body) becomes the response
+  // we evaluate. Outside email mode, the textarea drives the response.
+  const composedEmail = emailMode
+    ? `Subject: ${emailSubject.trim()}\n\n${emailBody.trim()}`.trim()
+    : '';
+  const submissionText = emailMode ? composedEmail : response;
+  const canSubmit = emailMode
+    ? emailSubject.trim().length > 0 && emailBody.trim().length > 0
+    : file !== null || response.trim().length > 0;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
+    const completionText = emailMode
+      ? submissionText
+      : response.trim() || (file ? `[uploaded: ${file.name}]` : '');
 
     if (hasRubric) {
       setEvaluating(true);
       setEvalError(null);
       try {
         let res: Response;
-        if (file) {
+        if (file && !emailMode) {
           const fd = new FormData();
           fd.append('exerciseId', exercise.id);
           fd.append('file', file);
@@ -76,7 +91,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               exerciseId: exercise.id,
-              userResponse: response,
+              userResponse: emailMode ? submissionText : response,
             }),
           });
         }
@@ -95,7 +110,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
         }
         // For tracking, persist either the typed text or a stub describing the
         // upload so the activity record carries something meaningful.
-        onComplete(response.trim() || (file ? `[uploaded: ${file.name}]` : ''));
+        onComplete(completionText);
       } catch (err) {
         setEvalError(err instanceof Error ? err.message : 'Failed to evaluate. Try again.');
         setSubmitted(true);
@@ -103,7 +118,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
           setActiveExample(0);
           setShowExamples(true);
         }
-        onComplete(response.trim() || (file ? `[uploaded: ${file.name}]` : ''));
+        onComplete(completionText);
       } finally {
         setEvaluating(false);
       }
@@ -113,7 +128,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
         setActiveExample(0);
         setShowExamples(true);
       }
-      onComplete(response.trim() || (file ? `[uploaded: ${file.name}]` : ''));
+      onComplete(completionText);
     }
   };
 
@@ -125,8 +140,9 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
     setFile(null);
   };
 
-  const submitLabel =
-    exercise.variant === 'article-reflection'
+  const submitLabel = emailMode
+    ? 'Send'
+    : exercise.variant === 'article-reflection'
       ? 'Submit Reflection'
       : hasRubric
         ? 'Submit for Evaluation'
@@ -344,19 +360,73 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
         </div>
       ) : (
         <>
-          <textarea
-            value={response}
-            onChange={(e) => setResponse(e.target.value)}
-            placeholder={
-              acceptsFile
-                ? 'Paste your formulas here, or use the upload button below to submit your spreadsheet…'
-                : 'Paste your result here...'
-            }
-            rows={6}
-            className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 resize-y"
-          />
+          {emailMode && exercise.emailCompose ? (
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+              {/* Outlook-style header strip */}
+              <div className="px-4 py-2 bg-[#0078d4] text-white text-sm font-semibold flex items-center gap-2">
+                <span className="w-5 h-5 rounded-sm bg-white/20 flex items-center justify-center text-[10px] font-bold">
+                  O
+                </span>
+                New Message
+              </div>
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                <div className="flex items-center gap-3 px-4 py-2 text-sm">
+                  <label className="w-14 text-gray-500 dark:text-gray-400 font-medium">From</label>
+                  <span className="text-gray-700 dark:text-gray-300 truncate">
+                    {exercise.emailCompose.from}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 px-4 py-2 text-sm">
+                  <label className="w-14 text-gray-500 dark:text-gray-400 font-medium">To</label>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs">
+                    {exercise.emailCompose.to}
+                  </span>
+                </div>
+                {exercise.emailCompose.cc && (
+                  <div className="flex items-center gap-3 px-4 py-2 text-sm">
+                    <label className="w-14 text-gray-500 dark:text-gray-400 font-medium">Cc</label>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs">
+                      {exercise.emailCompose.cc}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center gap-3 px-4 py-2 text-sm">
+                  <label htmlFor="email-subject" className="w-14 text-gray-500 dark:text-gray-400 font-medium">
+                    Subject
+                  </label>
+                  <input
+                    id="email-subject"
+                    type="text"
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    placeholder={exercise.emailCompose.subjectPlaceholder ?? 'Subject'}
+                    className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none"
+                  />
+                </div>
+                <textarea
+                  value={emailBody}
+                  onChange={(e) => setEmailBody(e.target.value)}
+                  placeholder={exercise.emailCompose.bodyPlaceholder ?? 'Write your message…'}
+                  rows={12}
+                  className="block w-full px-4 py-3 bg-transparent text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none resize-y border-0"
+                />
+              </div>
+            </div>
+          ) : (
+            <textarea
+              value={response}
+              onChange={(e) => setResponse(e.target.value)}
+              placeholder={
+                acceptsFile
+                  ? 'Paste your formulas here, or use the upload button below to submit your spreadsheet…'
+                  : 'Paste your result here...'
+              }
+              rows={6}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 resize-y"
+            />
+          )}
 
-          {acceptsFile && (
+          {acceptsFile && !emailMode && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 <span className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
@@ -434,17 +504,24 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
           <button
             onClick={handleSubmit}
             disabled={!canSubmit || isSubmitting || evaluating}
-            className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+            className={`w-full py-3 px-6 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
+              emailMode
+                ? 'bg-[#0078d4] hover:bg-[#106ebe]'
+                : 'bg-indigo-600 hover:bg-indigo-700'
+            }`}
           >
             {evaluating ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                {file ? 'Parsing & evaluating…' : 'Evaluating...'}
+                {emailMode ? 'Sending…' : file ? 'Parsing & evaluating…' : 'Evaluating...'}
               </>
             ) : isSubmitting ? (
               'Submitting...'
             ) : (
-              submitLabel
+              <>
+                {emailMode && <Send className="w-4 h-4" />}
+                {submitLabel}
+              </>
             )}
           </button>
         </>

@@ -5,7 +5,11 @@ import {
   getUserBadges,
 } from "@/lib/data-api-client";
 import { BADGE_DEFINITIONS } from "@/lib/module-data";
-import { evaluateAndAwardBadges, type BadgeEvalFailure } from "@/lib/badge-eval";
+import {
+  evaluateAndAwardBadges,
+  type BadgeEvalFailure,
+  type BadgeEvalStats,
+} from "@/lib/badge-eval";
 
 /**
  * GET /api/badges
@@ -25,6 +29,7 @@ export async function GET(request: NextRequest) {
     // return whatever badges the user has so the page renders.
     let evalFailures: BadgeEvalFailure[] = [];
     let evalError: string | null = null;
+    let evalStats: BadgeEvalStats | null = null;
     try {
       const result = await evaluateAndAwardBadges(
         auth.apiToken,
@@ -32,6 +37,7 @@ export async function GET(request: NextRequest) {
         auth.userId,
       );
       evalFailures = result.failures;
+      evalStats = result.stats;
     } catch (err) {
       console.error("[BADGES] retro-award failed; returning current state", err);
       evalError = err instanceof Error ? err.message : String(err);
@@ -44,6 +50,7 @@ export async function GET(request: NextRequest) {
       diagnostics: {
         failures: evalFailures,
         error: evalError,
+        stats: evalStats,
       },
     });
   } catch (error) {
