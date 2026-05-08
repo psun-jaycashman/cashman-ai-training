@@ -23,6 +23,8 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
+  List,
+  FileText,
 } from 'lucide-react';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -35,15 +37,24 @@ interface ExerciseComponentProps {
 }
 
 // HTML <font size> ranges 1..7; default 3 = ~13px in our composer.
-const EMAIL_FONT_SIZES = [1, 2, 3, 4, 5, 6, 7] as const;
-type FontSizeStep = (typeof EMAIL_FONT_SIZES)[number];
+const EDITOR_FONT_SIZES = [1, 2, 3, 4, 5, 6, 7] as const;
+type FontSizeStep = (typeof EDITOR_FONT_SIZES)[number];
+
+const WORD_FONT_CHOICES: Array<{ label: string; family: string }> = [
+  { label: 'Calibri', family: 'Calibri, "Segoe UI", system-ui, sans-serif' },
+  { label: 'Arial', family: 'Arial, Helvetica, sans-serif' },
+  { label: 'Times New Roman', family: '"Times New Roman", Times, serif' },
+  { label: 'Georgia', family: 'Georgia, "Times New Roman", serif' },
+  { label: 'Cambria', family: 'Cambria, Georgia, serif' },
+];
 
 export default function ExerciseComponent({ exercise, onComplete, isSubmitting = false }: ExerciseComponentProps) {
   const [response, setResponse] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
-  const [emailBody, setEmailBody] = useState('');
-  const [emailFontSize, setEmailFontSize] = useState<FontSizeStep>(3);
-  const emailBodyRef = useRef<HTMLDivElement | null>(null);
+  const [editorBody, setEditorBody] = useState('');
+  const [editorFontSize, setEditorFontSize] = useState<FontSizeStep>(3);
+  const [editorFontFamily, setEditorFontFamily] = useState<string>(WORD_FONT_CHOICES[0].family);
+  const editorBodyRef = useRef<HTMLDivElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [showModelAnswer, setShowModelAnswer] = useState(false);
@@ -62,6 +73,8 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
   const acceptsFile = acceptedFileTypes.length > 0;
   const acceptAttr = acceptedFileTypes.join(',');
   const emailMode = !!exercise.emailCompose;
+  const wordMode = !!exercise.wordCompose;
+  const richEditorMode = emailMode || wordMode;
   const feedbackPanelLabel =
     hasGoodExamples && hasHints
       ? 'View Hints & Examples'
@@ -71,19 +84,26 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
           ? 'View Good Examples'
           : 'View Answer Key';
 
-  // In email mode, the assembled email (subject + body) becomes the response
-  // we evaluate. Outside email mode, the textarea drives the response.
+  // Email mode submits Subject + body; Word mode submits the body directly;
+  // textarea modes use the typed `response`. The submission is always plain
+  // text so the rubric evaluator continues to operate on a single block.
   const composedEmail = emailMode
-    ? `Subject: ${emailSubject.trim()}\n\n${emailBody.trim()}`.trim()
+    ? `Subject: ${emailSubject.trim()}\n\n${editorBody.trim()}`.trim()
     : '';
-  const submissionText = emailMode ? composedEmail : response;
+  const submissionText = emailMode
+    ? composedEmail
+    : wordMode
+      ? editorBody
+      : response;
   const canSubmit = emailMode
-    ? emailSubject.trim().length > 0 && emailBody.trim().length > 0
-    : file !== null || response.trim().length > 0;
+    ? emailSubject.trim().length > 0 && editorBody.trim().length > 0
+    : wordMode
+      ? editorBody.trim().length > 0
+      : file !== null || response.trim().length > 0;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
-    const completionText = emailMode
+    const completionText = richEditorMode
       ? submissionText
       : response.trim() || (file ? `[uploaded: ${file.name}]` : '');
 
@@ -92,7 +112,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
       setEvalError(null);
       try {
         let res: Response;
-        if (file && !emailMode) {
+        if (file && !richEditorMode) {
           const fd = new FormData();
           fd.append('exerciseId', exercise.id);
           fd.append('file', file);
@@ -104,7 +124,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               exerciseId: exercise.id,
-              userResponse: emailMode ? submissionText : response,
+              userResponse: richEditorMode ? submissionText : response,
             }),
           });
         }
@@ -157,28 +177,35 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
   // selection-based rich-text formatting without a heavy editor dep.
   // Each handler keeps focus inside the editable div so the selection
   // (and therefore the formatting target) is preserved.
-  const runEmailCommand = (command: string, value?: string) => {
-    const el = emailBodyRef.current;
+  const runEditorCommand = (command: string, value?: string) => {
+    const el = editorBodyRef.current;
     if (!el) return;
     el.focus();
     document.execCommand(command, false, value);
-    setEmailBody(el.innerText);
+    setEditorBody(el.innerText);
   };
 
-  const adjustEmailFontSize = (delta: 1 | -1) => {
-    const next = Math.min(7, Math.max(1, emailFontSize + delta)) as FontSizeStep;
-    if (next === emailFontSize) return;
-    setEmailFontSize(next);
-    runEmailCommand('fontSize', String(next));
+  const adjustEditorFontSize = (delta: 1 | -1) => {
+    const next = Math.min(7, Math.max(1, editorFontSize + delta)) as FontSizeStep;
+    if (next === editorFontSize) return;
+    setEditorFontSize(next);
+    runEditorCommand('fontSize', String(next));
+  };
+
+  const setEditorFontFamilyAndApply = (family: string) => {
+    setEditorFontFamily(family);
+    runEditorCommand('fontName', family);
   };
 
   const submitLabel = emailMode
     ? 'Send'
-    : exercise.variant === 'article-reflection'
-      ? 'Submit Reflection'
-      : hasRubric
-        ? 'Submit for Evaluation'
-        : 'Submit Response';
+    : wordMode
+      ? 'Submit Document'
+      : exercise.variant === 'article-reflection'
+        ? 'Submit Reflection'
+        : hasRubric
+          ? 'Submit for Evaluation'
+          : 'Submit Response';
 
   return (
     <div className="space-y-6">
@@ -435,96 +462,61 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                     className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none"
                   />
                 </div>
-                <div className="flex items-center flex-wrap gap-1 px-3 py-1.5 bg-gray-50 dark:bg-gray-900/40 text-gray-600 dark:text-gray-300">
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('bold'); }}
-                    title="Bold"
-                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
-                  >
-                    <Bold className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('italic'); }}
-                    title="Italic"
-                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
-                  >
-                    <Italic className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('underline'); }}
-                    title="Underline"
-                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
-                  >
-                    <Underline className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('hiliteColor', '#fde68a'); }}
-                    title="Highlight"
-                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
-                  >
-                    <Highlighter className="w-4 h-4" />
-                  </button>
-                  <span className="mx-1 h-5 w-px bg-gray-300 dark:bg-gray-700" />
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); adjustEmailFontSize(-1); }}
-                    title="Decrease font size"
-                    disabled={emailFontSize <= 1}
-                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-xs font-semibold disabled:opacity-40"
-                  >
-                    A−
-                  </button>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); adjustEmailFontSize(1); }}
-                    title="Increase font size"
-                    disabled={emailFontSize >= 7}
-                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center text-sm font-semibold disabled:opacity-40"
-                  >
-                    A+
-                  </button>
-                  <span className="mx-1 h-5 w-px bg-gray-300 dark:bg-gray-700" />
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('justifyLeft'); }}
-                    title="Align left"
-                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
-                  >
-                    <AlignLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('justifyCenter'); }}
-                    title="Align center"
-                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
-                  >
-                    <AlignCenter className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onMouseDown={(e) => { e.preventDefault(); runEmailCommand('justifyRight'); }}
-                    title="Align right"
-                    className="w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
-                  >
-                    <AlignRight className="w-4 h-4" />
-                  </button>
-                </div>
+                <FormattingToolbar
+                  runCommand={runEditorCommand}
+                  fontSize={editorFontSize}
+                  onFontSizeChange={adjustEditorFontSize}
+                />
                 <div className="relative">
                   <div
-                    ref={emailBodyRef}
+                    ref={editorBodyRef}
                     contentEditable
                     suppressContentEditableWarning
-                    onInput={(e) => setEmailBody((e.target as HTMLDivElement).innerText)}
-                    className="min-h-[260px] px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none prose-sm max-w-none email-composer-body"
+                    onInput={(e) => setEditorBody((e.target as HTMLDivElement).innerText)}
+                    className="min-h-[260px] px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none prose-sm max-w-none"
                     style={{ whiteSpace: 'pre-wrap' }}
                   />
-                  {emailBody.trim().length === 0 && (
+                  {editorBody.trim().length === 0 && (
                     <div className="pointer-events-none absolute top-3 left-4 text-sm text-gray-400 dark:text-gray-500">
                       {exercise.emailCompose.bodyPlaceholder ?? 'Write your message…'}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : wordMode && exercise.wordCompose ? (
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 overflow-hidden">
+              {/* Word-style title bar */}
+              <div className="px-4 py-2 bg-[#185abd] text-white text-sm font-semibold flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                <span className="truncate">
+                  {exercise.wordCompose.documentTitle ?? 'Document.docx'}
+                </span>
+                <span className="text-xs opacity-80 ml-1">— Word</span>
+              </div>
+              <FormattingToolbar
+                runCommand={runEditorCommand}
+                fontSize={editorFontSize}
+                onFontSizeChange={adjustEditorFontSize}
+                showBullets
+                fontChoices={WORD_FONT_CHOICES}
+                fontFamily={editorFontFamily}
+                onFontFamilyChange={setEditorFontFamilyAndApply}
+              />
+              {/* "Page" — white sheet on a gray canvas, like Word's print layout. */}
+              <div className="px-6 py-6 sm:px-10 bg-gray-100 dark:bg-gray-900">
+                <div className="relative mx-auto max-w-3xl bg-white dark:bg-gray-800 shadow-md rounded-sm border border-gray-200 dark:border-gray-700">
+                  <div
+                    ref={editorBodyRef}
+                    contentEditable
+                    suppressContentEditableWarning
+                    onInput={(e) => setEditorBody((e.target as HTMLDivElement).innerText)}
+                    className="min-h-[480px] px-10 py-12 text-[15px] leading-relaxed text-gray-900 dark:text-white focus:outline-none"
+                    style={{ whiteSpace: 'pre-wrap', fontFamily: editorFontFamily }}
+                  />
+                  {editorBody.trim().length === 0 && (
+                    <div className="pointer-events-none absolute top-12 left-10 text-[15px] text-gray-400 dark:text-gray-500">
+                      {exercise.wordCompose.bodyPlaceholder ?? 'Start typing your document…'}
                     </div>
                   )}
                 </div>
@@ -544,7 +536,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
             />
           )}
 
-          {acceptsFile && !emailMode && (
+          {acceptsFile && !richEditorMode && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 <span className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
@@ -625,19 +617,28 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
             className={`w-full py-3 px-6 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
               emailMode
                 ? 'bg-[#0078d4] hover:bg-[#106ebe]'
-                : 'bg-indigo-600 hover:bg-indigo-700'
+                : wordMode
+                  ? 'bg-[#185abd] hover:bg-[#13478f]'
+                  : 'bg-indigo-600 hover:bg-indigo-700'
             }`}
           >
             {evaluating ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                {emailMode ? 'Sending…' : file ? 'Parsing & evaluating…' : 'Evaluating...'}
+                {emailMode
+                  ? 'Sending…'
+                  : wordMode
+                    ? 'Evaluating document…'
+                    : file
+                      ? 'Parsing & evaluating…'
+                      : 'Evaluating...'}
               </>
             ) : isSubmitting ? (
               'Submitting...'
             ) : (
               <>
                 {emailMode && <Send className="w-4 h-4" />}
+                {wordMode && <FileText className="w-4 h-4" />}
                 {submitLabel}
               </>
             )}
@@ -783,6 +784,147 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
             </div>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+interface FontChoice {
+  label: string;
+  family: string;
+}
+
+interface FormattingToolbarProps {
+  runCommand: (command: string, value?: string) => void;
+  fontSize: number;
+  onFontSizeChange: (delta: 1 | -1) => void;
+  showBullets?: boolean;
+  fontChoices?: FontChoice[];
+  fontFamily?: string;
+  onFontFamilyChange?: (family: string) => void;
+}
+
+function FormattingToolbar({
+  runCommand,
+  fontSize,
+  onFontSizeChange,
+  showBullets = false,
+  fontChoices,
+  fontFamily,
+  onFontFamilyChange,
+}: FormattingToolbarProps) {
+  const btn =
+    'w-8 h-8 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center';
+  const sep = 'mx-1 h-5 w-px bg-gray-300 dark:bg-gray-700';
+  return (
+    <div className="flex items-center flex-wrap gap-1 px-3 py-1.5 bg-gray-50 dark:bg-gray-900/40 text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+      {fontChoices && onFontFamilyChange && (
+        <>
+          <select
+            value={fontFamily}
+            onChange={(e) => onFontFamilyChange(e.target.value)}
+            onMouseDown={(e) => e.stopPropagation()}
+            title="Font"
+            className="h-8 px-2 rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            style={{ fontFamily }}
+          >
+            {fontChoices.map((f) => (
+              <option key={f.label} value={f.family} style={{ fontFamily: f.family }}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+          <span className={sep} />
+        </>
+      )}
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); runCommand('bold'); }}
+        title="Bold"
+        className={btn}
+      >
+        <Bold className="w-4 h-4" />
+      </button>
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); runCommand('italic'); }}
+        title="Italic"
+        className={btn}
+      >
+        <Italic className="w-4 h-4" />
+      </button>
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); runCommand('underline'); }}
+        title="Underline"
+        className={btn}
+      >
+        <Underline className="w-4 h-4" />
+      </button>
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); runCommand('hiliteColor', '#fde68a'); }}
+        title="Highlight"
+        className={btn}
+      >
+        <Highlighter className="w-4 h-4" />
+      </button>
+      <span className={sep} />
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); onFontSizeChange(-1); }}
+        title="Decrease font size"
+        disabled={fontSize <= 1}
+        className={`${btn} text-xs font-semibold disabled:opacity-40`}
+      >
+        A−
+      </button>
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); onFontSizeChange(1); }}
+        title="Increase font size"
+        disabled={fontSize >= 7}
+        className={`${btn} text-sm font-semibold disabled:opacity-40`}
+      >
+        A+
+      </button>
+      <span className={sep} />
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); runCommand('justifyLeft'); }}
+        title="Align left"
+        className={btn}
+      >
+        <AlignLeft className="w-4 h-4" />
+      </button>
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); runCommand('justifyCenter'); }}
+        title="Align center"
+        className={btn}
+      >
+        <AlignCenter className="w-4 h-4" />
+      </button>
+      <button
+        type="button"
+        onMouseDown={(e) => { e.preventDefault(); runCommand('justifyRight'); }}
+        title="Align right"
+        className={btn}
+      >
+        <AlignRight className="w-4 h-4" />
+      </button>
+      {showBullets && (
+        <>
+          <span className={sep} />
+          <button
+            type="button"
+            onMouseDown={(e) => { e.preventDefault(); runCommand('insertUnorderedList'); }}
+            title="Bullet list"
+            className={btn}
+          >
+            <List className="w-4 h-4" />
+          </button>
+        </>
       )}
     </div>
   );

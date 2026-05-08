@@ -183,6 +183,12 @@ export interface EmailComposeConfig {
   bodyPlaceholder?: string;
 }
 
+export interface WordComposeConfig {
+  /** Filename rendered in the doc title bar — e.g. "Progress-Report.docx". */
+  documentTitle?: string;
+  bodyPlaceholder?: string;
+}
+
 export interface Exercise {
   id: string;
   moduleId: string;
@@ -213,6 +219,13 @@ export interface Exercise {
    * (subject line + body) so the rubric still evaluates one block of text.
    */
   emailCompose?: EmailComposeConfig;
+  /**
+   * When set, the response area renders a Word-style document composer
+   * (page-like body with formatting toolbar, font picker, and bullet
+   * list). The submitted response is the body's plain text so the
+   * rubric continues to operate on a single text block.
+   */
+  wordCompose?: WordComposeConfig;
 }
 
 // ==========================================================================

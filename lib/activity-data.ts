@@ -338,6 +338,11 @@ Project Manager, Cashman`,
     lessonId: 'mod-3-les-1',
     title: 'Write a Monthly Progress Report',
     variant: 'paste-back',
+    wordCompose: {
+      documentTitle: 'Galveston-Wharf-March-2026.docx',
+      bodyPlaceholder:
+        'Draft the monthly progress report here. Lead with an executive summary, then Schedule, Budget, Safety, Work Completed, Upcoming Work, and Open Issues…',
+    },
     instructions:
       'Use the project notes from the lesson to produce a formal monthly progress report. Use the Cashman AI Portal or Word Copilot. Review and edit the output before pasting it below.',
     scenario:
@@ -430,6 +435,11 @@ Precast cap delivery delayed ~2 weeks by manufacturer. Mitigation in progress wi
     lessonId: 'mod-3-les-2',
     title: 'Summarize the Quincy Daily Reports',
     variant: 'paste-back',
+    wordCompose: {
+      documentTitle: 'Quincy-Daily-Reports-Summary.docx',
+      bodyPlaceholder:
+        'Paste your executive summary and thematic insights here. Group findings by theme (productivity, weather, equipment, safety, manpower, milestones)…',
+    },
     instructions:
       'Download the combined Quincy daily reports PDF from the lesson above. Use AI to produce (1) a 2–3 paragraph executive summary covering the entire 9-week period and (2) a structured insights list grouped by theme (productivity, weather, equipment, safety, etc.). Verify a few specific facts against the source PDF. Paste your final summary + insights below.',
     scenario:
@@ -528,6 +538,11 @@ The most significant challenges over the period were weather-driven cold snaps a
     lessonId: 'mod-3-les-3',
     title: 'Create a Reusable Template',
     variant: 'paste-back',
+    wordCompose: {
+      documentTitle: 'Reusable-Template.docx',
+      bodyPlaceholder:
+        'Build your reusable document template here. Use clear [PLACEHOLDER] brackets for project-specific fields…',
+    },
     instructions:
       'Think of a document you write repeatedly at work. Ask AI to create a reusable template with placeholder fields. Paste the template below.',
     scenario:
