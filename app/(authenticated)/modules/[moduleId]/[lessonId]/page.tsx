@@ -6,16 +6,19 @@ import Link from 'next/link';
 import {
   ArrowLeft,
   ArrowRight,
+  Award,
   CheckCircle2,
   Clock,
   FileQuestion,
   Loader2,
+  Trophy,
 } from 'lucide-react';
-import type { Module, Lesson, UserProgress, TrainingVideoWithPlayback } from '@/lib/types';
+import type { Badge, Module, Lesson, Quiz, UserProgress, TrainingVideoWithPlayback } from '@/lib/types';
 import { getExercise, getGame, getSurvey } from '@/lib/activity-data';
 import ExerciseComponent from '@/components/activities/ExerciseComponent';
 import GameComponent from '@/components/activities/GameComponent';
 import SurveyComponent from '@/components/activities/SurveyComponent';
+import QuizComponent from '@/components/modules/QuizComponent';
 import VideoPlayer from '@/components/VideoPlayer';
 import YoutubeLinkEnhancer from '@/components/YoutubeLinkEnhancer';
 import { extractYoutubeId } from '@/lib/youtube';
@@ -105,6 +108,10 @@ export default function LessonViewPage() {
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [quizSubmitting, setQuizSubmitting] = useState(false);
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [quizNewBadges, setQuizNewBadges] = useState<Badge[]>([]);
   const lessonContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -164,6 +171,52 @@ export default function LessonViewPage() {
       setMarking(false);
     }
   }, [moduleId, lessonId]);
+
+  // Fetch the lesson's quiz (if any) so we can render it inline.
+  const lessonQuizId = module_?.lessons?.find((l) => l.id === lessonId)?.quizId;
+  useEffect(() => {
+    if (!lessonQuizId) {
+      setQuiz(null);
+      setQuizSubmitted(false);
+      setQuizNewBadges([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${basePath}/api/quizzes/${lessonQuizId}`, { credentials: 'include' });
+        if (!res.ok || cancelled) return;
+        const data = await res.json();
+        if (!cancelled) setQuiz(data.quiz || data);
+      } catch (err) {
+        console.error('Failed to fetch quiz:', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [lessonQuizId]);
+
+  const handleQuizSubmit = useCallback(async (answers: Record<string, number | number[]>) => {
+    if (!quiz) return;
+    setQuizSubmitting(true);
+    try {
+      const res = await fetch(`${basePath}/api/quizzes/${quiz.id}/submit`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setQuizNewBadges(data.newBadges || []);
+        setQuizSubmitted(true);
+        if (!isComplete) markComplete();
+      }
+    } catch (err) {
+      console.error('Failed to submit quiz:', err);
+    } finally {
+      setQuizSubmitting(false);
+    }
+  }, [quiz, isComplete, markComplete]);
 
   if (loading) {
     return (
@@ -282,21 +335,42 @@ export default function LessonViewPage() {
       </div>
 
       {/* Activity Section */}
-      {lesson.activityType === 'quiz' && lesson.quizId && (
-        <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <FileQuestion className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Knowledge Check</h3>
+      {lesson.activityType === 'quiz' && lesson.quizId && quiz && quiz.questions?.length > 0 && (
+        <div className="mb-6">
+          <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-6 mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <FileQuestion className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{quiz.title}</h3>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {quiz.questions.length} question{quiz.questions.length !== 1 ? 's' : ''} — select the best answer for each.
+            </p>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Test your understanding of this lesson with a short quiz.
-          </p>
-          <Link
-            href={`/modules/${moduleId}/${lessonId}/quiz`}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
-          >
-            Take Quiz <ArrowRight className="w-4 h-4" />
-          </Link>
+          <QuizComponent
+            questions={quiz.questions}
+            onSubmit={handleQuizSubmit}
+            isSubmitting={quizSubmitting}
+          />
+          {quizSubmitted && quizNewBadges.length > 0 && (
+            <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6 text-center">
+              <Trophy className="w-10 h-10 text-amber-500 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                New Badge{quizNewBadges.length > 1 ? 's' : ''} Earned!
+              </h3>
+              <div className="flex justify-center gap-4 mt-4">
+                {quizNewBadges.map((badge) => (
+                  <div key={badge.id} className="flex flex-col items-center gap-1">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white">
+                      <Award className="w-6 h-6" />
+                    </div>
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                      {badge.badgeType.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
