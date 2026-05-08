@@ -4,13 +4,10 @@ import {
   ensureDataDocuments,
   saveQuizScore,
   getUserQuizScores,
-  getUserBadges,
-  awardBadge,
-  getUserProgress,
 } from "@/lib/data-api-client";
-import { getQuiz, MODULES } from "@/lib/module-data";
+import { getQuiz } from "@/lib/module-data";
 import { generateId, getNow } from "@jazzmind/busibox-app";
-import type { Badge, BadgeType } from "@/lib/types";
+import { evaluateAndAwardBadges } from "@/lib/badge-eval";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -111,13 +108,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       answers,
     });
 
-    // Check for perfect-score badge and other quiz-related badges
-    const newBadges = await checkQuizBadges(
+    // Run the shared badge evaluator so the quiz can also unlock badges that
+    // depend on lesson completion (first-steps, module-completion, etc.) — not
+    // just perfect-score. Idempotent; already-earned badges are skipped.
+    const { newBadges } = await evaluateAndAwardBadges(
       auth.apiToken,
       documentIds,
       auth.userId,
-      score,
-      maxScore
     );
 
     return NextResponse.json({
@@ -138,73 +135,4 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
-
-/**
- * Check for quiz-related badges after submission.
- */
-async function checkQuizBadges(
-  token: string,
-  documentIds: { progress: string; quizScores: string; badges: string },
-  userId: string,
-  latestScore: number,
-  latestMaxScore: number
-): Promise<Badge[]> {
-  const existingBadges = await getUserBadges(token, documentIds.badges, userId);
-  const earnedTypes = new Set(existingBadges.map((b) => b.badgeType));
-  const newBadges: Badge[] = [];
-
-  async function tryAward(badgeType: BadgeType, metadata: Record<string, unknown> = {}): Promise<void> {
-    if (earnedTypes.has(badgeType)) return;
-    const badge: Badge = {
-      id: generateId(),
-      visitorId: userId,
-      badgeType,
-      earnedAt: getNow(),
-      metadata,
-    };
-    const awarded = await awardBadge(token, documentIds.badges, badge);
-    newBadges.push(awarded);
-    earnedTypes.add(badgeType);
-  }
-
-  // perfect-score: any quiz with 100%
-  if (latestScore === latestMaxScore && latestMaxScore > 0) {
-    await tryAward("perfect-score");
-  }
-
-  // think-aimpossible: >= 95% of all lessons complete + final assessment >= 80%
-  if (!earnedTypes.has("think-aimpossible")) {
-    const [allProgress, allQuizScores] = await Promise.all([
-      getUserProgress(token, documentIds.progress, userId),
-      getUserQuizScores(token, documentIds.quizScores, userId),
-    ]);
-
-    const completedSet = new Set(
-      allProgress.filter((p) => p.completed).map((p) => `${p.moduleId}:${p.lessonId}`)
-    );
-
-    // Only required (non-bonus) modules count toward the 95% threshold.
-    const requiredModules = MODULES.filter((m) => !m.isBonus);
-    const totalLessons = requiredModules.reduce(
-      (sum, m) => sum + m.lessons.length,
-      0
-    );
-    const completedLessons = requiredModules.reduce(
-      (sum, m) =>
-        sum + m.lessons.filter((l) => completedSet.has(`${m.id}:${l.id}`)).length,
-      0
-    );
-
-    if (totalLessons > 0 && completedLessons / totalLessons >= 0.95) {
-      const finalQuiz = allQuizScores.find(
-        (s) => s.quizId === "quiz-final" && s.maxScore > 0
-      );
-      if (finalQuiz && finalQuiz.score / finalQuiz.maxScore >= 0.8) {
-        await tryAward("think-aimpossible");
-      }
-    }
-  }
-
-  return newBadges;
 }

@@ -153,7 +153,7 @@ export default function LessonViewPage() {
     fetchData();
   }, [moduleId, lessonId]);
 
-  const markComplete = useCallback(async () => {
+  const markComplete = useCallback(async (): Promise<Badge[]> => {
     setMarking(true);
     try {
       const res = await fetch(`${basePath}/api/progress`, {
@@ -164,12 +164,15 @@ export default function LessonViewPage() {
       });
       if (res.ok) {
         setIsComplete(true);
+        const data = await res.json().catch(() => ({}));
+        return Array.isArray(data?.newBadges) ? data.newBadges : [];
       }
     } catch (err) {
       console.error('Failed to mark complete:', err);
     } finally {
       setMarking(false);
     }
+    return [];
   }, [moduleId, lessonId]);
 
   // Fetch the lesson's quiz (if any) so we can render it inline.
@@ -207,9 +210,18 @@ export default function LessonViewPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setQuizNewBadges(data.newBadges || []);
+        const fromQuiz: Badge[] = Array.isArray(data?.newBadges) ? data.newBadges : [];
+        // Mark complete after the quiz so any badges that depend on lesson
+        // completion (first-steps, module-completion) get awarded too.
+        const fromMarkComplete = !isComplete ? await markComplete() : [];
+        const seen = new Set<string>();
+        const merged = [...fromQuiz, ...fromMarkComplete].filter((b) => {
+          if (!b || seen.has(b.badgeType)) return false;
+          seen.add(b.badgeType);
+          return true;
+        });
+        setQuizNewBadges(merged);
         setQuizSubmitted(true);
-        if (!isComplete) markComplete();
       }
     } catch (err) {
       console.error('Failed to submit quiz:', err);

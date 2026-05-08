@@ -32,7 +32,16 @@ export default function DashboardPage() {
         }
         if (badgesRes.ok) {
           const data = await badgesRes.json();
-          setBadges(data.badges || data || []);
+          // /api/badges returns { badges: <catalog>, earned: <user's badges> }.
+          // The dashboard counts the user's earned badges, not the catalog.
+          const earned = Array.isArray(data?.earned)
+            ? data.earned
+            : Array.isArray(data?.badges) && data.badges[0]?.badgeType
+              ? data.badges
+              : Array.isArray(data)
+                ? data
+                : [];
+          setBadges(earned);
         }
         if (progressRes.ok) {
           const data = await progressRes.json();

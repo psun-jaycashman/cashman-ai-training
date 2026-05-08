@@ -546,6 +546,16 @@ interface StoredBadge extends Omit<Badge, 'metadata'> {
   metadata: string;
 }
 
+function parseBadgeMetadata(raw: unknown): Record<string, unknown> {
+  if (!raw || typeof raw !== 'string') return {};
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
+
 export async function getUserBadges(
   token: string,
   documentId: string,
@@ -558,7 +568,7 @@ export async function getUserBadges(
 
   return result.records.map((record) => ({
     ...record,
-    metadata: JSON.parse(record.metadata) as Record<string, unknown>,
+    metadata: parseBadgeMetadata(record.metadata),
   }));
 }
 
@@ -582,13 +592,13 @@ export async function awardBadge(
     // Badge already awarded, return existing
     return {
       ...existing.records[0],
-      metadata: JSON.parse(existing.records[0].metadata) as Record<string, unknown>,
+      metadata: parseBadgeMetadata(existing.records[0].metadata),
     };
   }
 
   const storedBadge: StoredBadge = {
     ...badge,
-    metadata: JSON.stringify(badge.metadata),
+    metadata: JSON.stringify(badge.metadata ?? {}),
   };
 
   // 'inherit' so admins (and the leaderboard) can read every user's badges,
@@ -609,7 +619,7 @@ export async function getAllBadges(
 
   return result.records.map((record) => ({
     ...record,
-    metadata: JSON.parse(record.metadata) as Record<string, unknown>,
+    metadata: parseBadgeMetadata(record.metadata),
   }));
 }
 
