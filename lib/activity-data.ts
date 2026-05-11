@@ -1162,8 +1162,18 @@ When a differing site condition is encountered, the field team should:
     lessonId: 'mod-6-les-2',
     title: 'Run the Deep Research → Notebook LM → Slides Pipeline',
     variant: 'paste-back',
+    acceptedFileTypes: [
+      '.pdf',
+      '.doc',
+      '.docx',
+      '.ppt',
+      '.pptx',
+      '.txt',
+      '.md',
+    ],
+    allowMultipleFiles: true,
     instructions:
-      'Pick a real research question relevant to your work and run the full three-tool pipeline. Below, paste: (1) the Deep Research prompt + tool you used, (2) one insight Notebook LM surfaced that the raw report didn\'t, (3) your final 10-slide outline (markdown or bulleted), and (4) one thing you would verify before sharing the deck.',
+      'Pick a real research question relevant to your work and run the full three-tool pipeline. Below, paste: (1) the Deep Research prompt + tool you used, (2) one insight Notebook LM surfaced that the raw report didn\'t, (3) your final 10-slide outline (markdown or bulleted), and (4) one thing you would verify before sharing the deck. You can also attach the actual artifacts from each step (Deep Research PDF, Notebook LM export, slide deck).',
     scenario:
       'The user runs an end-to-end research pipeline. Step 1: ChatGPT or Claude Deep Research produces a long cited report. Step 2: Google Notebook LM ingests the report (and optionally other PDFs) and generates a briefing / FAQ / study guide / audio overview. Step 3: Claude or ChatGPT (or Copilot in PowerPoint) drafts a 10-slide deck from the synthesis. Good submissions show all three steps with their actual prompts and outputs.',
     hints: [

@@ -605,7 +605,39 @@ export async function awardBadge(
   // matching the pattern used by progress / training-users / submissions.
   // Without this, records default to creator-personal even on an
   // 'authenticated' document, which silently breaks cross-user views.
-  await insertRecords(token, documentId, [storedBadge], { recordVisibility: 'inherit' });
+  const insertResponse = await insertRecords(
+    token,
+    documentId,
+    [storedBadge],
+    { recordVisibility: 'inherit' },
+  );
+
+  // insertRecords throws on non-2xx, so reaching here means the data-api
+  // accepted the request. We've observed the symptom "accepted but never
+  // visible on re-query" (badges stay at 0 even after repeated awards).
+  // Catch both the count=0 soft-failure (data-api accepted the request
+  // but persisted nothing) and the inserted-but-invisible RLS case.
+  if (!insertResponse?.count) {
+    throw new Error(
+      `data-api returned 200 but count=${insertResponse?.count ?? 'undefined'}; response=${JSON.stringify(insertResponse)}`,
+    );
+  }
+
+  const verify = await queryRecords<StoredBadge>(token, documentId, {
+    where: {
+      and: [
+        { field: 'visitorId', op: 'eq', value: badge.visitorId },
+        { field: 'badgeType', op: 'eq', value: badge.badgeType },
+      ],
+    },
+    limit: 1,
+  });
+  if (verify.records.length === 0) {
+    throw new Error(
+      `insert reported count=${insertResponse.count} (recordIds=${JSON.stringify(insertResponse.recordIds)}) but row not visible on re-query for visitorId=${badge.visitorId} badgeType=${badge.badgeType}`,
+    );
+  }
+
   return badge;
 }
 

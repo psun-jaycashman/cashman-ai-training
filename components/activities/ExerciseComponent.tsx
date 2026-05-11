@@ -55,7 +55,8 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
   const [editorFontSize, setEditorFontSize] = useState<FontSizeStep>(3);
   const [editorFontFamily, setEditorFontFamily] = useState<string>(WORD_FONT_CHOICES[0].family);
   const editorBodyRef = useRef<HTMLDivElement | null>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const file = files[0] ?? null;
   const [submitted, setSubmitted] = useState(false);
   const [showModelAnswer, setShowModelAnswer] = useState(false);
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
@@ -72,6 +73,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
   const acceptedFileTypes = exercise.acceptedFileTypes ?? [];
   const acceptsFile = acceptedFileTypes.length > 0;
   const acceptAttr = acceptedFileTypes.join(',');
+  const allowMultipleFiles = !!exercise.allowMultipleFiles;
   const emailMode = !!exercise.emailCompose;
   const wordMode = !!exercise.wordCompose;
   const richEditorMode = emailMode || wordMode;
@@ -99,23 +101,35 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
     ? emailSubject.trim().length > 0 && editorBody.trim().length > 0
     : wordMode
       ? editorBody.trim().length > 0
-      : file !== null || response.trim().length > 0;
+      : files.length > 0 || response.trim().length > 0;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
+    const fileSummary =
+      files.length === 0
+        ? ''
+        : files.length === 1
+          ? `[uploaded: ${files[0].name}]`
+          : `[uploaded ${files.length} files: ${files.map((f) => f.name).join(', ')}]`;
     const completionText = richEditorMode
       ? submissionText
-      : response.trim() || (file ? `[uploaded: ${file.name}]` : '');
+      : response.trim() || fileSummary;
 
     if (hasRubric) {
       setEvaluating(true);
       setEvalError(null);
       try {
         let res: Response;
-        if (file && !richEditorMode) {
+        if (files.length > 0 && !richEditorMode) {
           const fd = new FormData();
           fd.append('exerciseId', exercise.id);
-          fd.append('file', file);
+          // First file uses the historical "file" field for backward compat
+          // with the existing single-file (.xlsx) parser; any additional
+          // files come through "files" entries.
+          fd.append('file', files[0]);
+          for (let i = 1; i < files.length; i++) {
+            fd.append('files', files[i]);
+          }
           if (response.trim()) fd.append('userResponse', response);
           res = await fetch('/api/activities/evaluate', { method: 'POST', body: fd });
         } else {
@@ -170,7 +184,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
     setEvaluation(null);
     setEvalError(null);
     setShowExamples(false);
-    setFile(null);
+    setFiles([]);
   };
 
   // execCommand is deprecated but still the simplest way to do

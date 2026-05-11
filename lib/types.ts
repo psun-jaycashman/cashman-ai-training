@@ -209,6 +209,13 @@ export interface Exercise {
    * Example: ['.xlsx'] for the Module 4 Lesson 1 spreadsheet exercise.
    */
   acceptedFileTypes?: string[];
+  /**
+   * When true, the file picker accepts multiple files at once and the
+   * server uploads each into the shared submissions library. Useful for
+   * multi-step pipeline submissions (e.g. Deep Research PDF + slide
+   * deck + Notebook LM export).
+   */
+  allowMultipleFiles?: boolean;
   articleUrl?: string;
   reflectionPrompt?: string;
   evaluationRubric?: EvaluationRubric;
