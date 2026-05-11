@@ -1,141 +1,94 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  addRoleToDocuments,
-  bulkSetRecordVisibility,
   deleteRecords,
-  extractAppRoleIdFromToken,
   getDocumentRoles,
   queryRecords,
+  updateDocumentRoles,
 } from '@jazzmind/busibox-app';
 import { requireAdmin } from '@/lib/video-admin-role';
 import { ensureDataDocuments } from '@/lib/data-api-client';
 
 export const runtime = 'nodejs';
 
-interface StoredBadgeRow {
-  id: string;
-  visitorId: string;
-  badgeType: string;
-  earnedAt?: string;
-}
-
 /**
  * POST /api/admin/badges/repair
  *
- * One-shot repair for the ai-training-badges document. Background:
- * inserts had been silently invisible — the data-api accepted writes
- * (returned count=1 + recordIds) but the inserter could not read the
- * record back, so each lesson-completion + refresh attempted another
- * insert and accumulated orphan rows.
+ * One-shot repair for the ai-training-badges document.
  *
- * Root cause: the document was created with visibility 'authenticated'
- * but no app role bound. Records inserted with recordVisibility:
- * 'inherit' inherited an empty role set and became invisible to every
- * caller, including the creator.
+ * Symptom: data-api accepted inserts (returned count=1 + recordIds) but
+ * the inserter could not read the row back. Cause: the doc was bound to
+ * a stray "User" role that nobody's token actually carries, so records
+ * inheriting `shared+[User]` became invisible to everyone.
  *
  * This route:
- *   1. Binds app:cashman-ai-training to the badges document (idempotent).
- *   2. Reads every existing badge row (paginated) and dedupes by
- *      (visitorId, badgeType), keeping the oldest by earnedAt.
- *   3. Deletes the duplicates.
- *   4. Re-stamps the survivors with recordVisibility 'inherit' so they
- *      follow the now-bound role and become visible to their owners.
+ *   1. Strips ALL role bindings on the badges doc and switches it to
+ *      'authenticated' visibility (matches trainingUsers, the closest
+ *      working analog). The SDK's TS sig restricts updateDocumentRoles to
+ *      'personal' | 'shared' but the underlying API endpoint accepts
+ *      'authenticated' too — createDataDocument proves it — so we cast.
+ *   2. Pages through every existing badge record and deletes them. They
+ *      were stamped with the bad visibility at insert time and aren't
+ *      worth re-stamping; the next eval pass on the profile page will
+ *      regenerate every badge the user has earned.
  *
- * Idempotent: safe to re-run.
+ * Idempotent: safe to re-run. After running, refresh the profile page.
  */
 export async function POST(request: NextRequest) {
   const auth = await requireAdmin(request);
   if (auth instanceof NextResponse) return auth;
 
-  const ids = await ensureDataDocuments(auth.apiToken);
+  const apiToken = auth.apiToken;
+  const ids = await ensureDataDocuments(apiToken);
 
-  const appRoleId = extractAppRoleIdFromToken(auth.apiToken, 'cashman-ai-training')[0];
-  if (!appRoleId) {
-    return NextResponse.json(
-      {
-        error: 'Caller token does not contain an app:cashman-ai-training role.',
-        hint: 'Confirm the user has app access in authz before retrying.',
-      },
-      { status: 400 },
-    );
-  }
+  const before = await getDocumentRoles(apiToken, ids.badges);
 
-  // 1. Bind the app role to the badges document. addRoleToDocuments is
-  //    idempotent so this is safe whether or not it was already bound.
-  await addRoleToDocuments(auth.apiToken, appRoleId, [ids.badges]);
+  // Step 1: clear roles + set visibility to 'authenticated'.
+  // The SDK type narrows to 'personal' | 'shared' but the wire protocol
+  // accepts 'authenticated' (see createDataDocument).
+  await updateDocumentRoles(
+    apiToken,
+    ids.badges,
+    [],
+    'authenticated' as 'personal' | 'shared',
+  );
 
-  const rolesAfterBind = await getDocumentRoles(auth.apiToken, ids.badges);
+  const after = await getDocumentRoles(apiToken, ids.badges);
 
-  // 2. Page through every badge row. The doc role was just added so this
-  //    call sees rows that the original inserter never could.
-  const all: StoredBadgeRow[] = [];
+  // Step 2: wipe orphan records. Page through every row id and delete.
+  const orphanIds: string[] = [];
   const pageSize = 500;
   let offset = 0;
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const page = await queryRecords<StoredBadgeRow>(auth.apiToken, ids.badges, {
+    const page = await queryRecords<{ id: string }>(apiToken, ids.badges, {
       limit: pageSize,
       offset,
     });
-    all.push(...page.records);
+    for (const row of page.records) orphanIds.push(row.id);
     if (page.records.length < pageSize) break;
     offset += pageSize;
   }
 
-  // 3. Group by (visitorId, badgeType); keep the oldest earnedAt, mark
-  //    the rest for deletion.
-  const keepers = new Map<string, StoredBadgeRow>();
-  const dupes: string[] = [];
-  for (const row of all) {
-    const key = `${row.visitorId}::${row.badgeType}`;
-    const existing = keepers.get(key);
-    if (!existing) {
-      keepers.set(key, row);
-      continue;
-    }
-    const existingTime = Date.parse(existing.earnedAt ?? '') || Number.POSITIVE_INFINITY;
-    const rowTime = Date.parse(row.earnedAt ?? '') || Number.POSITIVE_INFINITY;
-    if (rowTime < existingTime) {
-      dupes.push(existing.id);
-      keepers.set(key, row);
-    } else {
-      dupes.push(row.id);
-    }
-  }
-
   let deleted = 0;
-  if (dupes.length > 0) {
-    const result = await deleteRecords(auth.apiToken, ids.badges, undefined, dupes);
+  if (orphanIds.length > 0) {
+    const result = await deleteRecords(apiToken, ids.badges, undefined, orphanIds);
     deleted = result.count;
-  }
-
-  // 4. Re-stamp survivors with 'inherit' so they pick up the bound role.
-  const survivorIds = Array.from(keepers.values()).map((r) => r.id);
-  let restamped = 0;
-  if (survivorIds.length > 0) {
-    const result = await bulkSetRecordVisibility(
-      auth.apiToken,
-      ids.badges,
-      survivorIds,
-      'inherit',
-    );
-    restamped = result.updated;
   }
 
   return NextResponse.json({
     badgesDocumentId: ids.badges,
-    appRoleId,
-    docVisibility: rolesAfterBind.visibility,
-    docBoundRoleIds: rolesAfterBind.roleIds ?? [],
-    totalRowsScanned: all.length,
-    duplicatesDeleted: deleted,
-    survivorsRestamped: restamped,
-    survivorsByBadgeType: Array.from(keepers.values()).reduce<Record<string, number>>(
-      (acc, r) => {
-        acc[r.badgeType] = (acc[r.badgeType] ?? 0) + 1;
-        return acc;
-      },
-      {},
-    ),
+    rolesBefore: {
+      visibility: before.visibility,
+      roleIds: before.roleIds ?? [],
+      roles: before.roles ?? [],
+    },
+    rolesAfter: {
+      visibility: after.visibility,
+      roleIds: after.roleIds ?? [],
+      roles: after.roles ?? [],
+    },
+    orphansDeleted: deleted,
+    nextStep:
+      'Refresh the profile page. evaluateAndAwardBadges will re-insert every badge the user has earned, and they should now be visible.',
   });
 }

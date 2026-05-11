@@ -94,14 +94,14 @@ export const badgeSchema: AppDataSchema = {
   displayName: 'Badges',
   itemLabel: 'Badge',
   sourceApp: 'cashman-ai-training',
-  // 'shared' + the app role bound on the document — matches the working
-  // pattern used by progress. Records inserted with recordVisibility:
-  // 'inherit' are then visible to anyone holding app:cashman-ai-training
-  // (which is every authenticated user of this app), including the
-  // inserter themselves and the leaderboard. Run /api/admin/badges/repair
-  // once to bind the role on existing deployments where this doc was
-  // originally created with 'authenticated'.
-  visibility: 'shared',
+  // 'authenticated' so every signed-in user can read every user's badges
+  // (matches trainingUsers, which is the closest working analog and what
+  // the leaderboard / cross-user reads need). Records inserted with
+  // recordVisibility: 'inherit' inherit this and are visible to all
+  // authenticated callers including the inserter. If a stale deployment
+  // has this doc bound to a stray role (e.g. "User") that breaks reads,
+  // run /api/admin/badges/repair to clear the bindings and wipe orphans.
+  visibility: 'authenticated',
   allowSharing: false,
   graphNode: '',
   graphRelationships: [],
@@ -274,7 +274,7 @@ export async function ensureDataDocuments(token: string): Promise<{
       badges: {
         name: DOCUMENTS.BADGES,
         schema: badgeSchema,
-        visibility: 'shared',
+        visibility: 'authenticated',
       },
       activityResponses: {
         name: DOCUMENTS.ACTIVITY_RESPONSES,
