@@ -570,7 +570,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                   className="sr-only"
                   onChange={(e) => {
                     const f = e.target.files?.[0] ?? null;
-                    setFile(f);
+                    setFiles(f ? [f] : []);
                   }}
                 />
                 <span className="flex-shrink-0 w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
@@ -603,7 +603,7 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setFile(null);
+                      setFiles([]);
                     }}
                     className="flex-shrink-0 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
                     aria-label="Remove file"
