@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
 import {
   ensureDataDocuments,
-  getAllBadges,
   listTrainingUsers,
 } from "@/lib/data-api-client";
 import { displayNameFromEmail } from "@/lib/display-name";
 import { queryRecords } from "@jazzmind/busibox-app";
 import { MODULES } from "@/lib/module-data";
 import { isAdminRole } from "@/lib/admin-roles";
+import { computeEarnedBadges } from "@/lib/badge-eval";
 import type { UserProgress, QuizScore, AdminUserProgress, BadgeType } from "@/lib/types";
 
 /**
@@ -31,18 +31,17 @@ export async function GET(request: NextRequest) {
 
     const documentIds = await ensureDataDocuments(auth.apiToken);
 
-    // Fetch progress, quiz scores, badges, and the training-users roster.
-    // The roster is the source of truth for display names — every user
-    // who has loaded the (authenticated) layout has a row stamped via
-    // /api/users/me, so we can resolve UUIDs to real names here.
-    const [progressResult, quizResult, allBadges, allUsers] = await Promise.all([
+    // Fetch progress (cross-user readable), quiz scores (admin sees only
+    // their own — quizScores doc is personal-scoped), and the training-
+    // users roster. Badges are computed per-user from their progress so
+    // there's no separate persisted badges read.
+    const [progressResult, quizResult, allUsers] = await Promise.all([
       queryRecords<UserProgress>(auth.apiToken, documentIds.progress, {
         orderBy: [{ field: "startedAt", direction: "desc" }],
       }),
       queryRecords<QuizScore & { answers: string }>(auth.apiToken, documentIds.quizScores, {
         orderBy: [{ field: "completedAt", direction: "desc" }],
       }),
-      getAllBadges(auth.apiToken, documentIds.badges),
       listTrainingUsers(auth.apiToken, documentIds.trainingUsers),
     ]);
 
@@ -98,11 +97,16 @@ export async function GET(request: NextRequest) {
       userMap.get(q.visitorId)!.quizScores.push(q);
     }
 
-    for (const b of allBadges) {
-      if (!userMap.has(b.visitorId)) {
-        userMap.set(b.visitorId, { progress: [], quizScores: [], badges: [] });
-      }
-      userMap.get(b.visitorId)!.badges.push(b.badgeType);
+    // Compute badges per visitor from the data we just grouped. Quiz
+    // scores are only available for the calling admin, so quiz-derived
+    // badges (perfect-score, think-aimpossible) will only appear on that
+    // admin's row — same limitation the persisted-badge version had.
+    for (const [visitorId, data] of userMap) {
+      data.badges = computeEarnedBadges({
+        visitorId,
+        progress: data.progress,
+        quizScores: data.quizScores,
+      }).map((b) => b.badgeType);
     }
 
     // Build admin user progress array

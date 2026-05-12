@@ -1,143 +1,147 @@
 /**
- * Single source of truth for "what badges should this user have, given their
- * current progress + quiz scores?" Used by:
- *   - POST /api/progress  (after marking a lesson complete)
- *   - POST /api/badges    (explicit "check my badges" trigger)
- *   - GET  /api/badges    (retro-award when the profile page loads, so users
- *                          who lost an award to an earlier silent failure
- *                          recover without needing to re-complete a lesson)
+ * Compute which badges a user has earned, derived from their progress and
+ * quiz scores. Pure function — no data-api writes, no side effects. Badges
+ * are not persisted; every page that needs them recomputes from the
+ * underlying achievement data.
  *
- * Idempotent: tryAward short-circuits when a badge is already earned.
+ * This replaces the older "evaluateAndAwardBadges" model that wrote rows
+ * into ai-training-badges. That model fought RLS / role-binding issues on
+ * the data-api side and was strictly redundant: if a user has 15
+ * completed lessons, "first-steps" is implied — there's nothing to store.
+ *
+ * Used by:
+ *   - GET /api/badges            → return current user's earned badges
+ *   - POST /api/progress         → return delta after marking a lesson
+ *   - POST /api/quizzes/:id/submit → return delta after a quiz submission
+ *   - GET /api/leaderboard       → progress-derived per-user counts
+ *   - GET /api/progress/admin    → per-user breakdown
  */
 
-import { generateId, getNow } from '@jazzmind/busibox-app';
-import {
-  awardBadge,
-  getUserBadges,
-  getUserProgress,
-  getUserQuizScores,
-} from '@/lib/data-api-client';
 import { MODULES, getModule } from '@/lib/module-data';
-import type { Badge, BadgeType } from '@/lib/types';
+import type { Badge, BadgeType, QuizScore, UserProgress } from '@/lib/types';
 
-export interface BadgeEvalFailure {
-  badgeType: BadgeType;
-  message: string;
+interface ComputeArgs {
+  visitorId: string;
+  progress: UserProgress[];
+  /** Optional. Omitted for cross-user views where quiz scores aren't readable. */
+  quizScores?: QuizScore[];
 }
 
-export interface BadgeEvalStats {
-  userId: string;
-  progressCount: number;
-  completedCount: number;
-  quizScoreCount: number;
-  perfectQuizCount: number;
-  existingBadgeCount: number;
-  completedLessons: string[];
-  badgeDocumentId: string;
-  progressDocumentId: string;
-}
-
-export async function evaluateAndAwardBadges(
-  token: string,
-  documentIds: { progress: string; quizScores: string; badges: string },
-  userId: string,
-): Promise<{
-  newBadges: Badge[];
-  earnedTypes: Set<BadgeType>;
-  failures: BadgeEvalFailure[];
-  stats: BadgeEvalStats;
-}> {
-  const [allProgress, existingBadges, quizScores] = await Promise.all([
-    getUserProgress(token, documentIds.progress, userId),
-    getUserBadges(token, documentIds.badges, userId),
-    getUserQuizScores(token, documentIds.quizScores, userId),
-  ]);
-
-  const completedSet = new Set(
-    allProgress.filter((p) => p.completed).map((p) => `${p.moduleId}:${p.lessonId}`),
-  );
-  const earnedTypes = new Set<BadgeType>(existingBadges.map((b) => b.badgeType));
-  const newBadges: Badge[] = [];
-  const failures: BadgeEvalFailure[] = [];
-
-  const totalCompleted = completedSet.size;
-
-  function isModuleComplete(modId: string): boolean {
-    const mod = getModule(modId);
-    if (!mod) return false;
-    return mod.lessons.every((l) => completedSet.has(`${modId}:${l.id}`));
+/**
+ * Returns every badge the user currently qualifies for. Badge IDs are
+ * synthetic (visitorId + badgeType) — they're stable across calls so React
+ * keys stay consistent, but they don't correspond to any database row.
+ *
+ * earnedAt is derived from the achievement that triggered the badge:
+ *   - first-steps     → earliest lesson completion
+ *   - module badges   → latest lesson completion in that module
+ *   - perfect-score   → completedAt of the first perfect quiz
+ *   - completionist   → latest required-lesson completion
+ *   - think-aimpossible → completedAt of the qualifying final quiz
+ */
+export function computeEarnedBadges({
+  visitorId,
+  progress,
+  quizScores,
+}: ComputeArgs): Badge[] {
+  const completed = progress.filter((p) => p.completed);
+  const completionTime = new Map<string, string>();
+  for (const p of completed) {
+    const key = `${p.moduleId}:${p.lessonId}`;
+    const t = p.completedAt || p.startedAt;
+    if (!t) continue;
+    // Keep the latest stamp per lesson, in case of duplicate rows.
+    const prev = completionTime.get(key);
+    if (!prev || t > prev) completionTime.set(key, t);
   }
+  const completedSet = new Set(completionTime.keys());
 
-  async function tryAward(
-    badgeType: BadgeType,
-    metadata: Record<string, unknown> = {},
-  ): Promise<void> {
-    if (earnedTypes.has(badgeType)) return;
-    const badge: Badge = {
-      id: generateId(),
-      visitorId: userId,
+  const fallback = new Date().toISOString();
+  const earned: Badge[] = [];
+
+  function emit(badgeType: BadgeType, earnedAt: string | undefined) {
+    earned.push({
+      id: `${visitorId}:${badgeType}`,
+      visitorId,
       badgeType,
-      earnedAt: getNow(),
-      metadata,
-    };
-    try {
-      const awarded = await awardBadge(token, documentIds.badges, badge);
-      newBadges.push(awarded);
-      earnedTypes.add(badgeType);
-    } catch (err) {
-      // Don't let one failed insert stop the rest of the evaluation; log
-      // the failure and continue. Surfaced to callers so the API can
-      // expose it for debugging instead of returning a misleading 0/N.
-      const message = err instanceof Error ? err.message : String(err);
-      console.error('[BADGES] award failed for', badgeType, err);
-      failures.push({ badgeType, message });
-    }
+      earnedAt: earnedAt ?? fallback,
+      metadata: {},
+    });
   }
 
-  if (totalCompleted >= 1) await tryAward('first-steps');
-  if (isModuleComplete('mod-2')) await tryAward('email-ace');
-  if (isModuleComplete('mod-3')) await tryAward('report-writer');
-  if (isModuleComplete('mod-4')) await tryAward('data-wrangler');
-  if (isModuleComplete('mod-5')) await tryAward('media-maker');
-  if (isModuleComplete('mod-6')) await tryAward('search-pro');
-  // (power-user: Module 8 merged into Module 6 — search-pro covers it.)
+  // first-steps — any lesson completed.
+  if (completedSet.size >= 1) {
+    const earliest = [...completionTime.values()].sort()[0];
+    emit('first-steps', earliest);
+  }
 
-  const hasPerfect = quizScores.some((s) => s.score === s.maxScore && s.maxScore > 0);
-  if (hasPerfect) await tryAward('perfect-score');
+  // Module-completion badges. Earned when every lesson in the module is
+  // marked complete; earnedAt = latest of those completions.
+  const moduleBadges: Array<{ badgeType: BadgeType; modId: string }> = [
+    { badgeType: 'email-ace', modId: 'mod-2' },
+    { badgeType: 'report-writer', modId: 'mod-3' },
+    { badgeType: 'data-wrangler', modId: 'mod-4' },
+    { badgeType: 'media-maker', modId: 'mod-5' },
+    { badgeType: 'search-pro', modId: 'mod-6' },
+  ];
+  for (const { badgeType, modId } of moduleBadges) {
+    const mod = getModule(modId);
+    if (!mod) continue;
+    const stamps = mod.lessons.map((l) => completionTime.get(`${modId}:${l.id}`));
+    if (!stamps.every((s): s is string => !!s)) continue;
+    const latest = stamps.sort().reverse()[0];
+    emit(badgeType, latest);
+  }
 
+  // Quiz-derived badges. Skipped silently when quizScores wasn't passed
+  // (cross-user views where the caller can't read peers' scores).
+  if (quizScores) {
+    const perfect = quizScores
+      .filter((s) => s.maxScore > 0 && s.score === s.maxScore)
+      .sort((a, b) => (a.completedAt || '').localeCompare(b.completedAt || ''))[0];
+    if (perfect) emit('perfect-score', perfect.completedAt);
+  }
+
+  // completionist — every required (non-bonus) module fully done.
   const requiredModules = MODULES.filter((m) => !m.isBonus);
-  const allRequiredComplete = requiredModules.every((m) => isModuleComplete(m.id));
-  if (allRequiredComplete) await tryAward('completionist');
-
-  const requiredLessons = requiredModules.flatMap((m) =>
+  const requiredLessonKeys = requiredModules.flatMap((m) =>
     m.lessons.map((l) => `${m.id}:${l.id}`),
   );
-  const completedRequired = requiredLessons.filter((key) =>
-    completedSet.has(key),
-  ).length;
+  const requiredCompletionStamps = requiredLessonKeys
+    .map((k) => completionTime.get(k))
+    .filter((s): s is string => !!s);
   if (
-    requiredLessons.length > 0 &&
-    completedRequired / requiredLessons.length >= 0.95
+    requiredLessonKeys.length > 0 &&
+    requiredCompletionStamps.length === requiredLessonKeys.length
   ) {
-    const finalQuiz = quizScores.find(
-      (s) => s.quizId === 'quiz-final' && s.maxScore > 0,
-    );
-    if (finalQuiz && finalQuiz.score / finalQuiz.maxScore >= 0.8) {
-      await tryAward('think-aimpossible');
+    const latest = requiredCompletionStamps.sort().reverse()[0];
+    emit('completionist', latest);
+  }
+
+  // think-aimpossible — 95%+ of required lessons done AND final quiz ≥ 80%.
+  if (quizScores && requiredLessonKeys.length > 0) {
+    const completedRequired = requiredLessonKeys.filter((k) =>
+      completedSet.has(k),
+    ).length;
+    const ratio = completedRequired / requiredLessonKeys.length;
+    if (ratio >= 0.95) {
+      const finalQuiz = quizScores.find(
+        (s) => s.quizId === 'quiz-final' && s.maxScore > 0,
+      );
+      if (finalQuiz && finalQuiz.score / finalQuiz.maxScore >= 0.8) {
+        emit('think-aimpossible', finalQuiz.completedAt);
+      }
     }
   }
 
-  const stats: BadgeEvalStats = {
-    userId,
-    progressCount: allProgress.length,
-    completedCount: completedSet.size,
-    quizScoreCount: quizScores.length,
-    perfectQuizCount: quizScores.filter((s) => s.score === s.maxScore && s.maxScore > 0).length,
-    existingBadgeCount: existingBadges.length,
-    completedLessons: Array.from(completedSet),
-    badgeDocumentId: documentIds.badges,
-    progressDocumentId: documentIds.progress,
-  };
+  return earned;
+}
 
-  return { newBadges, earnedTypes, failures, stats };
+/**
+ * Diff helper: returns badges in `after` whose badgeType isn't in `before`.
+ * Used by POST endpoints to surface "new badge earned!" toasts.
+ */
+export function diffBadges(before: Badge[], after: Badge[]): Badge[] {
+  const beforeTypes = new Set(before.map((b) => b.badgeType));
+  return after.filter((b) => !beforeTypes.has(b.badgeType));
 }

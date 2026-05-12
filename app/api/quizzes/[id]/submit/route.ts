@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
 import {
   ensureDataDocuments,
-  saveQuizScore,
+  getUserProgress,
   getUserQuizScores,
+  saveQuizScore,
 } from "@/lib/data-api-client";
 import { getQuiz } from "@/lib/module-data";
 import { generateId, getNow } from "@jazzmind/busibox-app";
-import { evaluateAndAwardBadges } from "@/lib/badge-eval";
+import { computeEarnedBadges, diffBadges } from "@/lib/badge-eval";
+import type { QuizScore } from "@/lib/types";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -85,17 +87,23 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const documentIds = await ensureDataDocuments(auth.apiToken);
 
-    // Get existing scores to determine attempt count
-    const existingScores = await getUserQuizScores(
-      auth.apiToken,
-      documentIds.quizScores,
-      auth.userId
-    );
+    // Snapshot pre-submission state. Existing scores serve double duty:
+    // (a) attempt counter, (b) baseline for the badge delta.
+    const [progress, existingScores] = await Promise.all([
+      getUserProgress(auth.apiToken, documentIds.progress, auth.userId),
+      getUserQuizScores(auth.apiToken, documentIds.quizScores, auth.userId),
+    ]);
+    const before = computeEarnedBadges({
+      visitorId: auth.userId,
+      progress,
+      quizScores: existingScores,
+    });
+
     const previousAttempt = existingScores.find((s) => s.quizId === quizId);
     const attempts = (previousAttempt?.attempts ?? 0) + 1;
+    const completedAt = getNow();
 
-    // Save score
-    await saveQuizScore(auth.apiToken, documentIds.quizScores, {
+    const newScore: QuizScore = {
       id: previousAttempt?.id ?? generateId(),
       visitorId: auth.userId,
       moduleId: quiz.moduleId,
@@ -104,18 +112,23 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       score,
       maxScore,
       attempts,
-      completedAt: getNow(),
+      completedAt,
       answers,
-    });
+    };
+    await saveQuizScore(auth.apiToken, documentIds.quizScores, newScore);
 
-    // Run the shared badge evaluator so the quiz can also unlock badges that
-    // depend on lesson completion (first-steps, module-completion, etc.) — not
-    // just perfect-score. Idempotent; already-earned badges are skipped.
-    const { newBadges } = await evaluateAndAwardBadges(
-      auth.apiToken,
-      documentIds,
-      auth.userId,
-    );
+    // Recompute against the post-submission set. Replace the prior attempt
+    // for this quizId in-place so the diff sees only what actually changed.
+    const scoresAfter: QuizScore[] = [
+      ...existingScores.filter((s) => s.quizId !== quizId),
+      newScore,
+    ];
+    const after = computeEarnedBadges({
+      visitorId: auth.userId,
+      progress,
+      quizScores: scoresAfter,
+    });
+    const newBadges = diffBadges(before, after);
 
     return NextResponse.json({
       score,

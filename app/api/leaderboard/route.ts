@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
 import {
   ensureDataDocuments,
-  getAllBadges,
   listTrainingUsers,
 } from "@/lib/data-api-client";
 import { displayNameFromEmail } from "@/lib/display-name";
 import { queryRecords } from "@jazzmind/busibox-app";
+import { computeEarnedBadges } from "@/lib/badge-eval";
 import type { UserProgress, LeaderboardEntry } from "@/lib/types";
 
 /**
@@ -25,13 +25,13 @@ export async function GET(request: NextRequest) {
 
     const documentIds = await ensureDataDocuments(auth.apiToken);
 
-    // Fetch progress, badges, and the user roster (cross-user readable
-    // when recordVisibility is 'inherit' on the underlying docs).
-    const [progressResult, allBadges, allUsers] = await Promise.all([
+    // Fetch cross-user-readable progress and the roster. Badges are
+    // computed per-user from progress (quiz-derived badges aren't
+    // counted here because quiz scores stay personal-scoped).
+    const [progressResult, allUsers] = await Promise.all([
       queryRecords<UserProgress>(auth.apiToken, documentIds.progress, {
         orderBy: [{ field: "startedAt", direction: "desc" }],
       }),
-      getAllBadges(auth.apiToken, documentIds.badges),
       listTrainingUsers(auth.apiToken, documentIds.trainingUsers),
     ]);
 
@@ -59,26 +59,26 @@ export async function GET(request: NextRequest) {
         u.displayName ?? displayNameFromEmail(u.email) ?? null;
     }
 
-    // Count unique completed lessons per visitor.
-    const completedLessonsMap = new Map<string, Set<string>>();
+    // Group progress by visitor, count unique completed lessons, and
+    // compute progress-derived badges per user (quizScores omitted on
+    // purpose — they're per-user-scoped).
+    const progressByVisitor = new Map<string, UserProgress[]>();
     for (const p of progressResult.records) {
-      if (!p.completed) continue;
-      if (!completedLessonsMap.has(p.visitorId)) {
-        completedLessonsMap.set(p.visitorId, new Set());
+      if (!progressByVisitor.has(p.visitorId)) {
+        progressByVisitor.set(p.visitorId, []);
       }
-      completedLessonsMap.get(p.visitorId)!.add(`${p.moduleId}:${p.lessonId}`);
+      progressByVisitor.get(p.visitorId)!.push(p);
     }
-    for (const [visitorId, lessons] of completedLessonsMap) {
-      getStats(visitorId).lessonsCompleted = lessons.size;
-    }
-
-    // Count badges per visitor.
-    const badgeCountMap = new Map<string, number>();
-    for (const b of allBadges) {
-      badgeCountMap.set(b.visitorId, (badgeCountMap.get(b.visitorId) ?? 0) + 1);
-    }
-    for (const [visitorId, count] of badgeCountMap) {
-      getStats(visitorId).badgeCount = count;
+    for (const [visitorId, rows] of progressByVisitor) {
+      const completed = new Set(
+        rows.filter((p) => p.completed).map((p) => `${p.moduleId}:${p.lessonId}`),
+      );
+      const stats = getStats(visitorId);
+      stats.lessonsCompleted = completed.size;
+      stats.badgeCount = computeEarnedBadges({
+        visitorId,
+        progress: rows,
+      }).length;
     }
 
     // Build entries.

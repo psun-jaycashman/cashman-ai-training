@@ -3,12 +3,12 @@ import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
 import {
   ensureDataDocuments,
   getUserProgress,
+  getUserQuizScores,
   markLessonComplete,
-  getUserBadges,
-  getModuleProgress,
 } from "@/lib/data-api-client";
-import { MODULES, BADGE_DEFINITIONS, getModule } from "@/lib/module-data";
-import { evaluateAndAwardBadges } from "@/lib/badge-eval";
+import { MODULES, getModule } from "@/lib/module-data";
+import { computeEarnedBadges, diffBadges } from "@/lib/badge-eval";
+import type { UserProgress } from "@/lib/types";
 
 /**
  * GET /api/progress
@@ -90,6 +90,18 @@ export async function POST(request: NextRequest) {
 
     const documentIds = await ensureDataDocuments(auth.apiToken);
 
+    // Snapshot pre-mutation badges so we can return a delta. Quiz scores
+    // don't change in this endpoint, so we read them once.
+    const [progressBefore, quizScores] = await Promise.all([
+      getUserProgress(auth.apiToken, documentIds.progress, auth.userId),
+      getUserQuizScores(auth.apiToken, documentIds.quizScores, auth.userId),
+    ]);
+    const before = computeEarnedBadges({
+      visitorId: auth.userId,
+      progress: progressBefore,
+      quizScores,
+    });
+
     // Mark lesson complete
     const progressEntry = await markLessonComplete(
       auth.apiToken,
@@ -99,13 +111,20 @@ export async function POST(request: NextRequest) {
       lessonId
     );
 
-    // Check and award badges via the shared evaluator (same logic used by
-    // /api/badges so any bug-fix lands in one place).
-    const { newBadges } = await evaluateAndAwardBadges(
-      auth.apiToken,
-      documentIds,
-      auth.userId,
-    );
+    // Recompute against the post-mutation set without a second round-trip:
+    // splice the new entry into the snapshot we already have.
+    const progressAfter: UserProgress[] = [
+      ...progressBefore.filter(
+        (p) => !(p.moduleId === moduleId && p.lessonId === lessonId),
+      ),
+      progressEntry,
+    ];
+    const after = computeEarnedBadges({
+      visitorId: auth.userId,
+      progress: progressAfter,
+      quizScores,
+    });
+    const newBadges = diffBadges(before, after);
 
     return NextResponse.json({
       progress: progressEntry,

@@ -2,22 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
 import {
   ensureDataDocuments,
-  getUserBadges,
+  getUserProgress,
+  getUserQuizScores,
 } from "@/lib/data-api-client";
 import { BADGE_DEFINITIONS } from "@/lib/module-data";
-import {
-  evaluateAndAwardBadges,
-  type BadgeEvalFailure,
-  type BadgeEvalStats,
-} from "@/lib/badge-eval";
+import { computeEarnedBadges } from "@/lib/badge-eval";
 
 /**
  * GET /api/badges
  *
- * Returns the current user's earned badges along with all badge definitions.
- * Also runs evaluateAndAwardBadges so any badge the user *should* have
- * earned but didn't (e.g. award failed silently on a previous deploy)
- * gets retroactively awarded the next time they load their profile.
+ * Returns the badge catalog plus the current user's earned badges.
+ * Earned badges are computed on the fly from the user's progress and
+ * quiz scores — no data-api badge document is read or written. The
+ * caller's profile page renders BadgeGrid from `earned`.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -25,33 +22,20 @@ export async function GET(request: NextRequest) {
     if (auth instanceof NextResponse) return auth;
 
     const documentIds = await ensureDataDocuments(auth.apiToken);
-    // Best-effort retro-award. If it errors (e.g. data-api hiccup), still
-    // return whatever badges the user has so the page renders.
-    let evalFailures: BadgeEvalFailure[] = [];
-    let evalError: string | null = null;
-    let evalStats: BadgeEvalStats | null = null;
-    try {
-      const result = await evaluateAndAwardBadges(
-        auth.apiToken,
-        documentIds,
-        auth.userId,
-      );
-      evalFailures = result.failures;
-      evalStats = result.stats;
-    } catch (err) {
-      console.error("[BADGES] retro-award failed; returning current state", err);
-      evalError = err instanceof Error ? err.message : String(err);
-    }
-    const earned = await getUserBadges(auth.apiToken, documentIds.badges, auth.userId);
+    const [progress, quizScores] = await Promise.all([
+      getUserProgress(auth.apiToken, documentIds.progress, auth.userId),
+      getUserQuizScores(auth.apiToken, documentIds.quizScores, auth.userId),
+    ]);
+
+    const earned = computeEarnedBadges({
+      visitorId: auth.userId,
+      progress,
+      quizScores,
+    });
 
     return NextResponse.json({
       badges: BADGE_DEFINITIONS,
       earned,
-      diagnostics: {
-        failures: evalFailures,
-        error: evalError,
-        stats: evalStats,
-      },
     });
   } catch (error) {
     console.error("[BADGES] Failed to fetch badges:", error);
@@ -68,29 +52,10 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/badges
  *
- * Check and award any new badges the user has earned.
- * Called after lesson completion or quiz submission.
+ * Kept for backwards compat with the profile page's "Refresh" button —
+ * recomputes and returns the earned set. With compute-on-the-fly there's
+ * nothing to "award", so this is functionally equivalent to GET.
  */
 export async function POST(request: NextRequest) {
-  try {
-    const auth = await requireAuthWithTokenExchange(request, "data-api");
-    if (auth instanceof NextResponse) return auth;
-
-    const documentIds = await ensureDataDocuments(auth.apiToken);
-    const { newBadges, earnedTypes } = await evaluateAndAwardBadges(
-      auth.apiToken,
-      documentIds,
-      auth.userId,
-    );
-    return NextResponse.json({ newBadges, totalBadges: earnedTypes.size });
-  } catch (error) {
-    console.error("[BADGES] Failed to check badges:", error);
-    return NextResponse.json(
-      {
-        error: "Failed to check badges",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
-    );
-  }
+  return GET(request);
 }

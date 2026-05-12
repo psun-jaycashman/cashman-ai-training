@@ -2,14 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
 import {
   ensureDataDocuments,
-  getUserBadges,
+  getUserProgress,
   getUserQuizScores,
 } from "@/lib/data-api-client";
+import { computeEarnedBadges } from "@/lib/badge-eval";
 
 /**
  * GET /api/certificate
  *
  * Returns certificate data if the user has earned the think-aimpossible badge.
+ * Eligibility is computed live from progress + quiz scores — no badge
+ * document is read.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -18,11 +21,16 @@ export async function GET(request: NextRequest) {
 
     const documentIds = await ensureDataDocuments(auth.apiToken);
 
-    const [badges, quizScores] = await Promise.all([
-      getUserBadges(auth.apiToken, documentIds.badges, auth.userId),
+    const [progress, quizScores] = await Promise.all([
+      getUserProgress(auth.apiToken, documentIds.progress, auth.userId),
       getUserQuizScores(auth.apiToken, documentIds.quizScores, auth.userId),
     ]);
 
+    const badges = computeEarnedBadges({
+      visitorId: auth.userId,
+      progress,
+      quizScores,
+    });
     const thinkAimpossible = badges.find((b) => b.badgeType === "think-aimpossible");
 
     if (!thinkAimpossible) {

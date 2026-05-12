@@ -16,7 +16,7 @@ import {
   ensureDocuments,
 } from '@jazzmind/busibox-app';
 import type { AppDataSchema } from '@jazzmind/busibox-app';
-import type { UserProgress, QuizScore, Badge } from './types';
+import type { UserProgress, QuizScore } from './types';
 
 // ==========================================================================
 // Data Document Names
@@ -546,121 +546,13 @@ export async function getUserQuizScores(
 }
 
 // ==========================================================================
-// Badge Operations
+// Badges
 // ==========================================================================
-
-interface StoredBadge extends Omit<Badge, 'metadata'> {
-  metadata: string;
-}
-
-function parseBadgeMetadata(raw: unknown): Record<string, unknown> {
-  if (!raw || typeof raw !== 'string') return {};
-  try {
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {};
-  } catch {
-    return {};
-  }
-}
-
-export async function getUserBadges(
-  token: string,
-  documentId: string,
-  visitorId: string
-): Promise<Badge[]> {
-  const result = await queryRecords<StoredBadge>(token, documentId, {
-    where: { field: 'visitorId', op: 'eq', value: visitorId },
-    orderBy: [{ field: 'earnedAt', direction: 'desc' }],
-  });
-
-  return result.records.map((record) => ({
-    ...record,
-    metadata: parseBadgeMetadata(record.metadata),
-  }));
-}
-
-export async function awardBadge(
-  token: string,
-  documentId: string,
-  badge: Badge
-): Promise<Badge> {
-  // Check if badge already awarded
-  const existing = await queryRecords<StoredBadge>(token, documentId, {
-    where: {
-      and: [
-        { field: 'visitorId', op: 'eq', value: badge.visitorId },
-        { field: 'badgeType', op: 'eq', value: badge.badgeType },
-      ],
-    },
-    limit: 1,
-  });
-
-  if (existing.records.length > 0) {
-    // Badge already awarded, return existing
-    return {
-      ...existing.records[0],
-      metadata: parseBadgeMetadata(existing.records[0].metadata),
-    };
-  }
-
-  const storedBadge: StoredBadge = {
-    ...badge,
-    metadata: JSON.stringify(badge.metadata ?? {}),
-  };
-
-  // 'inherit' so admins (and the leaderboard) can read every user's badges,
-  // matching the pattern used by progress / training-users / submissions.
-  // Without this, records default to creator-personal even on an
-  // 'authenticated' document, which silently breaks cross-user views.
-  const insertResponse = await insertRecords(
-    token,
-    documentId,
-    [storedBadge],
-    { recordVisibility: 'inherit' },
-  );
-
-  // insertRecords throws on non-2xx, so reaching here means the data-api
-  // accepted the request. We've observed the symptom "accepted but never
-  // visible on re-query" (badges stay at 0 even after repeated awards).
-  // Catch both the count=0 soft-failure (data-api accepted the request
-  // but persisted nothing) and the inserted-but-invisible RLS case.
-  if (!insertResponse?.count) {
-    throw new Error(
-      `data-api returned 200 but count=${insertResponse?.count ?? 'undefined'}; response=${JSON.stringify(insertResponse)}`,
-    );
-  }
-
-  const verify = await queryRecords<StoredBadge>(token, documentId, {
-    where: {
-      and: [
-        { field: 'visitorId', op: 'eq', value: badge.visitorId },
-        { field: 'badgeType', op: 'eq', value: badge.badgeType },
-      ],
-    },
-    limit: 1,
-  });
-  if (verify.records.length === 0) {
-    throw new Error(
-      `insert reported count=${insertResponse.count} (recordIds=${JSON.stringify(insertResponse.recordIds)}) but row not visible on re-query for visitorId=${badge.visitorId} badgeType=${badge.badgeType}`,
-    );
-  }
-
-  return badge;
-}
-
-export async function getAllBadges(
-  token: string,
-  documentId: string
-): Promise<Badge[]> {
-  const result = await queryRecords<StoredBadge>(token, documentId, {
-    orderBy: [{ field: 'earnedAt', direction: 'desc' }],
-  });
-
-  return result.records.map((record) => ({
-    ...record,
-    metadata: parseBadgeMetadata(record.metadata),
-  }));
-}
+// No persistence helpers here on purpose. Badges are derived from
+// progress + quiz scores by lib/badge-eval.ts:computeEarnedBadges().
+// The ai-training-badges document is still created by ensureDataDocuments
+// (so existing deployments keep a valid id) but nothing reads or writes
+// its rows anymore; it can be dropped entirely in a later cleanup.
 
 // ==========================================================================
 // Activity Response Operations
