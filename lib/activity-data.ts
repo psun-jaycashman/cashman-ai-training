@@ -13,39 +13,38 @@ export const EXERCISES: Exercise[] = [
     title: 'Your First AI Conversation',
     variant: 'paste-back',
     instructions:
-      'Log into the Cashman AI Portal. Ask it: "What can you help me with?" Copy the response and paste it below.',
+      'Log into the Cashman AI Portal. Ask it: "What are the health benefit plans at Cashman?" Copy the response and paste it below.',
     scenario:
-      'This is your first hands-on task. The goal is simply to verify you can access the Cashman AI Portal and have a basic conversation with it.',
+      'This is your first hands-on task. The goal is simply to verify you can access the Cashman AI Portal, ask it a real company question, and see how it pulls answers from Cashman documents.',
     hints: [
       'Just paste the AI\'s actual response — don\'t edit it or summarize it.',
-      'If the response is short, try asking a follow-up like "What kinds of work tasks could you help me with?"',
-      'Notice how the AI describes itself — capabilities, limitations, kinds of help. That gives you a feel for what to ask it later.',
-      'No "right answer" here. The exercise just confirms you can access and use the Portal.',
+      'The Portal uses document search to ground its answers in Cashman\'s actual benefits materials, so expect specifics (plan names, coverage types) rather than generic AI talk.',
+      'If the response feels thin, try a follow-up like "Tell me more about the medical plan options" or "What\'s the difference between the plans?"',
+      'No "right answer" here. The exercise just confirms you can access the Portal and get a Cashman-specific response.',
     ],
     goodExamples: [
       {
-        title: 'Example — what a typical first response looks like',
-        body: `I can help with a wide range of work tasks, including:
+        title: 'Example — what a typical Portal response looks like',
+        body: `Cashman offers a set of health benefit plans for eligible employees, typically including:
 
-• **Writing & editing** — drafting emails, reports, memos, and meeting notes; rewriting rough drafts to be clearer and more professional.
-• **Summarization** — condensing long email threads, documents, or meeting transcripts into key points and action items.
-• **Research & explanation** — answering questions, explaining concepts, comparing options, and walking through technical material.
-• **Spreadsheet help** — generating Excel formulas from plain-English descriptions, suggesting analysis approaches, cleaning up messy data.
-• **Document analysis** — reviewing specs, contracts, and reports to extract requirements, deadlines, and risks.
-• **Brainstorming** — generating ideas, exploring options, drafting outlines.
+• **Medical** — multiple plan options (e.g., a PPO and a high-deductible plan paired with an HSA), with coverage for in-network preventive care, doctor visits, specialists, and prescriptions.
+• **Dental** — preventive cleanings and exams, plus coverage for basic and major dental work.
+• **Vision** — annual eye exams, plus an allowance toward glasses or contact lenses.
+• **HSA / FSA** — pre-tax accounts to cover qualifying medical, dental, and vision expenses.
+• **Life and disability** — company-provided basic life insurance and short/long-term disability, with options to buy additional voluntary coverage.
 
-Just describe what you're trying to do and I'll help. If you have specific company documents you'd like to work with, you can upload them or use the document search feature to ground my responses in actual Cashman material.`,
-        note: 'A solid first response covers writing, summarization, research, and analysis — the four most common day-to-day uses. It also distinguishes general help from company-specific help (where document search adds value).',
+For exact plan names, premiums, deductibles, and enrollment dates, see the current Benefits Summary in the Cashman document library or reach out to HR.`,
+        note: 'A solid response lists the actual plan categories Cashman offers (medical, dental, vision, plus HSA/FSA and life/disability), and points you back to the official benefits document or HR for specifics. That mix of useful overview + clear pointer to source is exactly what the Portal\'s document search is good at.',
       },
     ],
     evaluationRubric: {
       criteria: [
-        'The response describes AI capabilities such as answering questions, drafting text, searching documents, or similar',
-        'The response is at least 2-3 sentences long',
+        'The response describes one or more Cashman health benefit plan categories (medical, dental, vision, HSA/FSA, life, or disability)',
+        'The response is at least 2-3 sentences long and reads like a real Portal answer (not a refusal or an error message)',
       ],
       passingScore: 2,
       systemPrompt:
-        'You are evaluating whether a user successfully logged into an AI portal and asked it what it can do. The user should paste the AI\'s response. Evaluate whether the response describes AI capabilities and is reasonably substantive. Be lenient -- any reasonable response describing capabilities counts.',
+        'You are evaluating whether a user successfully logged into the Cashman AI Portal and asked about Cashman\'s health benefit plans. The user should paste the AI\'s response. Evaluate whether the response covers at least one Cashman benefit plan category (medical, dental, vision, HSA/FSA, life, disability, or similar) and is reasonably substantive. Be lenient -- any reasonable response describing Cashman benefits counts. A refusal, error message, or completely off-topic answer does not count.',
     },
   },
 
