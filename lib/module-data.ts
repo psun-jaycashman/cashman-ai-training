@@ -118,7 +118,7 @@ ChatGPT is the most widely-used general-purpose AI chatbot, made by OpenAI. It's
 
 ### Try It Now
 
-Your first task: **Log into the Cashman AI Portal and send your first message.** Ask it: "What can you help me with?" Paste the response into the exercise below.
+Your first task: **Log into the Cashman AI Portal and send your first message.** Ask it: "What are the health benefit plans at Cashman?" Paste the response into the exercise below.
 
 > **Key Takeaway:** You have three AI tools: Cashman AI Portal (company data), Microsoft Copilot (Office apps), and ChatGPT (general-purpose, non-sensitive tasks). Use the right tool for the right job.
 `,

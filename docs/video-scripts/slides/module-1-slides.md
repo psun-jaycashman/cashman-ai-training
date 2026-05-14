@@ -204,7 +204,7 @@ that should trigger the cut.
 ### Slide C8 — Try It Now
 - **Layout:** Action card
 - **Headline:** Your first task:
-- **Body:** Log into the Cashman AI Portal and ask: *"What can you help me with?"*
+- **Body:** Log into the Cashman AI Portal and ask: *"What are the health benefit plans at Cashman?"*
 - **Visual:** Portal login screenshot mockup.
 - **Timing:** 2:35–3:00
 

@@ -56,7 +56,7 @@ Quick quiz coming up to lock this in. Three questions. Take your time. Then we'l
 ## Lesson 2 — Your Tools: Cashman AI Portal, Copilot, and ChatGPT
 
 **Lesson runtime estimate:** ~3 min
-**Activity at end of lesson:** Exercise — log into the Portal and ask "What can you help me with?"
+**Activity at end of lesson:** Exercise — log into the Portal and ask "What are the health benefit plans at Cashman?"
 
 ### Title card
 
@@ -77,7 +77,7 @@ The Portal does four big things: it has an AI chat for general questions, it doe
 
 That's the whole toolkit. Portal for company data. Copilot for Office work. ChatGPT for general, non-sensitive stuff.
 
-For your first hands-on task, you're going to log into the Cashman AI Portal and just say hi. Ask it: *"What can you help me with?"* Then paste the response into the exercise box. Let's go.
+For your first hands-on task, you're going to log into the Cashman AI Portal and just say hi. Ask it: *"What are the health benefit plans at Cashman?"* Then paste the response into the exercise box. Let's go.
 
 ### B-roll / Visuals
 
