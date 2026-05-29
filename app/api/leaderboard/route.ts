@@ -9,6 +9,23 @@ import { queryRecords } from "@jazzmind/busibox-app";
 import { computeEarnedBadges } from "@/lib/badge-eval";
 import type { UserProgress, LeaderboardEntry } from "@/lib/types";
 
+// Email local-parts (case-insensitive, matched against everything before "@")
+// that should never appear on the public leaderboard.
+const HIDDEN_EMAIL_LOCALPARTS = new Set([
+  "psun",
+  "petersun825",
+  "wes",
+  "wes.sonnenreich",
+  "wsonnenreich",
+  "bmanion",
+]);
+
+function isHiddenUser(email: string | undefined): boolean {
+  if (!email) return false;
+  const local = email.split("@")[0]?.toLowerCase();
+  return !!local && HIDDEN_EMAIL_LOCALPARTS.has(local);
+}
+
 /**
  * GET /api/leaderboard
  *
@@ -51,9 +68,16 @@ export async function GET(request: NextRequest) {
       return visitorStats.get(visitorId)!;
     }
 
+    // Track visitorIds that should be hidden from the public leaderboard.
+    const hiddenVisitorIds = new Set<string>();
+    for (const u of allUsers) {
+      if (isHiddenUser(u.email)) hiddenVisitorIds.add(u.visitorId);
+    }
+
     // Seed with the user roster so users with 0 lessons + 0 badges still
     // appear on the leaderboard.
     for (const u of allUsers) {
+      if (hiddenVisitorIds.has(u.visitorId)) continue;
       const slot = getStats(u.visitorId);
       slot.displayName =
         u.displayName ?? displayNameFromEmail(u.email) ?? null;
@@ -70,6 +94,7 @@ export async function GET(request: NextRequest) {
       progressByVisitor.get(p.visitorId)!.push(p);
     }
     for (const [visitorId, rows] of progressByVisitor) {
+      if (hiddenVisitorIds.has(visitorId)) continue;
       const completed = new Set(
         rows.filter((p) => p.completed).map((p) => `${p.moduleId}:${p.lessonId}`),
       );
