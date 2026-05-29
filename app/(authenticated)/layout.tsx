@@ -18,7 +18,6 @@ const apiBasePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 const baseNavItems = [
   { href: '/', label: 'Dashboard' },
   { href: '/modules', label: 'Modules' },
-  { href: '/submissions', label: 'Submissions' },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/profile', label: 'My Profile' },
 ];
