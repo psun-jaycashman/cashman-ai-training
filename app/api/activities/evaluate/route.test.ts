@@ -78,4 +78,79 @@ describe('POST /api/activities/evaluate — silent fallback', () => {
     expect(body.evaluation).toBeNull();
     expect(body.evaluationStatus).toBe('unavailable');
   });
+
+  it('returns evaluation: null when agent-api responds non-2xx', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 503,
+      text: async () => 'upstream down',
+    }) as never;
+
+    const res = await POST(jsonRequest({ exerciseId: 'ex-1', userResponse: 'hi' }));
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.evaluation).toBeNull();
+    expect(body.evaluationStatus).toBe('unavailable');
+  });
+
+  it('returns evaluation: null when agent returns 200 with result.error', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ error: 'schema_validation_failed' }),
+    }) as never;
+
+    const res = await POST(jsonRequest({ exerciseId: 'ex-1', userResponse: 'hi' }));
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.evaluation).toBeNull();
+    expect(body.evaluationStatus).toBe('unavailable');
+  });
+
+  it('returns evaluation: null when agent returns 200 but output is missing', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+    }) as never;
+
+    const res = await POST(jsonRequest({ exerciseId: 'ex-1', userResponse: 'hi' }));
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.evaluation).toBeNull();
+    expect(body.evaluationStatus).toBe('unavailable');
+  });
+
+  it('returns the AI evaluation on the happy path', async () => {
+    // beforeEach already configures fetch to return a valid output.
+    const res = await POST(jsonRequest({ exerciseId: 'ex-1', userResponse: 'hi' }));
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.evaluation).toMatchObject({ passed: true, score: 2, maxScore: 2 });
+    expect(body.evaluationStatus).toBe('ok');
+  });
+
+  it('still returns 400 when exerciseId is missing (user-fixable error preserved)', async () => {
+    const res = await POST(jsonRequest({ userResponse: 'hi' }));
+    expect(res.status).toBe(400);
+  });
+
+  it('still returns 404 when exercise is not found (user-fixable error preserved)', async () => {
+    vi.mocked(getExercise).mockReturnValueOnce(undefined as never);
+    const res = await POST(jsonRequest({ exerciseId: 'unknown', userResponse: 'hi' }));
+    expect(res.status).toBe(404);
+  });
+
+  it('still returns 400 when exercise has no rubric (user-fixable error preserved)', async () => {
+    vi.mocked(getExercise).mockReturnValueOnce({
+      ...exerciseWithRubric,
+      evaluationRubric: undefined,
+    } as never);
+    const res = await POST(jsonRequest({ exerciseId: 'ex-1', userResponse: 'hi' }));
+    expect(res.status).toBe(400);
+  });
 });
