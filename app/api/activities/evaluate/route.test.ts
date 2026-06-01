@@ -15,6 +15,7 @@ vi.mock('@jazzmind/busibox-app/lib/authz', () => ({ getUserEmailFromToken: vi.fn
 import { POST } from './route';
 import { requireAuthWithTokenExchange } from '@/lib/auth-middleware';
 import { getExercise } from '@/lib/activity-data';
+import type { Exercise } from '@/lib/types';
 
 const auth = {
   ssoToken: null,
@@ -24,7 +25,7 @@ const auth = {
   isTestUser: false,
 } as never;
 
-const exerciseWithRubric = {
+const exerciseWithRubric: Exercise = {
   id: 'ex-1',
   moduleId: 'mod-1',
   lessonId: 'les-1',
@@ -36,7 +37,7 @@ const exerciseWithRubric = {
     passingScore: 2,
     systemPrompt: 'sys',
   },
-} as never;
+};
 
 function jsonRequest(body: Record<string, unknown>): NextRequest {
   return new NextRequest('http://localhost/api/activities/evaluate', {

@@ -149,7 +149,12 @@ export default function ExerciseComponent({ exercise, onComplete, isSubmitting =
         }
 
         const data = await res.json();
-        setEvaluation(data.evaluation);
+        // evaluation === null is the silent fallback: agent-api was unreachable
+        // or returned an unusable result. Render the same way as a no-rubric
+        // exercise — completion check + static feedback panel, no error banner.
+        if (data.evaluation != null) {
+          setEvaluation(data.evaluation);
+        }
         setSubmitted(true);
         if (hasFeedbackPanel) {
           setActiveExample(0);
