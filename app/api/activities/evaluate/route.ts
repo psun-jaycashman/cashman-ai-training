@@ -217,37 +217,55 @@ Evaluate the submission against each criterion. If the submission included an up
 - In \`criteriaResults[].comment\`, when a criterion isn't met, suggest a concrete fix in one short sentence; when it's met, affirm briefly. Always speak to the person, not about them.
 - Never scold, never use the word "trainee", never lecture.`;
 
-    const res = await fetch(`${AGENT_API_URL}/runs/invoke`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${auth.apiToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        agent_name: EVALUATOR_AGENT_NAME,
-        input: { prompt },
-        response_schema: EVALUATION_SCHEMA,
-        agent_tier: EVALUATOR_AGENT_TIER,
-      }),
-    });
+    type EvaluationStatus = "ok" | "unavailable";
+    let evaluation: unknown = null;
+    let evaluationStatus: EvaluationStatus = "ok";
 
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error("[EVALUATE] Agent API error:", res.status, errorText);
-      return NextResponse.json(
-        { error: "Failed to evaluate submission", details: errorText },
-        { status: 502 }
+    try {
+      const res = await fetch(`${AGENT_API_URL}/runs/invoke`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${auth.apiToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          agent_name: EVALUATOR_AGENT_NAME,
+          input: { prompt },
+          response_schema: EVALUATION_SCHEMA,
+          agent_tier: EVALUATOR_AGENT_TIER,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "");
+        console.error(
+          `[EVALUATE] fallback fired: exerciseId=${exerciseId} reason=status_${res.status}`,
+          errorText,
+        );
+        evaluationStatus = "unavailable";
+      } else {
+        const result = await res.json();
+        if (result.error) {
+          console.error(
+            `[EVALUATE] fallback fired: exerciseId=${exerciseId} reason=agent_error`,
+            result.error,
+          );
+          evaluationStatus = "unavailable";
+        } else if (result.output == null) {
+          console.error(
+            `[EVALUATE] fallback fired: exerciseId=${exerciseId} reason=missing_output`,
+          );
+          evaluationStatus = "unavailable";
+        } else {
+          evaluation = result.output;
+        }
+      }
+    } catch (err) {
+      console.error(
+        `[EVALUATE] fallback fired: exerciseId=${exerciseId} reason=network`,
+        err,
       );
-    }
-
-    const result = await res.json();
-
-    if (result.error) {
-      console.error("[EVALUATE] Agent returned error:", result.error);
-      return NextResponse.json(
-        { error: "Evaluation failed", details: result.error },
-        { status: 502 }
-      );
+      evaluationStatus = "unavailable";
     }
 
     // Best-effort: push the user's file into the shared submissions
@@ -303,7 +321,8 @@ Evaluate the submission against each criterion. If the submission included an up
     }
 
     return NextResponse.json({
-      evaluation: result.output,
+      evaluation,
+      evaluationStatus,
       submission: submissionRecord,
       submissionError: submissionError ?? undefined,
       submissionLibraryConfigured: !!submissionLibraryId,
