@@ -47,15 +47,36 @@ export async function GET(request: NextRequest) {
       ownerId: d.ownerId ?? d.owner_id ?? d.createdBy ?? d.created_by ?? null,
     }));
 
+  // The data layer throws errors that carry `.statusCode` and `.originalError`
+  // (the real data-api error body, which may be an object). Capture all three
+  // so the actual status + detail survive instead of stringifying to
+  // "[object Object]".
+  const describeError = (e: unknown) => {
+    const err = e as { message?: string; statusCode?: number; originalError?: unknown };
+    let original: unknown = err?.originalError;
+    if (original !== undefined && typeof original !== "string") {
+      try {
+        original = JSON.parse(JSON.stringify(original));
+      } catch {
+        original = String(original);
+      }
+    }
+    return {
+      message: err?.message ?? String(e),
+      statusCode: err?.statusCode ?? null,
+      originalError: original ?? null,
+    };
+  };
+
   let unfiltered: RawDoc[] = [];
   let filtered: RawDoc[] = [];
-  let unfilteredError: string | null = null;
-  let filteredError: string | null = null;
+  let unfilteredError: ReturnType<typeof describeError> | null = null;
+  let filteredError: ReturnType<typeof describeError> | null = null;
 
   try {
     unfiltered = (await listDataDocuments(auth.apiToken, { limit: 200 })) as RawDoc[];
   } catch (e) {
-    unfilteredError = e instanceof Error ? e.message : String(e);
+    unfilteredError = describeError(e);
   }
   try {
     filtered = (await listDataDocuments(auth.apiToken, {
@@ -63,7 +84,7 @@ export async function GET(request: NextRequest) {
       limit: 200,
     })) as RawDoc[];
   } catch (e) {
-    filteredError = e instanceof Error ? e.message : String(e);
+    filteredError = describeError(e);
   }
 
   const unfilteredNames = new Set(unfiltered.map((d) => d.name));
