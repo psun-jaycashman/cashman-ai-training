@@ -13,7 +13,9 @@ import {
   insertRecords,
   updateRecords,
   deleteRecords,
-  ensureDocuments,
+  listDataDocuments,
+  createDataDocument,
+  ensureSchemaAndMetadata,
 } from '@jazzmind/busibox-app';
 import type { AppDataSchema } from '@jazzmind/busibox-app';
 import type { UserProgress, QuizScore } from './types';
@@ -247,6 +249,45 @@ export const videoProgressSchema: AppDataSchema = {
 // ensureDataDocuments
 // ==========================================================================
 
+const SOURCE_APP = 'cashman-ai-training';
+
+interface DataDocumentConfig {
+  name: string;
+  schema: AppDataSchema;
+  visibility: 'personal' | 'shared' | 'authenticated';
+}
+
+// One entry per data-api document this app owns. The map key becomes the key in
+// the returned id lookup.
+const DATA_DOCUMENT_CONFIG: Record<string, DataDocumentConfig> = {
+  progress: { name: DOCUMENTS.PROGRESS, schema: progressSchema, visibility: 'shared' },
+  quizScores: { name: DOCUMENTS.QUIZ_SCORES, schema: quizScoreSchema, visibility: 'personal' },
+  badges: { name: DOCUMENTS.BADGES, schema: badgeSchema, visibility: 'authenticated' },
+  activityResponses: { name: DOCUMENTS.ACTIVITY_RESPONSES, schema: activityResponseSchema, visibility: 'personal' },
+  trainingVideos: { name: DOCUMENTS.TRAINING_VIDEOS, schema: trainingVideoSchema, visibility: 'authenticated' },
+  trainingVideoProgress: { name: DOCUMENTS.TRAINING_VIDEO_PROGRESS, schema: videoProgressSchema, visibility: 'personal' },
+  submissionFiles: { name: DOCUMENTS.SUBMISSION_FILES, schema: submissionFileSchema, visibility: 'authenticated' },
+  trainingUsers: { name: DOCUMENTS.TRAINING_USERS, schema: trainingUserSchema, visibility: 'authenticated' },
+  surveyResponses: { name: DOCUMENTS.SURVEY_RESPONSES, schema: surveyResponseSchema, visibility: 'authenticated' },
+};
+
+function isDuplicateDocumentError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  return /duplicate|unique|already exists|409/i.test(message);
+}
+
+/**
+ * Ensure all of this app's data-api documents exist, returning their ids.
+ *
+ * Discovery is done with an UNFILTERED `listDataDocuments` call. The data-api
+ * token is already app-scoped (RLS by app), so the unfiltered list returns
+ * exactly this app's documents. The library's `ensureDocuments()` instead
+ * filters discovery by `sourceApp`; when the stored documents carry an empty or
+ * non-matching `sourceApp` it cannot see them, tries to (re)create them, and
+ * hits the unique `(app, name)` constraint (`idx_data_files_unique_app_doc`) —
+ * which 500s every route that calls this. Listing unfiltered avoids that, and a
+ * duplicate-on-create is recovered by re-listing rather than thrown.
+ */
 export async function ensureDataDocuments(token: string): Promise<{
   progress: string;
   quizScores: string;
@@ -258,58 +299,34 @@ export async function ensureDataDocuments(token: string): Promise<{
   trainingUsers: string;
   surveyResponses: string;
 }> {
-  const ids = await ensureDocuments(
-    token,
-    {
-      progress: {
-        name: DOCUMENTS.PROGRESS,
-        schema: progressSchema,
-        visibility: 'shared',
-      },
-      quizScores: {
-        name: DOCUMENTS.QUIZ_SCORES,
-        schema: quizScoreSchema,
-        visibility: 'personal',
-      },
-      badges: {
-        name: DOCUMENTS.BADGES,
-        schema: badgeSchema,
-        visibility: 'authenticated',
-      },
-      activityResponses: {
-        name: DOCUMENTS.ACTIVITY_RESPONSES,
-        schema: activityResponseSchema,
-        visibility: 'personal',
-      },
-      trainingVideos: {
-        name: DOCUMENTS.TRAINING_VIDEOS,
-        schema: trainingVideoSchema,
-        visibility: 'authenticated',
-      },
-      trainingVideoProgress: {
-        name: DOCUMENTS.TRAINING_VIDEO_PROGRESS,
-        schema: videoProgressSchema,
-        visibility: 'personal',
-      },
-      submissionFiles: {
-        name: DOCUMENTS.SUBMISSION_FILES,
-        schema: submissionFileSchema,
-        visibility: 'authenticated',
-      },
-      trainingUsers: {
-        name: DOCUMENTS.TRAINING_USERS,
-        schema: trainingUserSchema,
-        visibility: 'authenticated',
-      },
-      surveyResponses: {
-        name: DOCUMENTS.SURVEY_RESPONSES,
-        schema: surveyResponseSchema,
-        visibility: 'authenticated',
-      },
-    },
-    'cashman-ai-training'
-  );
-  return ids as {
+  let existing = await listDataDocuments(token, { limit: 100 });
+  const result: Record<string, string> = {};
+
+  for (const [key, config] of Object.entries(DATA_DOCUMENT_CONFIG)) {
+    const schema = { ...config.schema, sourceApp: SOURCE_APP } as Record<string, unknown>;
+    let doc = existing.find((d) => d.name === config.name);
+
+    if (!doc) {
+      try {
+        const created = await createDataDocument(token, config.name, schema, config.visibility);
+        result[key] = created.id;
+        continue;
+      } catch (err) {
+        if (!isDuplicateDocumentError(err)) throw err;
+        // The document already exists but wasn't in our snapshot — re-list
+        // (still unfiltered) and recover its id rather than failing the request.
+        existing = await listDataDocuments(token, { limit: 100 });
+        doc = existing.find((d) => d.name === config.name);
+        if (!doc) throw err;
+      }
+    }
+
+    result[key] = doc.id;
+    // Keep the document's schema/metadata in sync with code (best-effort).
+    await ensureSchemaAndMetadata(token, doc.id, schema, SOURCE_APP);
+  }
+
+  return result as {
     progress: string;
     quizScores: string;
     badges: string;
