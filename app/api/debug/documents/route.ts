@@ -30,13 +30,16 @@ export async function GET(request: NextRequest) {
   }
 
   const dataUrl = (process.env.DATA_API_URL || "http://localhost:8002").replace(/\/+$/, "");
+  // Capture the token here (auth is narrowed to AuthenticatedRequest after the
+  // guard above) so the nested closure doesn't widen it back to the union.
+  const apiToken = auth.apiToken;
 
   async function rawList(qs: string) {
     const url = `${dataUrl}/data${qs}`;
     try {
       const res = await fetch(url, {
         headers: {
-          Authorization: `Bearer ${auth.apiToken}`,
+          Authorization: `Bearer ${apiToken}`,
           "Content-Type": "application/json",
         },
       });
