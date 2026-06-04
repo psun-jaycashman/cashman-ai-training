@@ -1,27 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuthWithTokenExchange } from "@/lib/auth-middleware";
 import { isAdminRole } from "@/lib/admin-roles";
-import { listDataDocuments } from "@jazzmind/busibox-app";
 import { DOCUMENTS } from "@/lib/data-api-client";
 
 const SOURCE_APP = "cashman-ai-training";
 
+// Bump this whenever the route changes so we can confirm a deploy actually
+// shipped the latest version (look for it in the JSON response).
+const DIAGNOSTIC_VERSION = "raw-fetch-v3";
+
 /**
  * GET /api/debug/documents  — TEMPORARY, admin-only diagnostic.
  *
- * Read-only. Does NOT call ensureDataDocuments (that is what 500s). It lists
- * documents with and without the sourceApp filter and compares against the
- * expected document names, so we can tell which of these is happening:
- *
- *   - inUnfiltered=true            -> docs exist & are visible; the sourceApp
- *                                     filter was hiding them (the deployed fix
- *                                     lists unfiltered, so it resolves this).
- *   - inUnfiltered=false, low count-> docs exist (create collides) but are
- *                                     hidden from this token by RLS/ownership;
- *                                     needs a data fix, not a list change.
- *   - present under a different    -> name mismatch between code and storage.
- *     name in *Docs but not in
- *     presence
+ * Read-only. Does a RAW fetch straight to the data-api `/data` list endpoint,
+ * bypassing the busibox client's error handling (which stringified the real
+ * data-api error body to "[object Object]"). Returns the exact HTTP status and
+ * raw body so we can see why listing documents fails for this token.
  *
  * DELETE THIS ROUTE once the issue is resolved.
  */
@@ -30,78 +24,57 @@ export async function GET(request: NextRequest) {
   if (auth instanceof NextResponse) return auth;
   if (!isAdminRole(auth.roles)) {
     return NextResponse.json(
-      { error: "admin only", roles: auth.roles },
+      { diagnosticVersion: DIAGNOSTIC_VERSION, error: "admin only", roles: auth.roles },
       { status: 403 },
     );
   }
 
-  const expected = Object.values(DOCUMENTS);
+  const dataUrl = (process.env.DATA_API_URL || "http://localhost:8002").replace(/\/+$/, "");
 
-  type RawDoc = Record<string, unknown> & { id?: string; name?: string };
-  const summarize = (docs: RawDoc[]) =>
-    docs.map((d) => ({
-      id: d.id,
-      name: d.name,
-      visibility: d.visibility ?? null,
-      sourceApp: d.sourceApp ?? d.source_app ?? null,
-      ownerId: d.ownerId ?? d.owner_id ?? d.createdBy ?? d.created_by ?? null,
-    }));
-
-  // The data layer throws errors that carry `.statusCode` and `.originalError`
-  // (the real data-api error body, which may be an object). Capture all three
-  // so the actual status + detail survive instead of stringifying to
-  // "[object Object]".
-  const describeError = (e: unknown) => {
-    const err = e as { message?: string; statusCode?: number; originalError?: unknown };
-    let original: unknown = err?.originalError;
-    if (original !== undefined && typeof original !== "string") {
+  async function rawList(qs: string) {
+    const url = `${dataUrl}/data${qs}`;
+    try {
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${auth.apiToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const bodyText = await res.text();
+      let bodyJson: unknown = null;
       try {
-        original = JSON.parse(JSON.stringify(original));
+        bodyJson = JSON.parse(bodyText);
       } catch {
-        original = String(original);
+        /* leave as raw text */
       }
+      return {
+        url,
+        status: res.status,
+        statusText: res.statusText,
+        ok: res.ok,
+        body: bodyJson ?? bodyText.slice(0, 4000),
+      };
+    } catch (e) {
+      return {
+        url,
+        status: null,
+        statusText: null,
+        ok: false,
+        fetchError: e instanceof Error ? e.message : String(e),
+      };
     }
-    return {
-      message: err?.message ?? String(e),
-      statusCode: err?.statusCode ?? null,
-      originalError: original ?? null,
-    };
-  };
-
-  let unfiltered: RawDoc[] = [];
-  let filtered: RawDoc[] = [];
-  let unfilteredError: ReturnType<typeof describeError> | null = null;
-  let filteredError: ReturnType<typeof describeError> | null = null;
-
-  try {
-    unfiltered = (await listDataDocuments(auth.apiToken, { limit: 200 })) as RawDoc[];
-  } catch (e) {
-    unfilteredError = describeError(e);
-  }
-  try {
-    filtered = (await listDataDocuments(auth.apiToken, {
-      sourceApp: SOURCE_APP,
-      limit: 200,
-    })) as RawDoc[];
-  } catch (e) {
-    filteredError = describeError(e);
   }
 
-  const unfilteredNames = new Set(unfiltered.map((d) => d.name));
-  const filteredNames = new Set(filtered.map((d) => d.name));
+  const unfiltered = await rawList("?limit=200");
+  const filtered = await rawList(`?sourceApp=${encodeURIComponent(SOURCE_APP)}&limit=200`);
 
   return NextResponse.json({
+    diagnosticVersion: DIAGNOSTIC_VERSION,
     userId: auth.userId,
     roles: auth.roles,
-    counts: { unfiltered: unfiltered.length, filtered: filtered.length },
-    presence: expected.map((name) => ({
-      name,
-      inUnfiltered: unfilteredNames.has(name),
-      inFiltered: filteredNames.has(name),
-    })),
-    unfilteredError,
-    filteredError,
-    unfilteredDocs: summarize(unfiltered),
-    filteredDocs: summarize(filtered),
+    dataApiUrl: dataUrl,
+    expectedDocumentNames: Object.values(DOCUMENTS),
+    rawUnfilteredList: unfiltered,
+    rawFilteredList: filtered,
   });
 }
