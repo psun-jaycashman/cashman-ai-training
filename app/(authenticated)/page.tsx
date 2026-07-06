@@ -7,6 +7,7 @@ import Link from 'next/link';
 import ModuleCard from '@/components/modules/ModuleCard';
 import ProgressRing from '@/components/modules/ProgressRing';
 import type { Module, Badge, UserProgress } from '@/lib/types';
+import { countsTowardCompletion } from '@/lib/module-data';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -57,8 +58,15 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
-  const completedLessons = progress.filter((p) => p.completed);
-  const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
+  const countedModuleIds = new Set(
+    modules.filter(countsTowardCompletion).map((m) => m.id),
+  );
+  const completedLessons = progress.filter(
+    (p) => p.completed && countedModuleIds.has(p.moduleId),
+  );
+  const totalLessons = modules
+    .filter(countsTowardCompletion)
+    .reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
   const overallPercentage = totalLessons > 0 ? (completedLessons.length / totalLessons) * 100 : 0;
 
   const getModuleProgress = (moduleId: string) => {
