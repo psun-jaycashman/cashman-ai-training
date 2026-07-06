@@ -28,6 +28,26 @@ import type {
 const submissionsLink = (label: string) => `[${label}](/submissions)`;
 
 // ==========================================================================
+// Intro (Pre-Module): Welcome to Busibox
+// ==========================================================================
+
+const introLessons: Lesson[] = [
+  {
+    id: 'mod-intro-les-1',
+    title: 'Welcome to Busibox',
+    estimatedMinutes: 5,
+    order: 1,
+    content: `
+## Welcome to Busibox
+
+Watch the short intro below to get oriented before you start the course.
+
+> This is an **intro module**. It does not count toward your completion or your certificate — it's just here to get you started.
+`,
+  },
+];
+
+// ==========================================================================
 // Module 1: Your AI Toolkit
 // ==========================================================================
 
@@ -1029,6 +1049,18 @@ You can also preview the slides right here:
 
 export const MODULES: Module[] = [
   {
+    id: 'mod-intro',
+    title: 'Welcome to Busibox',
+    description: 'Start here: a short introduction to Busibox and the Cashman AI Portal. Does not count toward course completion.',
+    instructor: 'Peter',
+    estimatedMinutes: 5,
+    order: 0,
+    icon: 'book-open',
+    videoUrl: '',
+    lessons: introLessons,
+    isIntro: true,
+  },
+  {
     id: 'mod-1',
     title: 'Your AI Toolkit',
     description: 'Meet your AI tools: Cashman AI Portal, Microsoft Copilot, and ChatGPT. Learn when to use each one.',
@@ -1372,6 +1404,15 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
 export function getModule(id: string): Module | undefined {
   return MODULES.find((m) => m.id === id);
 }
+
+/**
+ * Whether a module counts toward course completion. Intro (pre-module) and
+ * bonus modules are excluded from the certificate threshold, badges, and the
+ * dashboard/profile progress percentages.
+ */
+export const countsTowardCompletion = (
+  m: Pick<Module, 'isBonus' | 'isIntro'>,
+): boolean => !m.isBonus && !m.isIntro;
 
 /**
  * Get a specific lesson within a module.

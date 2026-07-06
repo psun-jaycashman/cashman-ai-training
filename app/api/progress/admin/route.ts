@@ -6,7 +6,7 @@ import {
 } from "@/lib/data-api-client";
 import { displayNameFromEmail } from "@/lib/display-name";
 import { queryRecords } from "@jazzmind/busibox-app";
-import { MODULES } from "@/lib/module-data";
+import { MODULES, countsTowardCompletion } from "@/lib/module-data";
 import { isAdminRole } from "@/lib/admin-roles";
 import { computeEarnedBadges } from "@/lib/badge-eval";
 import type { UserProgress, QuizScore, AdminUserProgress, BadgeType } from "@/lib/types";
@@ -58,10 +58,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Total lessons / modules across required (non-bonus) modules only.
-    // Bonus modules (e.g. Lunch and Learn) don't count toward an admin
-    // user's reported completion percentage.
-    const requiredModules = MODULES.filter((m) => !m.isBonus);
+    // Total lessons / modules across required (non-bonus, non-intro) modules only.
+    // Modules that don't count toward completion (e.g. Lunch and Learn, the
+    // intro pre-module) don't count toward an admin user's reported
+    // completion percentage.
+    const requiredModules = MODULES.filter(countsTowardCompletion);
     const totalLessons = requiredModules.reduce(
       (sum, m) => sum + m.lessons.length,
       0

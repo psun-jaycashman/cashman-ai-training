@@ -7,6 +7,7 @@ import Link from 'next/link';
 import ModuleCard from '@/components/modules/ModuleCard';
 import ProgressRing from '@/components/modules/ProgressRing';
 import type { Module, Badge, UserProgress } from '@/lib/types';
+import { countsTowardCompletion } from '@/lib/module-data';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -57,8 +58,15 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
-  const completedLessons = progress.filter((p) => p.completed);
-  const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
+  const countedModuleIds = new Set(
+    modules.filter(countsTowardCompletion).map((m) => m.id),
+  );
+  const completedLessons = progress.filter(
+    (p) => p.completed && countedModuleIds.has(p.moduleId),
+  );
+  const totalLessons = modules
+    .filter(countsTowardCompletion)
+    .reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
   const overallPercentage = totalLessons > 0 ? (completedLessons.length / totalLessons) * 100 : 0;
 
   const getModuleProgress = (moduleId: string) => {
@@ -133,7 +141,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {modules.filter((m) => getModuleProgress(m.id) === (m.lessons?.length || 0) && (m.lessons?.length || 0) > 0).length}
+              {modules.filter((m) => countsTowardCompletion(m) && getModuleProgress(m.id) === (m.lessons?.length || 0) && (m.lessons?.length || 0) > 0).length}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Modules Completed</p>
           </div>

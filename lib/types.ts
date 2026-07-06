@@ -84,6 +84,13 @@ export interface Module {
    * with a "Bonus" tag and stay outside the main progression.
    */
   isBonus?: boolean;
+  /**
+   * Intro (pre-module) modules appear first with a "Start Here" tag and do
+   * NOT count toward the certificate's completion threshold, badges, or the
+   * dashboard/profile progress percentages. Like bonus modules, they stay
+   * outside the main progression.
+   */
+  isIntro?: boolean;
 }
 
 export type ActivityType = 'quiz' | 'exercise' | 'game' | 'survey';

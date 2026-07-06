@@ -15,6 +15,7 @@ import {
 import ProgressRing from '@/components/modules/ProgressRing';
 import BadgeGrid from '@/components/gamification/BadgeGrid';
 import type { Module, UserProgress, Badge, BadgeDefinition, BadgeType } from '@/lib/types';
+import { countsTowardCompletion } from '@/lib/module-data';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
@@ -119,10 +120,11 @@ export default function ProfilePage() {
     fetchData();
   }, []);
 
-  // Bonus modules (e.g. AI Lunch and Learn) are excluded from the % complete
-  // calculation and from "modules completed" counts. They still appear in the
-  // Modules list — they just don't gate the certificate.
-  const requiredModules = modules.filter((m) => !m.isBonus);
+  // Bonus and intro modules (e.g. AI Lunch and Learn, the intro pre-module)
+  // are excluded from the % complete calculation and from "modules completed"
+  // counts. They still appear in the Modules list — they just don't gate the
+  // certificate.
+  const requiredModules = modules.filter(countsTowardCompletion);
   const requiredModuleIds = new Set(requiredModules.map((m) => m.id));
 
   const completedLessons = progress.filter(
