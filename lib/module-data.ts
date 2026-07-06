@@ -1374,6 +1374,15 @@ export function getModule(id: string): Module | undefined {
 }
 
 /**
+ * Whether a module counts toward course completion. Intro (pre-module) and
+ * bonus modules are excluded from the certificate threshold, badges, and the
+ * dashboard/profile progress percentages.
+ */
+export const countsTowardCompletion = (
+  m: Pick<Module, 'isBonus' | 'isIntro'>,
+): boolean => !m.isBonus && !m.isIntro;
+
+/**
  * Get a specific lesson within a module.
  */
 export function getLesson(moduleId: string, lessonId: string): Lesson | undefined {
