@@ -17,7 +17,7 @@
  *   - GET /api/progress/admin    → per-user breakdown
  */
 
-import { MODULES, getModule } from '@/lib/module-data';
+import { MODULES, getModule, countsTowardCompletion } from '@/lib/module-data';
 import type { Badge, BadgeType, QuizScore, UserProgress } from '@/lib/types';
 
 interface ComputeArgs {
@@ -103,7 +103,7 @@ export function computeEarnedBadges({
   }
 
   // completionist — every required (non-bonus) module fully done.
-  const requiredModules = MODULES.filter((m) => !m.isBonus);
+  const requiredModules = MODULES.filter(countsTowardCompletion);
   const requiredLessonKeys = requiredModules.flatMap((m) =>
     m.lessons.map((l) => `${m.id}:${l.id}`),
   );
