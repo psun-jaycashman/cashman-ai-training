@@ -141,7 +141,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {modules.filter((m) => getModuleProgress(m.id) === (m.lessons?.length || 0) && (m.lessons?.length || 0) > 0).length}
+              {modules.filter((m) => countsTowardCompletion(m) && getModuleProgress(m.id) === (m.lessons?.length || 0) && (m.lessons?.length || 0) > 0).length}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Modules Completed</p>
           </div>

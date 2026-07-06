@@ -58,9 +58,10 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Total lessons / modules across required (non-bonus) modules only.
-    // Bonus modules (e.g. Lunch and Learn) don't count toward an admin
-    // user's reported completion percentage.
+    // Total lessons / modules across required (non-bonus, non-intro) modules only.
+    // Modules that don't count toward completion (e.g. Lunch and Learn, the
+    // intro pre-module) don't count toward an admin user's reported
+    // completion percentage.
     const requiredModules = MODULES.filter(countsTowardCompletion);
     const totalLessons = requiredModules.reduce(
       (sum, m) => sum + m.lessons.length,

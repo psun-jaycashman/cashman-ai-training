@@ -120,9 +120,10 @@ export default function ProfilePage() {
     fetchData();
   }, []);
 
-  // Bonus modules (e.g. AI Lunch and Learn) are excluded from the % complete
-  // calculation and from "modules completed" counts. They still appear in the
-  // Modules list — they just don't gate the certificate.
+  // Bonus and intro modules (e.g. AI Lunch and Learn, the intro pre-module)
+  // are excluded from the % complete calculation and from "modules completed"
+  // counts. They still appear in the Modules list — they just don't gate the
+  // certificate.
   const requiredModules = modules.filter(countsTowardCompletion);
   const requiredModuleIds = new Set(requiredModules.map((m) => m.id));
 

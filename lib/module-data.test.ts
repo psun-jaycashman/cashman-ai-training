@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { countsTowardCompletion } from './module-data';
+import { MODULES, countsTowardCompletion } from './module-data';
 
 describe('countsTowardCompletion', () => {
   it('counts a normal module', () => {
@@ -15,8 +15,6 @@ describe('countsTowardCompletion', () => {
   });
 });
 
-import { MODULES, countsTowardCompletion as counts } from './module-data';
-
 describe('intro module', () => {
   const intro = MODULES[0];
 
@@ -26,7 +24,7 @@ describe('intro module', () => {
 
   it('is flagged as intro and excluded from completion', () => {
     expect(intro.isIntro).toBe(true);
-    expect(counts(intro)).toBe(false);
+    expect(countsTowardCompletion(intro)).toBe(false);
   });
 
   it('has exactly one video-only lesson (no activity)', () => {
