@@ -1,20 +1,33 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSession } from '@jazzmind/busibox-app/components/auth/SessionProvider';
 import { Trophy } from 'lucide-react';
 import LeaderboardTable from '@/components/gamification/Leaderboard';
 import type { LeaderboardEntry } from '@/lib/types';
 import { displayNameFromEmail } from '@/lib/display-name';
+import { isAdminRole } from '@/lib/admin-roles';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
 export default function LeaderboardPage() {
   const { user } = useSession();
+  const router = useRouter();
+  const isAdmin = isAdminRole(user?.roles);
   const [rawEntries, setRawEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Admin-only page. Non-admins who navigate here directly get bounced
+    // to the dashboard. Wait for `user` before deciding so we don't redirect
+    // during the brief window before the session resolves.
+    if (!isAdmin && user) {
+      router.replace('/');
+      return;
+    }
+    if (!isAdmin) return;
+
     async function fetchData() {
       try {
         const res = await fetch(`${basePath}/api/leaderboard`, { credentials: 'include' });
@@ -30,7 +43,7 @@ export default function LeaderboardPage() {
     }
 
     fetchData();
-  }, []);
+  }, [isAdmin, user, router]);
 
   // Backend stores only visitorIds, so it can't populate display names.
   // For the current user's row we override with a name derived from their

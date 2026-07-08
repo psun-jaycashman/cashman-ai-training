@@ -7,6 +7,7 @@ import {
 import { displayNameFromEmail } from "@/lib/display-name";
 import { queryRecords } from "@jazzmind/busibox-app";
 import { computeEarnedBadges } from "@/lib/badge-eval";
+import { isAdminRole } from "@/lib/admin-roles";
 import type { UserProgress, LeaderboardEntry } from "@/lib/types";
 
 // Email local-parts (case-insensitive, matched against everything before "@")
@@ -39,6 +40,14 @@ export async function GET(request: NextRequest) {
   try {
     const auth = await requireAuthWithTokenExchange(request, "data-api");
     if (auth instanceof NextResponse) return auth;
+
+    // Admin only — the leaderboard is hidden from regular users.
+    if (!isAdminRole(auth.roles)) {
+      return NextResponse.json(
+        { error: "Forbidden", message: "Admin access required" },
+        { status: 403 }
+      );
+    }
 
     const documentIds = await ensureDataDocuments(auth.apiToken);
 

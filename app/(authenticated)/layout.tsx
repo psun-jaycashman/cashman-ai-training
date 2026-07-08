@@ -18,7 +18,6 @@ const apiBasePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 const baseNavItems = [
   { href: '/', label: 'Dashboard' },
   { href: '/modules', label: 'Modules' },
-  { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/profile', label: 'My Profile' },
 ];
 
@@ -45,8 +44,10 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
   }, [isAuthenticated, user?.email, user?.displayName]);
 
   const isAdmin = isAdminRole(user?.roles);
+  // The Leaderboard is admin-only — hidden from regular users so it only
+  // surfaces for admins, alongside the Admin dashboard link.
   const navItems = isAdmin
-    ? [...baseNavItems, { href: '/admin', label: 'Admin' }]
+    ? [...baseNavItems, { href: '/leaderboard', label: 'Leaderboard' }, { href: '/admin', label: 'Admin' }]
     : baseNavItems;
 
   const adminNavigation: NavigationItem[] = isAdmin
